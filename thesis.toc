@@ -1,0 +1,5 @@
+\def \@chapapp {}
+\contentsline {chapter}{LIST OF TABLES}{2}{section*.2}
+\contentsline {chapter}{LIST OF FIGURES}{3}{section*.4}
+\def \@chapapp {CHAPTER\ }
+\contentsline {section}{\numberline {0.1}Introduction}{1}{section.8}

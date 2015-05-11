@@ -1,0 +1,8 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\astroncite{{RStudio} and {Inc.}}{2014}]{shiny}
+{RStudio} and {Inc.} (2014).
+\newblock {\em shiny: Web Application Framework for R}.
+\newblock R package version 0.9.1.
+
+\end{thebibliography}
