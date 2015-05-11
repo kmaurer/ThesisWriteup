@@ -16,8 +16,7 @@
 \usepackage[referable]{threeparttablex}
 \usepackage{footnote} % table footnotes
 \usepackage{multicol}
-
-
+\usepackage[usenames,dvipsnames]{xcolor}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{caption}
@@ -31,6 +30,10 @@
 \usepackage{lipsum}
 \usepackage{url}
 \usepackage{bbm}
+
+\newcommand{\hh}[1]{{\color{ForestGreen} #1}}
+\newcommand{\km}[1]{{\color{red} #1}}
+\newcommand{\V}[1]{\text{Var}\left(#1\right)}
 
 %---------------------------------------------------
 
@@ -112,12 +115,12 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
  \chaptocbreak
  <<TISEPaper, child='Body/CurriculumStudy/CurriculumStudy.Rnw'>>=
  @
-% \chaptocbreak
-% <<lieFactorSine, child='Body/LieFactorSine.Rnw'>>=
-% @
-% \chaptocbreak
-% <<visualaReasoning, child='Body/VisualAptitude.Rnw'>>=
-% @
+\chaptocbreak
+<<ShinyDBSampler, child='Body/ShinyDBSampler/ShinyDBSampler.Rnw'>>=
+@
+\chaptocbreak
+<<BinnedScatter, child='Body/BinnedScatter/Paper.Rnw'>>=
+@
 % \chaptocbreak
 % <<featureHierarchy, child='Body/FeatureHierarchy.Rnw'>>=
 % @

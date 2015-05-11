@@ -1,5 +1,6 @@
-\chapter{LITERATURE REVIEW}\label{litreview}
-
+\chapter{Comparison of Learning Outcomes for Simulation-Based and Traditional Inference Curricula in a Designed Educational Experiment}
+\label{CurriculumStudy}
+        
 \begin{abstract}
 Conducting inference is a cornerstone upon which the practice of statistics is based. As such, a large portion of most introductory statistics courses is focused on teaching the fundamentals of statistical inference. The goal of this study is to make a formal comparison of learning outcomes under the traditional and simulation-based inference curricula. A randomized experiment was conducted to administer the two curricula to students in an introductory statistics course.  The results indicate that students receiving the simulation-based curriculum have significantly higher learning outcomes for confidence interval related topics. While the results are not comprehensive in assessing the effect on all facets of learning, they indicate that learning outcomes for core concepts of statistical inference can be significantly improved with the simulation-based approach. 
 
@@ -639,7 +640,7 @@ and for lacking reliability and validity evidence \citep{Ziegler2014}. The Compr
 We believe that the results of this study are affirming to efficacy of simulation-based methods for teaching statistical inference. We found that the simulation-based curriculum led to significant improvement in the learning outcomes associated with confidence intervals but no significant difference from the traditional approach for learning outcomes associated with hypothesis testing. While these results are clearly not comprehensive in assessing the effect of a simulation-based curriculum on all facets learning, they indicate that learning outcomes for a core concept of statistical inference can be significantly improved with the approach.
 
 %-------------------------------------------------------
-\appendix
+%\appendix
 %-------------------------------------------------------
 \section{Appendix of Final Exam Questions}
 \label{appendA}
