@@ -6,9 +6,10 @@
 % \title{Binning Strategies and Related Loss for Large Data}
 % \author{Karsten Maurer$^1$, Susan VanderPlas$^1$, Heike Hofmann$^{1,2}$\\$^1$Department of Statistics, $^2$Human Computer Interaction\\Iowa State University}
 
-\begin{abstract}
+\begin{center}
+\textbf{Abstract}\\
 Dealing with the data deluge of the Big Data Age is both exciting and challenging. The demands of large data require us to re-think strategies of visualizing data. Plots employing binning methods have been suggested in the past as viable alternative to standard plots based on raw data, as the resulting area plots tend to not be affected by increases in data as much. This comes with the price of loss of information inherent to any binning scheme. In this paper we discuss properties of two commonly used binning algorithms. We define loss of information in the specific setting of two dimensional displays, provide readily applicable tools for loss evaluation and discuss the two binning schemes with respect to their loss in the framework of a simulation and two case studies.
-\end{abstract}
+\end{center}
 
 
 \section{Introduction}

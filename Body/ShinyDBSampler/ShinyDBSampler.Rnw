@@ -102,9 +102,10 @@ cor(cdat[,1],cdat[,4])
 
 % \date{Received: date / Accepted: date}
 
-\begin{abstract}
+\begin{center}
+\textbf{abstract}\\
 As the availability of truly massive data sets proliferates it is enticing to incorporate these data sources into the curriculum of an undergraduate statistics course.  Major barriers exist for interacting with big data due to the computationally intense nature of working with large databases.  Difficulties include gaining access to the database, interacting with database management software and obtaining summary statistics or manageable subsamples from the database for student use.  This paper describes a web based application, the Shiny Database Sampler, which allows instructors to bypass these barriers using simple JavaScript based tools constructed using R and the R packages \texttt{shiny} and \texttt{RMySQL}. The Shiny Database Sampler allows instructors and/or students to obtain smaller subsamples from databases, using a variety of random sampling schemes. 
- \end{abstract}
+\end{center}
 
 \section{Introduction}
 
