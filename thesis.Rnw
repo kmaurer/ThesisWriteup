@@ -20,6 +20,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{caption}
+\usepackage{subcaption}
 \usepackage{fullpage}
 \usepackage{graphicx,float,wrapfig,subfig,tabularx,ulem}
 \graphicspath{{Figure/}}
@@ -33,6 +34,7 @@
 
 \newcommand{\hh}[1]{{\color{ForestGreen} #1}}
 \newcommand{\km}[1]{{\color{red} #1}}
+\newcommand{\ktm}[1]{{\color{red} #1}}
 \newcommand{\V}[1]{\text{Var}\left(#1\right)}
 
 %---------------------------------------------------
@@ -103,8 +105,8 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
 \include{Preface/acknowl}
 %-------------------------------------------------------------------------------
 %Optional thesis abstract
-\cleardoublepage \phantomsection
-\include{Preface/abstract}
+% \cleardoublepage \phantomsection
+% \include{Preface/abstract}
 %-------------------------------------------------------------------------------
 \newpage
 \pagenumbering{arabic}
@@ -112,12 +114,12 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
 
 <<litReview, child='Body/LitReview/LitReview.Rnw'>>=
 @
-%  \chaptocbreak
-%  <<TISEPaper, child='Body/CurriculumStudy/CurriculumStudy.Rnw'>>=
-%  @
-% \chaptocbreak
-% <<ShinyDBSampler, child='Body/ShinyDBSampler/ShinyDBSampler.Rnw'>>=
-% @
+ \chaptocbreak
+ <<TISEPaper, child='Body/CurriculumStudy/CurriculumStudy.Rnw'>>=
+ @
+\chaptocbreak
+<<ShinyDBSampler, child='Body/ShinyDBSampler/ShinyDBSampler.Rnw'>>=
+@
 \chaptocbreak
 <<BinnedScatter, child='Body/BinnedScatter/Paper.Rnw'>>=
 @
