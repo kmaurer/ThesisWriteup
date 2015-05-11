@@ -2,7 +2,7 @@
 \documentclass[11pt]{isuthesis}
 %---------------------------------------------------
 % \usepackage{color}
-\usepackage[dvipsnames,svgnames,table]{xcolor}
+% \usepackage[dvipsnames,svgnames,table]{xcolor}
 \usepackage{wrapfig,float}
 \usepackage{graphicx}
 \usepackage{amssymb}
@@ -112,12 +112,12 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
 
 <<litReview, child='Body/LitReview/LitReview.Rnw'>>=
 @
- \chaptocbreak
- <<TISEPaper, child='Body/CurriculumStudy/CurriculumStudy.Rnw'>>=
- @
-\chaptocbreak
-<<ShinyDBSampler, child='Body/ShinyDBSampler/ShinyDBSampler.Rnw'>>=
-@
+%  \chaptocbreak
+%  <<TISEPaper, child='Body/CurriculumStudy/CurriculumStudy.Rnw'>>=
+%  @
+% \chaptocbreak
+% <<ShinyDBSampler, child='Body/ShinyDBSampler/ShinyDBSampler.Rnw'>>=
+% @
 \chaptocbreak
 <<BinnedScatter, child='Body/BinnedScatter/Paper.Rnw'>>=
 @

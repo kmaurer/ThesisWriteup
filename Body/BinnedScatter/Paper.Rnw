@@ -1,8 +1,6 @@
 \chapter{Binning Strategies and Related Loss for Large Data}
 \label{BinnedScatter}
 
-\newcommand{\ktm}[1]{{\color{red} #1}} %red comments: Karsten
-\newcommand{\hh}[1]{{\color{blue} #1}} %blue comments: Heike
 
 %opening
 % \title{Binning Strategies and Related Loss for Large Data}
@@ -88,7 +86,7 @@ Data sets with millions of records and thousands of variables are not uncommon. 
 
 Area plots, such as histograms, do not tend to be as affected by increases in the amount of data as plots that utilize raw data. By using binning strategies and the principles for displaying information in area plots, scatterplots can again become useful instruments for large data settings \citep{gold}.
 
-In this paper we describe first the problem scatterplots are exposed to in large-data situations. We discuss different binning algorithms use the construct binned scatterplots and the  {\it loss of information} inherent to binning. We will then explore the effects of binning specification on the properties of binned scatterplots through simulation and real-data case studies. We conclude with several practical suggestions for binning specifications for creating binned scatterplots that have desirable visual properties. 
+In this paper we describe first the problem scatterplots are exposed to in large-data situations. We discuss different binning algorithms use the construct binned scatterplots and the \textit{loss of information} inherent to binning. We will then explore the effects of binning specification on the properties of binned scatterplots through simulation and real-data case studies. We conclude with several practical suggestions for binning specifications for creating binned scatterplots that have desirable visual properties. 
 
 \section{Scatterplots for Large Data Sets}
 \label{Scatter}
@@ -159,765 +157,461 @@ Note that this standard rectangular binning procedure utilizes intervals that ar
   
 The bin boundaries and centers for each type of rectangular binning algorithm discussed above can be found in Table~\ref{tab:rectbinning}.
  
-% \begin{table}[hbtp]
-% \centering
-% \begin{tabular}{lll} \hline
-%  & Bin Boundaries & Bin Centers \\ 
-%  \hline  
-% General &  $ \{\beta_j \text{ }|\text{ } \beta_j > \beta_{j-1} \} $ & $\{x_j^\ast \text{ }|\text{ } x_j^\ast = (\beta_{j-1}+ \beta_j)/2 \}$ \\
-% %-------------
-% Standard \hspace{0.5cm} & $ \{\beta_j \text{ }|\text{ } \beta_j = \beta_{j-1} + \omega_X \} $\hspace{0.5cm} & $\{x_j^\ast \text{ }|\text{ } x_j^\ast = \beta_{j-1} + \omega_X/2 \}$ \\
-% %-------------
-% Quantile & $ \{\beta_j \text{ }|\text{ } \beta_j = Q_X(j/J) \} $  & $\{x_j^\ast \text{ }|\text{ } x_j^\ast = Q_X((j-0.5)/J) \}$ \\
-% %-------------
-% Random &  ---  & $\{x_j^\ast \text{ }|\text{ } x_j^\ast > x_{j-1}^\ast \}$  \\
-% \hline
-% \end{tabular}
-% \caption{Rectangular and Random Binning Specifications}
-% \label{tab:rectbinning}
-% \end{table}
-% %
-% An alternative to the rectangular binning processes discussed above, is the random binning algorithm which utilizes a non-deterministic bin function $b^r_X(\cdot)$ which randomly assigns a value $x_i$ to a bin center, $x^\ast$, from a set of possible bins. In this paper, we will consider the simplest case of just two bins, so that without loss of generality we can assume that $x_i$ lies between bin centers $x^\ast_j$ and $x^\ast_{j+1}$. The bin function assigns $x_i$ to a bin center with a probability inversely proportional to the distance to that bin center; the closer a value is to a bin center, the higher the probability the value is assigned to that bin center. More formally,
-% %
-% \begin{eqnarray}\label{randbin1}
-% b^r_X(x_i) = \left\{\begin{array}{ll} 
-%   x^\ast_j & \text{ with probability } (x^\ast_{j+1} - x_i)/(x^\ast_{j+1} -x^\ast_{j}) \\
-%   x^\ast_{j+1} &\text{ with probability }  (x_i - x^\ast_{j})/(x^\ast_{j+1} -x^\ast_{j})
-%   \end{array}\right.
-% \end{eqnarray}  
-% %
-% for $x_i \in [x^\ast_{j+1}, x^\ast_{j}]$.  This probability structure is inversely proportional to the distance from each bin center.  In Table~\ref{tab:rectbinning} we note that this random binning algorithm does not specify bin boundaries; only a sequence of bin centers.  This method is easily extensible to also map $x_i$ into more than two bins and can accommodate non-uniform distribution of bin centers.  
-% 
-% The deterministic standard binning algorithm is an example of a ``direct" binning algorithm, in which all points are assigned with weight one to the bin center. ``Linear" binning  \citep{martin-gold} is a \textit{computationally intensive} alternative to direct binning in which adjacent bins are assigned a weight depending on the distance from the point to that bin, where all weights sum to one.  With large data sets, the calculations required for linear binning become unwieldy, but the random binning algorithm can be considered an approximation to linear binning. Specifically, the expectation of the random binning algorithm is the same as for linear binning.
-% 
-% \subsection{Extension to Two Dimensional Binning}
-% \label{TwoDimBin}
-% 
-% The standard and random binning algorithms are easily extendable to higher dimension. For the purposes of creating binned scatterplots we will specify extension to rectangular binning in two dimensions. In this case we wish to assign data pairs $(x_i, y_i)$ to bin centers of the form $(x_j^\ast,y_k^\ast)$, with $j \in \{1,\dots,J\}$ and $k \in \{1,\dots,K\}$, where $J$ and $K$ are the number of bins in the X and Y dimensions, respectively. The two ($j$,$k$) pairs that index the bin centers can be linearized to a single index such that $\ell = j + J(k-1)$; thus making $j$ the fast running index and $k$ the slow running index.  With this linearized index for all bins we now have a set of bin centers of the form $(x_\ell^\ast,y_\ell^\ast)$, with $\ell \in \{1,\dots,\mathscr{L}\}$, where $\mathscr{L}=J\cdot K$.
-% 
-% The standard rectangular binning function $b(.) : (x_i,y_i) \rightarrow (x^\ast_\ell,y^\ast_\ell)$ is defined as 
-% %
-% \begin{eqnarray}\label{standrecbin1}
-% b(x_i,y_i) = (b_X(x_i),b_Y(y_i))
-% \end{eqnarray}
-% %
-% where $b_X(x_i)$ and $b_Y(y_i)$ are the univariate standard binning algorithms for the X and Y dimensions respectively. The random rectangular binning function, $b^r(\cdot): (x_i,y_i) \rightarrow (x^\ast_\ell,y^\ast_\ell)$ is similarly be defined as
-% %
-% \begin{eqnarray}\label{randrecbin1}
-% b^r(x_i,y_i) = (b^r_X(x_i),b^r_Y(y_i))
-% \end{eqnarray}
-% %
-% where $b^r_X(x_i)$ and $b^r_Y(y_i)$ are univariate random binning algorithms for each dimension. Figure~\ref{fig:spatlossdemo2} provides an illustration of each binning process extended to a two dimensional situation.
-% 
-% % 
-% % <<binningDemo,echo=F,include=F,cache=T>>=
-% %       library(mvtnorm)
-% %       set.seed(12)
-% %       d <- rmvnorm(50, c(10, 25), matrix(c(50, 15, 15, 50), nrow=2))
-% %       d <- data.frame(d)
-% %       names(d) <- c("x", "y")
-% %       d <- subset(d, (x>-20 & x<40 & y>0 & y<50),drop=TRUE)
-% %       d.rand <- d
-% %       dnew <- binStd(cbind(d-5, Freq=1), c(10, 10))
-% %       dnew$x <- dnew$x+5
-% %       dnew$y <- dnew$y+5
-% %       d$bin <- dnew$x%in%c(5,15) & dnew$y==25
-% %       d$a <- .33 + .66*d$bin
-% %       d.orig <- d
-% % 
-% %       d$xbin <- NA
-% %       d$ybin <- NA
-% %       idx <- which(dnew$x%in%c(5, 15) & dnew$y==25)
-% %       d$xbin[idx] <- dnew$x[idx]
-% %       d$ybin[idx] <- 25
-% % 
-% % temp <- data.frame(   
-% %           x=c( -10,   0,  10,  20,  30,  -10, -10, -10, -10), 
-% %        xend=c( -10,   0,  10,  20,  30,   30,  30,  30,  30), 
-% %           y=c( 10,   10,  10,  10,  10,   10,  20,  30,  40), 
-% %        yend=c( 40,   40,  40,  40,  40,   10,  20,  30,  40), 
-% %       group=c(  1,   2,   3,   4,   5,   6,   7,   8,   9))
-% %       qplot(data=d[,], x=x, y=y, alpha=a,  geom="point", 
-% %             xlim=c(-20, 40), ylim=c(0, 50)) +
-% %         annotate("polygon", x=c(10, 10, 20, 20), y=c(20, 30, 30, 20), 
-% %                  fill="blue", alpha=.25) +
-% %         annotate("polygon", x=c(0, 0, 10, 10), y=c(20, 30, 30, 20), 
-% %                  fill="green", alpha=.25) +
-% %         scale_alpha(range=c(.5, 1), guide=FALSE) +
-% %       #  scale_colour_identity(guide=FALSE) + 
-% %       #  scale_shape(solid=T,guide=FALSE) +
-% %         theme_bw() +
-% %       #  annotate("point", x=rep(seq(-15, 35, 10),each=7), 
-% %       #         y=rep(seq(-5, 55, 10), times=6), 
-% %       #         shape='+', size=8, colour="gray90") + 
-% %         geom_point(data=d[which(!is.na(d$xbin)),], 
-% %                    aes(x=x, y=y, shape=factor(xbin), colour=factor(xbin)), 
-% %                    size=I(3), aes.inherit=FALSE) + 
-% %         scale_shape_manual(name="Bin", values=c("5"=16, "15"=15), 
-% %                            labels=c("(5,25)", "(15, 25)"),guide=FALSE) +
-% %         scale_colour_manual(values=c("5"="green", "15"="blue"), name="Bin", 
-% %                             labels=c("(5,25)", "(15, 25)"),guide=FALSE)+
-% %         annotate("segment", x=temp$x, y=temp$y, 
-% %                  xend=temp$xend, yend=temp$yend, group=temp$group) + 
-% %         ylim(c(10, 40)) + xlim(c(-10,30))
-% %       ggsave("./figure/Binning-DataAndBin.pdf", width=5, height=5, units="in")
-% %       
-% %       d.orig$bin <- dnew$x==15 & dnew$y==25
-% %       d.orig$a <- .33+.66*d.orig$bin
-% %       d.orig$l <- "Data outside bin"
-% %       d.orig$l[d.orig$bin] <- "Binned Data"
-% %       d.orig$size <- 2
-% %       d.orig$size[d.orig$bin] <- 3
-% %       d.orig <- rbind(d.orig, data.frame(x=15, y=25, a=1, l="Visual Center", size=2,bin=TRUE),
-% %         data.frame(x=mean(d.orig$x[d.orig$bin]), y=mean(d.orig$y[d.orig$bin]),                                                                                    
-% %         l="Numerical Center", a=1, size=2, bin=TRUE))
-% % #       ggplot(data=d.orig, aes(x=x, y=y, shape=l, size=l, colour=l)) + 
-% % #         annotate("polygon", x=c(10, 10, 20, 20), y=c(20, 30, 30, 20), 
-% % #                  fill="blue", alpha=.10) + 
-% % #         geom_point() +
-% % #         scale_shape_manual(name="", values=c("Data outside bin" = 16, 
-% % #                                              "Binned Data" = 15, 
-% % #                                              "Numerical Center" = 17, 
-% % #                                              "Visual Center" = 18)) +
-% % #         scale_colour_manual(name="", values=c("Data outside bin" = "grey60", 
-% % #                                               "Binned Data" = "blue",
-% % #                                               "Numerical Center" = "blue4", 
-% % #                                               "Visual Center" = "blue4"))+
-% % #         scale_size_manual(name="", values=c("Data outside bin" = 3, "Binned Data"=3,
-% % #                                             "Numerical Center" = 5, 
-% % #                                             "Visual Center" = 5))+
-% % #         theme_bw() +
-% % #         annotate("point", x=15, y=25, shape=18, size=5, colour="blue4") + 
-% % #         annotate("point", x=d.orig$x[which(d.orig$l=="Numerical Center")], 
-% % #                  y=d.orig$y[which(d.orig$l=="Numerical Center")], shape=17, size=5, 
-% % #                  colour="blue4") +
-% % # #        annotate("segment", x=temp$x, y=temp$y, xend=temp$xend, yend=temp$yend, group=temp$group) + 
-% % # #         annotate("text", x=d$x[which(d$l=="Numerical Center")], 
-% % # #                  y=d$y[which(d$l=="Numerical Center")], 
-% % # #                  label=expression(paste('(', over(phantom(0),x)[i], ',', over(phantom(0),y)[i],')'))) +
-% % #         scale_x_continuous(breaks=c(10, 15, 20), limits=c(8, 22), labels=c(expression(x^{"*"}-b[x]/2), expression(x^{"*"}), expression(x^{"*"}+b[x]/2)), name='') + 
-% % #         scale_y_continuous(breaks=c(20, 25, 30), limits=c(18, 32), labels=c(expression(y^{"*"}-b[y]/2), expression(y^{"*"}), expression(y^{"*"}+b[y]/2)), name='')
-% % #       ggsave("./figure/Binning-DataVisualNumericalCenter.pdf", width=5, height=4, units="in")
-% % @
-% % 
-% % <<RandomBinDemo,echo=F,include=FALSE>>=
-% % nl <- ncol(d.rand)
-% % dnew <- d.rand
-% % binning <- c(10, 10)
-% % for(x in 1:(nl)){
-% %   y <- d.rand[,x] - binning[x]/2
-% % dnew[,x] <- binning[x]*(floor(y/binning[x]) + 
-% %   sapply((y%%binning[x])/binning[x], function(p) rbinom(1, 1, p))) + binning[x]/2
-% % }
-% % temp <- data.frame(   
-% %           x=c( -10,   0,  10,  20,  30,  -10, -10, -10, -10), 
-% %        xend=c( -10,   0,  10,  20,  30,   30,  30,  30,  30), 
-% %           y=c( 10,   10,  10,  10,  10,   10,  20,  30,  40), 
-% %        yend=c( 40,   40,  40,  40,  40,   10,  20,  30,  40), 
-% %       group=c(  1,   2,   3,   4,   5,   6,   7,   8,   9))
-% % 
-% % dnew$id <- interaction(dnew[,1:(nl)])
-% % idx <- which(dnew$x%in%c(5, 15) & dnew$y==25)
-% % d.rand$bin <- dnew$x%in%c(5, 15) & dnew$y==25
-% % d.rand$a <- .33 + .66*d.rand$bin
-% % d.rand$xbin <- NA
-% % d.rand$ybin <- NA
-% % d.rand$xbin[idx] <- dnew$x[idx]
-% % d.rand$ybin[idx] <- 25
-% % # res <- ddply(dnew, .(id), summarize, n=length(id), fsum=sum(Freq))
-% % qplot(data=d.rand[,], x=x, y=y, alpha=a,  geom="point", xlim=c(-20, 40), ylim=c(0, 50)) +
-% %   annotate("polygon", x=c(10, 10, 20, 20), y=c(20, 30, 30, 20), fill="blue", alpha=.25) +
-% %   annotate("polygon", x=c(0, 0, 10, 10), y=c(20, 30, 30, 20), fill="green", alpha=.25) +
-% %   scale_alpha(range=c(.5, 1), guide=FALSE) +
-% %   scale_colour_identity(guide=FALSE) + 
-% %   scale_shape(solid=T,guide=FALSE) +
-% %   theme_bw() +
-% % #  annotate("point", x=rep(seq(-15, 35, 10),each=7), 
-% % #        y=rep(seq(-5, 55, 10), times=6), 
-% % #         shape='+', size=8, colour="gray90") + 
-% %   geom_point(data=d.rand[which(!is.na(d.rand$xbin)),], 
-% %              aes(x=x, y=y, shape=factor(xbin), colour=factor(xbin)), size=I(3), aes.inherit=FALSE) + 
-% %   scale_shape_manual(name="Bin", values=c("5"=16, "15"=15), labels=c("(5,25)", "(15, 25)"),guide=FALSE) +
-% %   scale_colour_manual(values=c("5"="green", "15"="blue"), name="Bin", labels=c("(5,25)", "(15, 25)"),guide=FALSE)+
-% %   annotate("segment", x=temp$x, y=temp$y, xend=temp$xend, yend=temp$yend, group=temp$group) + ylim(c(10, 40)) + xlim(c(-10,30))
-% % ggsave("./figure/RandomBinningDataPoints2.pdf",width=5, height=5)
-% % @
-% % 
-% % \begin{figure}[h]
-% %   \centering
-% %   \subfloat[Standard Binning]{\includegraphics[keepaspectratio=true, width=2.5in]{./figure/Binning-DataAndBin.pdf}}
-% % %   \subfloat{\includegraphics[keepaspectratio=TRUE, width=2in]
-% % %   {./figure/RandomBinningDataPoints1}}
-% %   \subfloat[Random Binning]{\includegraphics[keepaspectratio=TRUE, width=2.5in]
-% %   {./figure/RandomBinningDataPoints2.pdf}}
-% %   \caption{Visualization of how data pairs are assigned to bins centered at (5, 25) and (15,25) under the two rectangular binning algorithms. Points in the standard algorithm are contained within the defined bin region, where points from the random algorithm may be assigned to any of the surrounding bin centers.}
-% %   \label{fig:BinningTutorial}
-% % \end{figure}
-% 
-% %--------------------------------------------------------------
-% 
-% \subsection{Binned Data Reduction}
-% 
-% The second stage of binning requires a frequency breakdown of the number of observations associated with each bin center, forming data triples, $(x^\ast, y^\ast, c)$, where $c$ is the number of all observations assigned to bin center $(x^\ast,y^\ast)$. Table~\ref{DataReductionExample} makes use of a small set of simulated data to show the progression from the original data (a), to the binned data (b), to the reduced binned data (c). The reduced binned data is sufficient for constructing the binned scatterplot. In cases of large data, binning greatly reduces the storage size for the information and the computation time needed to construct the plot.
-% 
-% <<DataReduction,echo=FALSE,eval=FALSE,results='asis'>>=
-% n=12
-% param1 = 1
-% param2 = 1.6
-% set.seed(52)
-% x <- rbeta(n,param1, param2)*20-10
-% y <- rbeta(n,param1, param2)*20-10
-% # standard bin centers
-% xcent <- rep(-5,n) ; xcent[x>0] <- 5
-% ycent <- rep(-5,n) ; ycent[y>0] <- 5
-% idx <- order(xcent,ycent)
-% d <- data.frame(x,y,xcent,ycent)[idx,]
-% dbin <- ddply(d, .(xcent,ycent), summarise,
-%               c=length(x))
-% dbin <- dbin[order(dbin$xcent,dbin$ycent),]
-% 
-% print(xtable(d[1:2], digits=c(0, 4, 4), caption=paste('Original Data\\newline', nrow(d), 'rows')), include.rownames=FALSE, table.placement="hbtp", floating=FALSE)
-% 
-% print(xtable(d[3:4], digits=c(0, 0, 0), caption=paste('Binned Data\\newline', nrow(d), 'rows')), include.rownames=FALSE, table.placement="hbtp", floating=FALSE)
-% 
-% print(xtable(dbin, digits=c(0, 0, 0, 0), caption=paste('Binned Data\\newline', nrow(dbin), 'rows'), align=c('X','X','X','c')), include.rownames=FALSE, table.placement="hbtp", floating=FALSE, tabular.environment="tabularx", width='.7\\textwidth')
-% 
-% @
-% 
-% \begin{table}[H]
-% \begin{minipage}[t]{.33\textwidth}\centering\subfloat[Original Data, 12 rows]{
-% \begin{tabular}{rr}\hline
-%        $x$ &  $y$  \\ \hline
-% -7.7325 & -9.6340 \\ 
-%   -8.1176 & -1.4529 \\ 
-%   -5.8996 & -3.2033 \\ 
-%   -7.0375 & -5.5563 \\ 
-%   -3.6354 & -3.9315 \\ 
-%   -8.7639 & 0.9874 \\ 
-%   -2.9781 & 8.6802 \\ 
-%   0.8210 & -8.6118 \\ 
-%   5.4477 & -8.4555 \\ 
-%   4.6849 & -5.6620 \\ 
-%   9.4785 & 1.1133 \\ 
-%   1.7579 & 5.3759 \\  \hline
-% \end{tabular}}
-% \end{minipage}\hfil
-% \begin{minipage}[t]{.33\textwidth}\centering\subfloat[Binned Data Centers, 12 rows]{
-% \begin{tabularx}{.7\textwidth}{rr} \hline
-%   $b_X(x)$ & \hspace{.4cm} $b_Y(y)$  \\ \hline
-%   -5 & -5 \\ 
-%   -5 & -5 \\ 
-%   -5 & -5 \\ 
-%   -5 & -5 \\ 
-%   -5 & -5 \\ 
-%   -5 & 5 \\ 
-%   -5 & 5 \\ 
-%   5 & -5 \\ 
-%   5 & -5 \\ 
-%   5 & -5 \\ 
-%   5 & 5 \\ 
-%   5 & 5 \\  \hline
-% \end{tabularx}}
-% \end{minipage}\hfil
-% \begin{minipage}[t]{.33\textwidth}\centering\subfloat[Reduced Binned Data, 4 rows]{
-% \begin{tabularx}{.7\textwidth}{rrr}\hline
-%  \hspace{.2cm} $x^\ast$   &   \hspace{.2cm} $y^\ast$ & \hspace{.4cm}c \\ \hline
-% -5 & -5 & 5 \\ 
-%   -5 & 5 & 2 \\ 
-%   5 & -5 & 3 \\ 
-%   5 & 5 & 2 \\  \hline
-% \end{tabularx}}
-% \end{minipage}
-% \caption{\label{DataReductionExample}Original, Binned and Reduced Binned Data Tables, with data storage sizes.  Binned using standard rectangular approach with origin $(\beta_{0,x},\beta_{0,y})$ = (-10,-10) and binwidths $\omega_x = \omega_y = 10$. }
-% \end{table}
-% 
-% Note that numerical attributes other than frequency of the binned data may also be recorded during binning, however only frequency is required to construct a binned scatterplot. Data reduction comes at the expense of spatial information of any of the individual points. After aggregation the original spatial locations cannot be recovered. The loss of information incurred from binning will be explored in following sections. 
-% 
-% % \subsection{Standard Rectangular Binning Algorithm (old - to be removed)}
-% % \hh{XXX Speed this discussion up a bit - you don't need to lay out what you will do in this section, just do it.}
-% % 
-% % \hh{Define what $X$ is, what is $x_i$}
-% % 
-% % \hh{Use only $1 \le j \le N_X$  or $j \in \{1, ..., N_X\}$. }
-% % 
-% % \hh{I am still not sure how bin centers are defined in the end. XXX}
-% % 
-% % \hh{why does it say binwidths? Do you want to imply that the bins have potentially different widths? Clarify that!}
-% % 
-% % \ktm{  We define the process that allocates observed values, $x_i$ for $i \in \{1, ..., n\}$, to equal sized bins in a deterministic manner as a standard binning algorithm. The bins are controlled by two parameters: the center of the first bin, $x^\ast_1$ and the binwidth, $\omega_X$. This leads to bin centers $ x_j^\ast =  x_1^\ast + (j-1)\omega_X \text{ for } j \in \{1, ..., N_X\} $,  where $N_X$ is the overall number of bins.  }
-% % 
-% % 
-% % Mathematically, the standard binning algorithm corresponds to a function $b_X(.)$ that assigns to a value $x_i$ the closest bin center $x^\ast_j$ for some bin $j \in \{1, ..., N_X\}$, i.e. the binning function   $b_X(.) : x_i \rightarrow x^\ast_j$ is defined as 
-% % % \begin{center}
-% % % $x^\ast_i = b_X(x_i) = x_{(1)}^\ast + \omega_X \cdot \left\lfloor (x_i-x_{(1)})/\omega_x \right\rfloor$ \hspace{.5cm} $\forall x_i < x_{(n)}$, and \\ 
-% % % \vspace{.03}
-% % % $x^\ast_i = b_X(x_i) = x_{(n)} - \omega_x/2$ \hspace{.5cm} $\forall x_i = x_{(n)}$
-% % % \end{center}
-% % \begin{eqnarray}\label{standbin}
-% % b_X(x_i) =  x_{1}^\ast + \omega_X \cdot \left\lfloor (x_i-x_{1}^\ast)/\omega_x + 1/2 \right\rfloor
-% % \end{eqnarray}
-% % 
-% % where $x_1^\ast$ is the center of the first bin and $\lfloor . \rfloor$ denotes the floor function, $\lfloor x \rfloor$ is the largest integer value smaller than $x$.  
-% % \ktm{ This is equivalent to treating the $j^{th}$ bin as a half-open interval that contains all observations $x_i \in [x_j^\ast - \omega_X /2 , x_j^\ast + \omega_X /2  ) $. After all observations have been allocated to bins, the bin count, $c_j$, is joined with the bin center to form the tuple $(x^\ast_1, c_j)$ }
-% % %\hh{something went wrong with the next sentence}
-% % %An intuitive understanding of the formula is developed by noting $\left\lfloor (x_i-x_{1}^\ast)/\omega_x + 1/2 \right\rfloor$ represents the number of bin boundaries lie between $x_{1}^\ast$ and $x_i$.  Thus, the binning function is finding the location of the bin center for $x_i$ by adding the distance between $x_{1}^\ast$ and the center for $x_i$ to the known first bin center $x_{1}^\ast$.
-% % 
-% % \ktm{ A special case of standard binning divides the data range into $N_X$ equal sized bins.  This leads to the bin width, $\omega_X = (x_{(n)} - x_{(1)})/N_X$, where $x_{(1)}$ and $x_{(n)}$ denote the observed minimum and the maximum of $X$, respectively. The first bin would then be centered at $x_{(1)} + \omega_X/2$. }
-% % 
-% % 
-% % 
-% % %Note that the binning function above amounts to dividing up the range of data by a specified number of bins of equal width. A more flexible binning algorithm may be achieved if we allow the specification of the first bin center and bin width instead of the number of bins. This strategy would still fit into the framework of assigning values to the closest bin center. 
-% % 
-% % \subsection{Random Binning Algorithm (old-to be removed)}
-% % 
-% % An alternative to the standard binning processes discussed above, is the random binning algorithm which results in statistically nice properties. A random binning algorithm utilizes a non-deterministic bin function $b^r_X(\cdot)$ which randomly assigns a value $x_i$ to a bin center, $x^\ast$, from a set of possible bins. In this paper, we will consider the simplest case of just two bins, so that without loss of generality we can assume that $x_i$ lies between bin centers $x^\ast_j$ and $x^\ast_{j+1}$. The bin function assigns $x_i$ to a bin center with a probability depending on the distance to that bin center; the closer a value is to a bin center, the higher the probability the value is assigned to that bin center. More formally,
-% % %
-% % \begin{eqnarray}\label{randbin}
-% % b^r_X(x_i) = \left\{\begin{array}{ll} 
-% %   x^\ast_j & \text{ with probability } p = {(x^\ast_{j+1} - x_i)}/\omega_X \\
-% %   x^\ast_{j+1} &\text{ with probability } 1-p = {(x_i - x^\ast_{j})}/\omega_X
-% %   \end{array}\right.
-% % \end{eqnarray}
-% % 
-% % % In this manner, the probability of assigning point $x$ to bin $x^\ast_j$ is inversely proportional to the distance between the bin center of bin $x^\ast_j$ and $x$, that is, the closer $x$ is to a bin center, the higher the probability that $x$ will be assigned to that bin. 
-% % This method is easily extensible to also map $x_i$ into more than two bins and can accommodate non-uniform bin sizes, unlike the standard algorithm. 
-% % 
-% % %To take up the previous number example again, under random binning the values 1.35, 1.55, and 2.35 are assigned to bin centers $\{1, 2, 3\}$ non-deterministic. 
-% % %Value 1.35 has a 35\% probability to be assigned to bin center 2, and accordingly is assigned to bin center 1 with probability 65\%. 
-% % %1.55 is closer to the boundary between bin centers and has therefore a 45\% or 55\% chance to be assigned to bin centers 1 or 2, respectively.
-% % 
-% % %Figure~\ref{fig:BinningTutorial} illustrates one possible outcome of the random binning process.
-% % 
-% % The deterministic standard binning algorithm is an example of a ``direct" binning algorithm, in which all points are assigned with weight one to the nearest bin. ``Linear" binning  \citep{martin-gold} is a \textit{computationally intensive} alternative to direct binning  in which adjacent bins are assigned a weight  depending on the distance from the point to that bin, where all weights sum to one.  With large data sets, the calculations required for linear binning become unwieldy, but the random binning algorithm can be considered an approximation to linear binning. Specifically, the expectation of the random binning algorithm is the same as for linear binning.
-% % %However, linear binning requires evaluation of this expectation, whereas the random binning algorithm presented here uses a random sample from the underlying distribution, which is much more computationally tractable.
-% % In the next section, we examine the loss of visual and numerical information due to binning.
-% % % linear binning in Gold book - random algorithm as a less computational method of linear binning
-% % 
-% % \subsection{Extensions to Rectangular Binning (old-to be removed)}
-% % 
-% % The standard and random binning algorithms are easily extendable to higher dimension. For the purposes of creating binned scatterplots we will specify extension to rectangular binning in two dimensions. In this case we wish to assign data pairs $(x_i, y_i)$ to bin centers of the form $(x_j^\ast,y_j^\ast)$, with $1 \le j \le N_X \cdot N_Y =J$, where $J$ total number of indexed bins \sout{in $\mathbb{R}^2$} \hh{XXX J is an integer number, definitely not a real-valued vector}. \ktm{The wording here was not clear. J does not exist in $\mathbb{R}^2$, but it is being used to index 2d bins that exist in that plane.} The standard rectangular binning function $b(.) : (x_i,y_i) \rightarrow (x^\ast_j,y^\ast_j)$ is defined as 
-% % %
-% % \begin{eqnarray}\label{standrecbin}
-% % b(x_i,y_i) = (b_X(x_i),b_Y(y_i))
-% % \end{eqnarray}
-% % %
-% % where $b_X(x_i)$ and $b_Y(y_i)$ are the univariate standard binning algorithms for the X and Y dimensions respectively. The random rectangular binning function, $b^r(\cdot): (x_i,y_i) \rightarrow (x^\ast_j,y^\ast_j)$ can similarly be defined as
-% % %
-% % \begin{eqnarray}\label{randrecbin}
-% % b^r(x_i,y_i) = (b^r_X(x_i),b^r_Y(y_i))
-% % \end{eqnarray}
-% % %
-% % where $b^r_X(x_i)$ and $b^r_Y(y_i)$ are univariate random binning algorithms for each dimension. Figure~\ref{fig:BinningTutorial} provides an illustration of each binning process extended to a two dimensional situation.
-% % 
-% % \hh{The relationship between value pair $(x_i, y_i)$ and bin center $(x^\ast_j,y^\ast_j)$ needs to be discussed further - because it is not the same as for the univariate situation. $J$ is defined, as above as a multiple of $N_X$ and $N_Y$, this needs to be properly adjusted in the binning algorithm. It will be some linear relationship of the form $j_X\cdot N_X + j_Y$. }  \ktm{ I am having trouble trying to reconcile the indexing of bins in 2 dimensions.  If we use an pair of indices it makes the extension of binning to 2 dimensions easy; but it makes the notation messier and loss functions more difficult to define. }
-% % 
-% % 
-% % 
-% % \subsection{Quantile Binning Algorithm (old - to be removed)}
-% % 
-% % We could also consider a empirical quantile based binning algorithm where bin widths are adjusted such that each bin contains an equal proportion of the observed values. This is a fundamentally different approach than the standard and random binning algorithms defined previously where the goal was to display approximate density. This binning will not be considered for binning the data pairs directly, but instead for further binning the initial bin counts for the purposes of rendering colors on a discrete color palette.
-% % 
-% % Suppose that we have values $c_j$ for $j \in \{1,2,...J\}$ that we wish to divide into quantile based bins. Defining the number of quantile based bins, $K$, results in a set of possible quantile bin centers. \hh{shouldn't you go back to the same notation as before? $N_X$, not $J$?  what are the $c_j$ bin centers? before they were $c_j^\ast$.} \ktm{I consciously decided to define quantile binning in a way consistent with how it will be used later in the paper for discretizing the color palettes for the $c_j$ counts. } It follows that the bin boundaries are $Q_{k/K}$ for $k \in \{1,\dots,K\}$, where $Q_p$ is the the $p^{th}$ empirical quantile of value using the inverse empirical distribution function. \ktm{Note this is the quantile function as defined in R; find related literature source.} \hh{which function exactly? There are multiple.} The bin centers are defined as the midpoint of each consecutive pair of bin boundaries $\{c^\ast_k = (Q_{k-1/K} + Q_{k/K})/2  \text{ for } k=0,\dots,K \}$. The quantile binning function $b^q_C(\cdot) : (c_j) \rightarrow c^\ast_k$ is defined as 
-% % %
-% % \begin{eqnarray}\label{quantbin}
-% % b^q_C(c_j) = (Q_{k-1/K} + Q_{k/K})/2 \text{ where } Q_{k-1/K} < c_j \le Q_{k/K}.
-% % \end{eqnarray}
-% % %
-% % The two dimensional analog for quantile binning is not explored, as this binning strategy will be used in strictly the univariate setting for this manuscript.
-% 
-% %--------------------------------------------------------------
-% 
-% \section{Loss due to Binning}
-% \label{LossIntro}
-% 
-% The problems with large data in scatterplots arise from overplotting, which is a form of implicit data aggregation. In order to keep track of overplotting, we switch to a weighted form of displays and explicitly keep track of overplotting. The reduced binned data carries the sufficient information necessary to render the binned scatterplot. Making the data aggregation explicit allows us to calculate the loss we experience.
-% 
-% Using a minimal bin width, a binned scatterplot is comparable to a standard scatter plot, with bins shaded in a binary manner, as each unique observed value is located in a different bin. Alpha blending as used in Figure~\ref{fig:scatter-alpha}c extends the binary shading of a standard scatterplot to an implicit shading according to frequency. The shading is implicit because the range of frequency information is not scaled to the range of shading values, so that maximum color saturation is usually reached well before the maximum frequency, truncating the perceivable frequency information. By explicitly shading bins according to frequency, more information is preserved than in a traditional scatter plot, as the frequency domain provides visual weight to tiles which represent more points. This generalization allows us to describe the plots in Figure~\ref{fig:scatter-alpha}d and e under the same framework as plots a-c. 
-% 
-% By additionally increasing the bin width, we provide increasingly higher-level summaries of the data by smoothing over local structures. Using a small number of large bins may mask the real signal in the data, while an extremely large number of small bins may not sufficiently smooth over {\it noise} inherent in any real data set. Figure~\ref{binning} gives an overview of a data set and binned representations using different numbers of bins, demonstrating the loss of information with increasing bin size. 
-% 
-% \begin{figure}[hbtp]
-% <<binning_setup, echo=FALSE,fig.width=2, fig.height=2, out.width='\\linewidth'>>=
-% set.seed(46)
-% x <- round(rnorm(200), digits=2)
-% y <- round(rnorm(200), digits=2)
-% X <- data.frame(x,y)
-% @
-% \begin{minipage}{.35\linewidth}
-% <<first, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=4>>=
-% qplot(x,y, asp=1, main='Unbinned Data')+theme_bw()
-% @
-% \end{minipage}
-% \hfil\begin{minipage}{.645\linewidth}
-% \begin{minipage}{.495\linewidth}
-% <<bin001, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=5>>=
-% binwidth=0.1
-% binout1 <- RectBin2d(x,y,-binwidth/2,-binwidth/2,binwidth,binwidth,type="standard")[[1]]
-% qplot(x,y, asp=1, geom="blank") +
-%   geom_tile(binwidth=binwidth, aes(x=binxs, y=binys, fill=binfreq), data=binout1) +
-%   ggtitle(sprintf("binwidth = %.2f", binwidth)) +
-%   geom_vline(aes(xintercept=seq(min(binout1$binxs)-binwidth, max(binout1$binxs),
-%                                 by=binwidth)+binwidth/2), colour="grey90") + 
-%   geom_hline(aes(yintercept=seq(min(binout1$binys)-binwidth, max(binout1$binys),
-%                                 by=binwidth)+binwidth/2), colour="grey90") +
-%   theme_bw() + theme(panel.grid.major= element_blank(),
-%                      panel.grid.minor= element_blank(), legend.position="bottom") +
-%   scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend",
-%                       trans="log", breaks=c(1, 2, 5, 10, 20))
-% 
-% @
-% \end{minipage}\hfil
-% \begin{minipage}{.495\linewidth}
-% <<bin025, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=5>>=
-% binwidth=0.25
-% binout1 <- RectBin2d(x,y,-binwidth/2,-binwidth/2,binwidth,binwidth,type="standard")[[1]]
-% qplot(x,y, asp=1, geom="blank") +
-%   geom_tile(binwidth=binwidth, aes(x=binxs, y=binys, fill=binfreq), data=binout1) +
-%   ggtitle(sprintf("binwidth = %.2f", binwidth)) +
-%   geom_vline(aes(xintercept=seq(min(binout1$binxs)-binwidth, max(binout1$binxs),
-%                                 by=binwidth)+binwidth/2), colour="grey90") + 
-%   geom_hline(aes(yintercept=seq(min(binout1$binys)-binwidth, max(binout1$binys),
-%                                 by=binwidth)+binwidth/2), colour="grey90") +
-%   theme_bw() + theme(panel.grid.major= element_blank(),
-%                      panel.grid.minor= element_blank(), legend.position="bottom") +
-%   scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend",
-%                       trans="log", breaks=c(1, 2, 5, 10, 20))
-% @
-% \end{minipage}\\
-% \hfil\begin{minipage}{.495\linewidth}
-% <<bin05, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=5>>=
-% binwidth=0.5
-% binout1 <- RectBin2d(x,y,-binwidth/2,-binwidth/2,binwidth,binwidth,type="standard")[[1]]
-% qplot(x,y, asp=1, geom="blank") +
-%   geom_tile(binwidth=binwidth, aes(x=binxs, y=binys, fill=binfreq), data=binout1) +
-%   ggtitle(sprintf("binwidth = %.2f", binwidth)) +
-%   geom_vline(aes(xintercept=seq(min(binout1$binxs)-binwidth, max(binout1$binxs),
-%                                 by=binwidth)+binwidth/2), colour="grey90") + 
-%   geom_hline(aes(yintercept=seq(min(binout1$binys)-binwidth, max(binout1$binys),
-%                                 by=binwidth)+binwidth/2), colour="grey90") +
-%   theme_bw() + theme(panel.grid.major= element_blank(),
-%                      panel.grid.minor= element_blank(), legend.position="bottom") +
-%   scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend",
-%                       trans="log", breaks=c(1, 2, 5, 10, 20))
-% @
-% \end{minipage}\hfil
-% \begin{minipage}{.495\linewidth}
-% <<bin1, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=5>>=
-% binwidth=1
-% binout1 <- RectBin2d(x,y,-binwidth/2,-binwidth/2,binwidth,binwidth,type="standard")[[1]]
-% qplot(x,y, asp=1, geom="blank") +
-%   geom_tile(binwidth=binwidth, aes(x=binxs, y=binys, fill=binfreq), data=binout1) +
-%   ggtitle(sprintf("binwidth = %.2f", binwidth)) +
-%   geom_vline(aes(xintercept=seq(min(binout1$binxs)-binwidth, max(binout1$binxs),
-%                                 by=binwidth)+binwidth/2), colour="grey90") + 
-%   geom_hline(aes(yintercept=seq(min(binout1$binys)-binwidth, max(binout1$binys),
-%                                 by=binwidth)+binwidth/2), colour="grey90") +
-%   theme_bw() + theme(panel.grid.major= element_blank(),
-%                      panel.grid.minor= element_blank(), legend.position="bottom") +
-%   scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend",
-%                       trans="log", breaks=c(1, 2, 5, 10, 20))
-% @
-% \end{minipage}
-% \end{minipage}
-% \caption{\label{binning}Series of scatterplots showing the original data (scatterplot, left), and versions of the binned data for different bin widths. The visual loss from binning at 0.1 is minimal, while a bin width of 1 gives a rough approximation.}
-% \end{figure}
-% 
-% In the first set of binned data, the bins and the points on the scatterplot are nearly identical, but the scatterplot contains information about overlapping points. The second and third sets of binned data, with bin width equal to 0.25 and 0.50 respectively, show higher-level summaries of the data but which may also provide more visually accessible information about the shape of the two-dimensional density between $x$ and $y$. The fourth set of binned data with bin width equal to 1.0 is nearly unrecognizable, because the bins are large enough that they provide very little additional information. 
-% 
-% Loss of information occurs during the binning and rendering process. For the remainder of the paper we will assume that we are using colors in binned scatterplots to represent frequencies.  We distinguish two sources of loss in the construction of a binned scatterplot:
-% 
-% 
-% \begin{itemize}
-% \item {\it Spatial Loss}, $L^\text{S}$, occurs when points $(x_i, y_i)$ for observations $i \in \{1,\dots,n\}$ in the data set are reduced to a set of tiles centered at $(x_\ell^\ast, y_\ell^\ast)$ for bins $\ell \in \{1,\dots,\mathscr{L}\}$. By displaying frequency information using shaded tiles instead of individual points there is a loss of information about the exact location of the points. %\hh{XXX the frequency information is not what causes the loss}
-% 
-% \item {\it Frequency Loss}, $L^\text{F}$, occurs when bin counts, $c_\ell \in \{1,\dots,\mathscr{L}\}$ are not mapped to a continuous shading scale. While shade can be \textit{rendered} continuously in HSV color space, thus representing frequency exactly, a human reader can not \textit{extract} this information at the same precision due to limitations of  human cognition.  %A discrete color scale may be used to aid the ability to read a binned scatterplot, however this is effectively 
-% In order to model these limitations we 
-% introduce a second stage of binning by using a discrete color scale for displaying binned frequencies, $b_C(c_\ell)$, $\ell \in \{1,\dots,\mathscr{L}\}$. %This loss in precision is then quantified as {\it Frequency loss}. %, thus losing precision in the display of the true frequencies.
-% 
-% \end{itemize}
-% 
-% 
-% %\hh{XXX ok, I don't quite agree with the description of frequency loss here. (a) the rendering on a continuous color scheme IS precise. but on a cognitive level we are not able to read the rendered values at the same precision. This effectively intorduces a second stage of binning ... then we are on the same page again.} \ktm{Is this new description any better?}
-% 
-% 
-% Note that even though the losses from creating a binned scatterplot may turn out to be substantial there a huge gain with respect to the original scatterplot, where information can be masked in large data situations due to over-plotting of points. The idea of loss from one-dimensional binning was explored by Scott using mean squared error as the loss function to be optimized by the choice of the number of bins in  the construction of histograms \citep{scott1979}. He later extended this discussion to two-dimensional binning, where he compared the mean squared error loss for hexagonal, rectangular and triangular binning; finding that hexagonal and rectangular binning performed similarly, both far superior to triangular binning \citep{scott1992}. We will take a similar approach to quantifying loss resulting from the binning algorithms detailed in Section~\ref{GenBinning} above. 
-% 
-% \subsection{Spatial Loss}
-% \label{SpatialLoss}
-% 
-% When the individual points of a scatterplot are collapsed to bin centers to be displayed as tiles in a binned scatterplot there is a loss of the location information.  This can be expressed as the Euclidean distance between points and the visual center of the tiles (i.e.\ the bin centers). Note that other distance metrics could be used, but the Euclidean distance has a desirable interpretability in $\mathbb{R}^2$. The \textit{total spatial loss}, $L^S$, is defined as 
-% \begin{eqnarray}\label{totspatloss}
-% L^S = \sum_{i=1}^{n} L_i^S = \sum_{i=1}^{n} \sqrt{ \left(x_i-b_X(x_i)\right)^2 + \left(y_i-b_Y(y_i)\right)^2 }
-% \end{eqnarray} 
-% %
-% where $L_i^S$ is the loss in the  $i$th observation. 
-% %
-% Figure~\ref{fig:spatlossdemo2} visually displays the spatial loss for the data from  Table~\ref{DataReductionExample} as a result of standard rectangular binning. Observations $(x_i,y_i)$ and bin centers $\left(x_\ell^\ast,y_\ell^\ast\right)$ are displayed as black points and gray crosses, respectively. The length of line segments connecting these represent $L^S_i$, the spatial loss for each observation; thus, the combined length of all segments represents the total spatial loss, $L^S$.  
-% 
-% <<spatlossdemo2,echo=F,include=T,eval=T,fig.width=12, fig.height=6, out.width='1\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Visualization of spatial loss for same data using standard, random and post-processed random binning algorithms.  Note that the total spatial loss for the standard algorithm is smaller than by random binning. The net spatial loss for the original random binned data is the total spatial loss of the post-processed assignment." >>= 
-% n=12
-% param1 = 1
-% param2 = 1.6
-% set.seed(52)
-% x <- rbeta(n,param1, param2)*20-10
-% y <- rbeta(n,param1, param2)*20-10
-% # standard bin centers
-% xcent <- rep(-5,n) ; xcent[x>0] <- 5
-% ycent <- rep(-5,n) ; ycent[y>0] <- 5
-% # standard bin gridlines
-% temp <- data.frame(   
-%   x=c( -10,   0,  10, -10, -10, -10), 
-%   xend=c( -10,   0,  10,  10, 10, 10), 
-%   y=c( -10, -10 , -10 , -10, 0 , 10), 
-%   yend=c(10, 10 , 10, -10, 0, 10 ))
-% 
-% p1 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
-%       geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
-%       geom_segment(aes(x = x, y = y, xend = xcent, yend = ycent)) + 
-%       geom_point(aes(x=x,y=y), size=I(3))+ 
-%       theme_bw() + xlab("") + ylab("") +
-%       ggtitle("Standard Binning") +
-%       theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
-%             legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
-%             aspect.ratio=1)
-% 
-% # random bin centers
-% set.seed(14)
-% rxcent <- RandRectBin1d(x, -10, 10)
-% rycent <- RandRectBin1d(y, -10, 10)
-% # point 1 and 11 are special 
-% linecolor <- rep("blue", 12)
-% linecolor[c(1,11)] <- "red"
-% 
-% p2 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
-%   geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
-%   geom_segment(aes(x = x, y = y, xend = rxcent, yend = rycent, color=linecolor)) + 
-%   scale_colour_manual(values = c("darkblue","red"))+
-%   geom_point(aes(x=x,y=y), size=I(3))+ 
-%   theme_bw() + xlab("") + ylab("") +
-%   ggtitle("Random Binning") +
-%   theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
-%         legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
-%             aspect.ratio=1)
-% 
-% # post process random bin centers to visually 
-% # equivalent allocation with minimum spatial loss
-% rxcentpost <- rxcent
-% rycentpost <- rycent
-% rxcentpost[1] <- rxcent[11]
-% rycentpost[1] <- rycent[11]
-% rxcentpost[11] <- rxcent[1]
-% rycentpost[11] <- rycent[1]
-% # point 1 and 11 are special 
-% linecolor <- rep("blue", 12)
-% linecolor[c(1,11)] <- "red"
-% 
-% p3 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
-%   geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
-%   geom_segment(aes(x = x, y = y, xend = rxcentpost, yend = rycentpost, color=linecolor)) + 
-%   scale_colour_manual(values = c("darkblue","red"))+
-%   geom_point(aes(x=x,y=y), size=I(3))+ 
-%   theme_bw() + xlab("") + ylab("") +
-%   ggtitle("Post-Processed Random Binning") +
-%   theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
-%         legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
-%             aspect.ratio=1)
-% 
-% allbin <- data.frame(type=rep(c("Standard","Random","Post-Processed Random"),each=n),
-%                      binxs = c(xcent,rxcent,rxcentpost), 
-%                      binys = c(ycent,rycent,rycentpost))
-% allbinfreq <- ddply(allbin, .(type,binxs,binys),summarise,
-%                      freq = length(binxs))
-% 
-% p4 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
-%   geom_tile(aes(x=binxs, y=binys, fill=freq),data=subset(allbinfreq,type=="Standard")) + 
-%   scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend") + 
-%   theme_bw() + xlab("") + ylab("")  +
-%   theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
-%         plot.margin = unit(c(0,1,0, 1),"cm"),legend.position="bottom",
-%             aspect.ratio=1)+
-%   geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) 
-% 
-% p5 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
-%   geom_tile(aes(x=binxs, y=binys, fill=freq),data=subset(allbinfreq,type=="Random")) + 
-%   scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend") + 
-%   theme_bw() + xlab("") + ylab("") +
-%   theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
-%         plot.margin = unit(c(0,1,0, 1),"cm"),legend.position="bottom",
-%             aspect.ratio=1)+
-%   geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) 
-% 
-% p6 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
-%   geom_tile(aes(x=binxs, y=binys, fill=freq),data=subset(allbinfreq,type=="Post-Processed Random")) + 
-%   scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend") + 
-%   theme_bw() + xlab("") + ylab("") +
-%   theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
-%         plot.margin = unit(c(0,1,0, 1),"cm"),legend.position="bottom",
-%             aspect.ratio=1)+
-%   geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) 
-% 
-% grid.arrange(p1,p2,p3,p4,p5,p6,nrow=2)
-% @
-% 
-% For random assignment the total spatial loss can be calculated by simply replacing the standard binning function with the random binning function in Equation~\ref{totspatloss}. The total spatial loss for randomly binned data is visualized in Figure~\ref{fig:spatlossdemo2}. Special consideration should be paid to the two points highlighted in red in the panel for random binning: in standard binning these points are in neighboring bins but have been allocated to the opposite bin during random binning. We see that the binned scatterplot remains identical if these points are re-allocated back to the closer centers; however, the total spatial loss is smaller after the random allocation is post-processed.  
-% 
-% The minimum total spatial loss from all binning allocations that result in the same reduced binned data, and thus the same binned scatterplot, will be referred to as the \textit{net spatial loss}, $L^S_{net}$. The net spatial loss for standard binned data is always  equivalent to the total spatial loss due to the deterministic bin allocations. For random binning algorithms the net spatial loss is achieved by first exchanging bin assignments for pairs of points in neighboring bins that exist further from their own bin center than from their partner's bin center, then finding the total spatial loss from this processed binned data. 
-% 
-% \ktm{The spatial loss is a Euclidean distance, but the units affiliated with this distance are based on the units on which each variable is recorded. If the two variables in the binned scatterplot share the same units this leads to direct interpretability of the spatial loss.  However, if the two variables do not share the same units or magnitude of values it is advisable to standardize the variables prior to binning, thus the spatial loss is more universally interpretable as a distance in units of standard deviations. }
-% 
-% \hh{OK, better - I still don't understand the 'but' at the top of the paragraph. There seems to be some implicit negation, which I can't see it. Could you make this explicit?}
-% 
-% %but requires a reference scale on which the magnitude may be interpretable. We  use the spatial loss from a ``worst-case'' binning scenario as a reference value. The largest displacement of points  occurs if we place all points into a single bin.  While the total spatial loss for single bin could be made arbitrarily large if the bin center is placed far away from the data values, we will consider a reasonable specification of a bin with boundaries that span only the range of the data in each dimension centered at  $( (x_{(1)}-x_{(n)})/2$ , $(y_{(1)}-y_{(n)})/2 )$.  The total spatial loss for this ``worst-case'' bin will be referred to as the \textit{potential spatial loss}, $L^S_p$, which is defined as 
-% % \begin{eqnarray}\label{potspatloss}
-% % L^S_p = \sum_{i=1}^{n} \sqrt{ \left(x_i-(x_{(1)}-x_{(n)})/2\right)^2 + \left(y_i-(y_{(1)}-y_{(n)})/2\right)^2 }
-% % \end{eqnarray} 
-% % %
-% % We use net spatial loss as a proportion of potential spatial loss, $L^S_{net}/L^S_p$,  as the primary metric for assessing spatial loss incurred from binning.
-% 
-% %\ktm{ We recognize that the spatial loss is inherently influenced by the scale and units of the data. Standardizing the data pairs with respect to each axis will ensure that one of the dimensions does not have an inordinate effect on the spatial loss value. }
-% 
-% 
-% <<SpatialLossDemo,echo=F,include=F,cache=T>>=
-% #Try Multivariate Normal and Uniform for this plot
-% library(MASS)
-% #MVN plot
-% n=15
-% set.seed(2)
-% Sigma <- matrix(c(16,12,12,14),2,2)
-% dat <- mvrnorm(n = n, rep(0, 2), Sigma)
-% x <- dat[,1]
-% y <- dat[,2]
-% xcent <- rep(-5,n) ; xcent[x>0] <- 5
-% ycent <- rep(-5,n) ; ycent[y>0] <- 5
-% temp <- data.frame(   
-%   x=c( -10,   0,  10, -10, -10, -10), 
-%   xend=c( -10,   0,  10,  10, 10, 10), 
-%   y=c( -10, -10 , -10 , -10, 0 , 10), 
-%   yend=c(10, 10 , 10, -10, 0, 10 ))
-% qplot(xcent, ycent, geom="point", size=I(4), shape=I(2)) +
-%   geom_segment(aes(x = x, y = y, xend = xcent, yend = ycent)) + 
-%   geom_point(aes(x=x,y=y), size=I(3))+ 
-%   geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
-%   theme_bw() + xlab("") + ylab("")
-%       ggsave("./figure/SpatialLossDisplayMVN.pdf", width=5, height=5, units="in")
-% 
-% #uniform plot
-% set.seed(2)
-% x <- runif(n, -10,10)
-% y <- runif(n, -10,10)
-% xcent <- rep(-5,n) ; xcent[x>0] <- 5
-% ycent <- rep(-5,n) ; ycent[y>0] <- 5
-% temp <- data.frame(   
-%   x=c( -10,   0,  10, -10, -10, -10), 
-%   xend=c( -10,   0,  10,  10, 10, 10), 
-%   y=c( -10, -10 , -10 , -10, 0 , 10), 
-%   yend=c(10, 10 , 10, -10, 0, 10 ))
-% qplot(xcent, ycent, geom="point", size=I(4), shape=I(2)) +
-%   geom_segment(aes(x = x, y = y, xend = xcent, yend = ycent)) + 
-%   geom_point(aes(x=x,y=y), size=I(3))+ 
-%   geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
-%   theme_bw() + xlab("") + ylab("")
-%       ggsave("./figure/SpatialLossDisplayUnif.pdf", width=5, height=5, units="in")
-% @
-% 
-% % \begin{figure}[h]
-% %   \centering
-% %   \subfloat[Spatial Loss MVN Data]{\includegraphics[keepaspectratio=true, width=3in]{./figure/SpatialLossDisplayMVN.pdf}}
-% %   \subfloat[Spatial Loss Uniform Data]{\includegraphics[keepaspectratio=true, width=3in]{./figure/SpatialLossDisplayUnif.pdf}}
-% %   \caption{Visualization of spatial loss. The distance between points and bin centers adds up to the spatial loss due to binning. }%\ktm{Redundant plots using MVN and Uniform Data. Which makes a better plot?}}
-% %   \label{fig:LossDisplay}
-% % \end{figure}
-% %------------------------------------------------
-% 
-% \subsection{Frequency Loss}
-% \label{FreqLoss}
-% 
-% It is important to note that there is no spatial loss for the traditional scatterplot, as the points are rendered at exact coordinates. The reason we are willing to sacrifice precision of location information is to alleviate the inherent loss of frequency information from overplotting, which can be immense for large data sets. When a point is rendered in a traditional scatterplot there is no graphical change once any additional points are placed at the same coordinates; thus visually implying a frequency of one data value at the location. This implicit loss of frequency information is then exacerbated when points are rendered as a circle with a radius large enough to also partially cover nearby points. In binned scatterplots, we have traded the exact locations for exact frequencies within bins. 
-% 
-% Bin counts can be displayed using a continuous shading scale in HSV color space \ktm{(reference needed)} and thus theoretically have no frequency loss. While the tiles of the binned scatterplot would be rendered precisely, the ability of a human with average vision to extract that information using a plot index for the frequency key for the plot is largely imprecise. Color perception of shade is extremely context sensitive allowing an inaccurate mapping of tile shade to the corresponding shade on the frequency key.
-% It is therefore not realistic, to expect readers to be able to map colors to a continuous color scheme, even though theoretically we can distinguish enough different colors (see e.g.\ the discussion in \url{http://hypertextbook.com/facts/2006/JenniferLeong.shtml}). Figure~\ref{fig:context} shows an example of the context sensitivity of colors. Even though there is a lot of spread between the colors in this example, most onlookers have trouble answering the question about the relative relationship of the shading of the darkest/lightest points in each of the points clouds.
-% 
-% 
-% \begin{figure}[ht]
-% \centering
-% <<context, echo=F, fig.width=6, fig.height=4.5, out.width='.5\\textwidth'>>=
-% #col <- c(rnorm(200, mean=0, sd=10), rnorm(10, mean=50), rnorm(200, mean=100, sd=10), rnorm(10, mean=50))
-% Shade <- c(rbeta(200, 1,10),rep(.5,10), rbeta(200,10,1), rep(.5,10))
-% x <- c(rnorm(210, mean=0, sd=0.075), rnorm(210, mean=.5, sd=0.075))
-% y <- c(rnorm(210, mean=0, sd=0.075), rnorm(210, mean=.5, sd=0.075))
-% Shape <- c(rep("circle",200),rep("triangle",10),rep("circle",200),rep("triangle",10))
-% 
-% require(ggplot2)
-% qplot(x, y, colour=Shade, size=I(5),shape=Shape) + theme_bw() + 
-%   xlab("") + ylab("")+
-%   theme(aspect.ratio=1, axis.ticks=element_blank(), axis.text=element_blank()) +
-%   scale_colour_gradient(limits=c(0,1), breaks=c(0,.5,1))
-% @
-% \caption{\label{fig:context}Assess the colors in this scatterplot. Are the triangles in the lighter cloud of points as dark as the triangles in the darker cloud of points? The answer is that all the triangles have the exact same shade!}
-% \end{figure}
-% 
-% Research suggests that even under optimal conditions, we can effectively compare only about seven colors \citep{colorperception}, which provides a physical upper limit on the amount of frequency variation we can perceive. As a result, a binning width which produces seven of fewer frequency categories is preferable.%, while minimizing numerical loss within that constraint. 
-% 
-%  Whenever the shading scheme for rendering the counts in each bin is discretized there is a loss of frequency information. We can model this as a second stage of binning; wherein the bin counts, $c_\ell$, for bins $\ell \in \{1, \dots, \mathscr{L} \}$ are placed into frequency bins using any of the previously discussed univariate binning algorithms in Section~\ref{GenBinning}.  Figure~\ref{fig:FreqLossDemo} provides a visual example of a discrete color palette resulting from frequency binning.  
-% 
-% <<FreqLossDemo,echo=F,include=T,eval=T,fig.width=6, fig.height=3, out.width='.8\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Continuous and discrete color scales for counts in the range 0 to 1000. Frequency binning done using standard rectangular binning with origin $\\beta_0 = 0$ and binwidth $\\omega_X = 200$. ">>= 
-% #J= 1
-% J2 = 200
-% bound = 1000
-% #id <- seq(0+J/2,bound-J/2,by=J )
-% #fill <- seq(0+J/2,bound-J/2,by=J )
-% id2 <- seq(0+J2/2,bound-J2/2, by=J2)
-% fill2 <- seq(J2/2,bound-(J2/2), by=J2)
-% 
-% low = "#132B43"
-% high = "#56B1F7"
-% library(scales)
-% blueGradient <- matrix(seq_gradient_pal(high, low, "Lab")(0:4400/4400), byrow=TRUE,
-%        nrow=1000, ncol=4401)
-% g <- rasterGrob(blueGradient, interpolate=TRUE)
-% 
-% p1 <- qplot(c(0,1000), 2, geom="blank") +   # just to set up the dimensions
-%   annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +  
-%   theme(plot.margin = unit(c(0.1,1,0.1, 1),"cm"), 
-%         legend.position = "none",
-%         axis.ticks=element_blank(),axis.text.y=element_blank(),
-%         panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
-%         panel.background=element_blank()
-%         ) + scale_x_continuous("", breaks=c(0,250,500,750,1000), labels=c(0,250,500,750,1000)) + 
-%   ylab("Continuous") 
-% p2 <- qplot(id2, 2, geom="tile", fill=-fill2) + 
-%   theme(plot.margin = unit(c(0.1,1,0.1, 1),"cm"), 
-%         legend.position = "none",
-%         axis.ticks=element_blank(),
-%         axis.text.y=element_blank(),
-%         panel.background=element_blank()) + 
-%   ylab("Discrete") + xlab("Count")
-% 
-% grid.arrange(p1,p2,nrow=2)
-% #ggsave("./figure/FreqBin.pdf",width=5, height=1.5)
-% @
-% 
-%  
-% The goal of binning the frequencies and using a ordinally shaded color palette is to provide more distinctive perceivable breaks to aid the information extraction; however it does so at the cost of using shade to display binned frequencies, $b_c(c_\ell)$ instead of the true frequencies, $c_\ell$. The \textit{total frequency loss}, $L^F$, is defined as
-% %
-% \begin{eqnarray}\label{totfreqloss}
-% L^F = \sum_{\ell=1}^{\mathscr{L}} L_\ell^F = \sum_{\ell=1}^{\mathscr{L}} (c_\ell-b_c(c_\ell))^2
-% \end{eqnarray}  
-% %
-% where $L_\ell^F$ is the frequency loss for the $\ell^{th}$ bin. Note that this is effectively a sum of squared error from binning frequencies.
-% 
-% While this numerical assessment of frequency loss does not exactly account for limitations in human perceptual ability, it does provide a more realistic model for the loss in perception that does occur.
-% 
-% Frequency data consists of counts, which most commonly exhibit skew densities, i.e.\ there are usually a lot of cells with small cell counts and a few cells with extremely large counts. The use of quantile binning is promising in the case of frequency binning because it seeks to place the same number of values in each frequency bin, thus balance the number of tiles at each shade.
-% 
-% Another alternative is to use a log transformation which produces a more symmetric distribution of frequency information, increasing perceptual resolution. This is consistent with the Weber-Fechner law which suggests that increased stimulus intensity is perceptually mapped on the log scale \citep{sp}. Using a logarithmic mapping of frequency to the color or size aesthetic provides a more natural perceptual experience and simultaneously increases the perceptual resolution of the graph. The \textit{log frequency loss}, $L^{\log F}$, is defined as
-% %
-% \begin{eqnarray}\label{logfrequency}
-% L^{\log F} = \sum_{\ell \in \mathscr{L}^\ast} L_\ell^{\log F} = \sum_{\ell \in \mathscr{L}^\ast} (\log(c_\ell) - b_c(\log(c_\ell)))^2
-% \end{eqnarray}
-% %
-% where $\mathscr{L}^\ast$ is the index set for all non-empty bins, which is done to avoid asymptotic problems from log transforming bin counts of zero. 
-% 
+\begin{table}[hbtp]
+\centering
+\begin{tabular}{lll} \hline
+ & Bin Boundaries & Bin Centers \\ 
+ \hline  
+General &  $ \{\beta_j \text{ }|\text{ } \beta_j > \beta_{j-1} \} $ & $\{x_j^\ast \text{ }|\text{ } x_j^\ast = (\beta_{j-1}+ \beta_j)/2 \}$ \\
+%-------------
+Standard \hspace{0.5cm} & $ \{\beta_j \text{ }|\text{ } \beta_j = \beta_{j-1} + \omega_X \} $\hspace{0.5cm} & $\{x_j^\ast \text{ }|\text{ } x_j^\ast = \beta_{j-1} + \omega_X/2 \}$ \\
+%-------------
+Quantile & $ \{\beta_j \text{ }|\text{ } \beta_j = Q_X(j/J) \} $  & $\{x_j^\ast \text{ }|\text{ } x_j^\ast = Q_X((j-0.5)/J) \}$ \\
+%-------------
+Random &  ---  & $\{x_j^\ast \text{ }|\text{ } x_j^\ast > x_{j-1}^\ast \}$  \\
+\hline
+\end{tabular}
+\caption{Rectangular and Random Binning Specifications}
+\label{tab:rectbinning}
+\end{table}
+%
+An alternative to the rectangular binning processes discussed above, is the random binning algorithm which utilizes a non-deterministic bin function $b^r_X(\cdot)$ which randomly assigns a value $x_i$ to a bin center, $x^\ast$, from a set of possible bins. In this paper, we will consider the simplest case of just two bins, so that without loss of generality we can assume that $x_i$ lies between bin centers $x^\ast_j$ and $x^\ast_{j+1}$. The bin function assigns $x_i$ to a bin center with a probability inversely proportional to the distance to that bin center; the closer a value is to a bin center, the higher the probability the value is assigned to that bin center. More formally,
+%
+\begin{eqnarray}\label{randbin1}
+b^r_X(x_i) = \left\{\begin{array}{ll} 
+  x^\ast_j & \text{ with probability } (x^\ast_{j+1} - x_i)/(x^\ast_{j+1} -x^\ast_{j}) \\
+  x^\ast_{j+1} &\text{ with probability }  (x_i - x^\ast_{j})/(x^\ast_{j+1} -x^\ast_{j})
+  \end{array}\right.
+\end{eqnarray}  
+%
+for $x_i \in [x^\ast_{j+1}, x^\ast_{j}]$.  This probability structure is inversely proportional to the distance from each bin center.  In Table~\ref{tab:rectbinning} we note that this random binning algorithm does not specify bin boundaries; only a sequence of bin centers.  This method is easily extensible to also map $x_i$ into more than two bins and can accommodate non-uniform distribution of bin centers.  
+
+The deterministic standard binning algorithm is an example of a ``direct" binning algorithm, in which all points are assigned with weight one to the bin center. ``Linear" binning  \citep{martin-gold} is a \textit{computationally intensive} alternative to direct binning in which adjacent bins are assigned a weight depending on the distance from the point to that bin, where all weights sum to one.  With large data sets, the calculations required for linear binning become unwieldy, but the random binning algorithm can be considered an approximation to linear binning. Specifically, the expectation of the random binning algorithm is the same as for linear binning.
+
+\subsection{Extension to Two Dimensional Binning}
+\label{TwoDimBin}
+
+The standard and random binning algorithms are easily extendable to higher dimension. For the purposes of creating binned scatterplots we will specify extension to rectangular binning in two dimensions. In this case we wish to assign data pairs $(x_i, y_i)$ to bin centers of the form $(x_j^\ast,y_k^\ast)$, with $j \in \{1,\dots,J\}$ and $k \in \{1,\dots,K\}$, where $J$ and $K$ are the number of bins in the X and Y dimensions, respectively. The two ($j$,$k$) pairs that index the bin centers can be linearized to a single index such that $\ell = j + J(k-1)$; thus making $j$ the fast running index and $k$ the slow running index.  With this linearized index for all bins we now have a set of bin centers of the form $(x_\ell^\ast,y_\ell^\ast)$, with $\ell \in \{1,\dots,\mathscr{L}\}$, where $\mathscr{L}=J\cdot K$.
+
+The standard rectangular binning function $b(.) : (x_i,y_i) \rightarrow (x^\ast_\ell,y^\ast_\ell)$ is defined as 
+%
+\begin{eqnarray}\label{standrecbin1}
+b(x_i,y_i) = (b_X(x_i),b_Y(y_i))
+\end{eqnarray}
+%
+where $b_X(x_i)$ and $b_Y(y_i)$ are the univariate standard binning algorithms for the X and Y dimensions respectively. The random rectangular binning function, $b^r(\cdot): (x_i,y_i) \rightarrow (x^\ast_\ell,y^\ast_\ell)$ is similarly be defined as
+%
+\begin{eqnarray}\label{randrecbin1}
+b^r(x_i,y_i) = (b^r_X(x_i),b^r_Y(y_i))
+\end{eqnarray}
+%
+where $b^r_X(x_i)$ and $b^r_Y(y_i)$ are univariate random binning algorithms for each dimension. Figure~\ref{fig:spatlossdemo2} provides an illustration of each binning process extended to a two dimensional situation.
+
+%--------------------------------------------------------------
+
+\subsection{Binned Data Reduction}
+
+The second stage of binning requires a frequency breakdown of the number of observations associated with each bin center, forming data triples, $(x^\ast, y^\ast, c)$, where $c$ is the number of all observations assigned to bin center $(x^\ast,y^\ast)$. Table~\ref{DataReductionExample} makes use of a small set of simulated data to show the progression from the original data (a), to the binned data (b), to the reduced binned data (c). The reduced binned data is sufficient for constructing the binned scatterplot. In cases of large data, binning greatly reduces the storage size for the information and the computation time needed to construct the plot.
+
+<<DataReduction,echo=FALSE,eval=FALSE,results='asis'>>=
+n=12
+param1 = 1
+param2 = 1.6
+set.seed(52)
+x <- rbeta(n,param1, param2)*20-10
+y <- rbeta(n,param1, param2)*20-10
+# standard bin centers
+xcent <- rep(-5,n) ; xcent[x>0] <- 5
+ycent <- rep(-5,n) ; ycent[y>0] <- 5
+idx <- order(xcent,ycent)
+d <- data.frame(x,y,xcent,ycent)[idx,]
+dbin <- ddply(d, .(xcent,ycent), summarise,
+              c=length(x))
+dbin <- dbin[order(dbin$xcent,dbin$ycent),]
+
+print(xtable(d[1:2], digits=c(0, 4, 4), caption=paste('Original Data\\newline', nrow(d), 'rows')), include.rownames=FALSE, table.placement="hbtp", floating=FALSE)
+
+print(xtable(d[3:4], digits=c(0, 0, 0), caption=paste('Binned Data\\newline', nrow(d), 'rows')), include.rownames=FALSE, table.placement="hbtp", floating=FALSE)
+
+print(xtable(dbin, digits=c(0, 0, 0, 0), caption=paste('Binned Data\\newline', nrow(dbin), 'rows'), align=c('X','X','X','c')), include.rownames=FALSE, table.placement="hbtp", floating=FALSE, tabular.environment="tabularx", width='.7\\textwidth')
+
+@
+
+\begin{table}[hbtp]
+\begin{minipage}[t]{.33\textwidth}\centering\subfloat[Original Data, 12 rows]{
+\begin{tabular}{rr}\hline
+       $x$ &  $y$  \\ \hline
+-7.7325 & -9.6340 \\ 
+  -8.1176 & -1.4529 \\ 
+  -5.8996 & -3.2033 \\ 
+  -7.0375 & -5.5563 \\ 
+  -3.6354 & -3.9315 \\ 
+  -8.7639 & 0.9874 \\ 
+  -2.9781 & 8.6802 \\ 
+  0.8210 & -8.6118 \\ 
+  5.4477 & -8.4555 \\ 
+  4.6849 & -5.6620 \\ 
+  9.4785 & 1.1133 \\ 
+  1.7579 & 5.3759 \\  \hline
+\end{tabular}}
+\end{minipage}\hfil
+\begin{minipage}[t]{.33\textwidth}\centering\subfloat[Binned Data Centers, 12 rows]{
+\begin{tabularx}{.7\textwidth}{rr} \hline
+  $b_X(x)$ & \hspace{.4cm} $b_Y(y)$  \\ \hline
+  -5 & -5 \\ 
+  -5 & -5 \\ 
+  -5 & -5 \\ 
+  -5 & -5 \\ 
+  -5 & -5 \\ 
+  -5 & 5 \\ 
+  -5 & 5 \\ 
+  5 & -5 \\ 
+  5 & -5 \\ 
+  5 & -5 \\ 
+  5 & 5 \\ 
+  5 & 5 \\  \hline
+\end{tabularx}}
+\end{minipage}\hfil
+\begin{minipage}[t]{.33\textwidth}\centering\subfloat[Reduced Binned Data, 4 rows]{
+\begin{tabularx}{.7\textwidth}{rrr}\hline
+ \hspace{.2cm} $x^\ast$   &   \hspace{.2cm} $y^\ast$ & \hspace{.4cm}c \\ \hline
+-5 & -5 & 5 \\ 
+  -5 & 5 & 2 \\ 
+  5 & -5 & 3 \\ 
+  5 & 5 & 2 \\  \hline
+\end{tabularx}}
+\end{minipage}
+\caption{\label{DataReductionExample}Original, Binned and Reduced Binned Data Tables, with data storage sizes.  Binned using standard rectangular approach with origin $(\beta_{0,x},\beta_{0,y})$ = (-10,-10) and binwidths $\omega_x = \omega_y = 10$. }
+\end{table}
+
+Note that numerical attributes other than frequency of the binned data may also be recorded during binning, however only frequency is required to construct a binned scatterplot. Data reduction comes at the expense of spatial information of any of the individual points. After aggregation the original spatial locations cannot be recovered. The loss of information incurred from binning will be explored in following sections. 
+
+%--------------------------------------------------------------
+
+\section{Loss due to Binning}
+\label{LossIntro}
+
+The problems with large data in scatterplots arise from overplotting, which is a form of implicit data aggregation. In order to keep track of overplotting, we switch to a weighted form of displays and explicitly keep track of overplotting. The reduced binned data carries the sufficient information necessary to render the binned scatterplot. Making the data aggregation explicit allows us to calculate the loss we experience.
+
+Using a minimal bin width, a binned scatterplot is comparable to a standard scatter plot, with bins shaded in a binary manner, as each unique observed value is located in a different bin. Alpha blending as used in Figure~\ref{fig:scatter-alpha}c extends the binary shading of a standard scatterplot to an implicit shading according to frequency. The shading is implicit because the range of frequency information is not scaled to the range of shading values, so that maximum color saturation is usually reached well before the maximum frequency, truncating the perceivable frequency information. By explicitly shading bins according to frequency, more information is preserved than in a traditional scatter plot, as the frequency domain provides visual weight to tiles which represent more points. This generalization allows us to describe the plots in Figure~\ref{fig:scatter-alpha}d and e under the same framework as plots a-c. 
+
+By additionally increasing the bin width, we provide increasingly higher-level summaries of the data by smoothing over local structures. Using a small number of large bins may mask the real signal in the data, while an extremely large number of small bins may not sufficiently smooth over {\it noise} inherent in any real data set. Figure~\ref{binning} gives an overview of a data set and binned representations using different numbers of bins, demonstrating the loss of information with increasing bin size. 
+
+\begin{figure}[hbtp]
+<<binning_setup, echo=FALSE,fig.width=2, fig.height=2, out.width='\\linewidth'>>=
+set.seed(46)
+x <- round(rnorm(200), digits=2)
+y <- round(rnorm(200), digits=2)
+X <- data.frame(x,y)
+@
+\begin{minipage}{.35\linewidth}
+<<first, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=4>>=
+qplot(x,y, asp=1, main='Unbinned Data')+theme_bw()
+@
+\end{minipage}
+\hfil\begin{minipage}{.645\linewidth}
+\begin{minipage}{.495\linewidth}
+<<bin001, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=5>>=
+binwidth=0.1
+binout1 <- RectBin2d(x,y,-binwidth/2,-binwidth/2,binwidth,binwidth,type="standard")[[1]]
+qplot(x,y, asp=1, geom="blank") +
+  geom_tile(binwidth=binwidth, aes(x=binxs, y=binys, fill=binfreq), data=binout1) +
+  ggtitle(sprintf("binwidth = %.2f", binwidth)) +
+  geom_vline(aes(xintercept=seq(min(binout1$binxs)-binwidth, max(binout1$binxs),
+                                by=binwidth)+binwidth/2), colour="grey90") + 
+  geom_hline(aes(yintercept=seq(min(binout1$binys)-binwidth, max(binout1$binys),
+                                by=binwidth)+binwidth/2), colour="grey90") +
+  theme_bw() + theme(panel.grid.major= element_blank(),
+                     panel.grid.minor= element_blank(), legend.position="bottom") +
+  scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend",
+                      trans="log", breaks=c(1, 2, 5, 10, 20))
+
+@
+\end{minipage}\hfil
+\begin{minipage}{.495\linewidth}
+<<bin025, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=5>>=
+binwidth=0.25
+binout1 <- RectBin2d(x,y,-binwidth/2,-binwidth/2,binwidth,binwidth,type="standard")[[1]]
+qplot(x,y, asp=1, geom="blank") +
+  geom_tile(binwidth=binwidth, aes(x=binxs, y=binys, fill=binfreq), data=binout1) +
+  ggtitle(sprintf("binwidth = %.2f", binwidth)) +
+  geom_vline(aes(xintercept=seq(min(binout1$binxs)-binwidth, max(binout1$binxs),
+                                by=binwidth)+binwidth/2), colour="grey90") + 
+  geom_hline(aes(yintercept=seq(min(binout1$binys)-binwidth, max(binout1$binys),
+                                by=binwidth)+binwidth/2), colour="grey90") +
+  theme_bw() + theme(panel.grid.major= element_blank(),
+                     panel.grid.minor= element_blank(), legend.position="bottom") +
+  scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend",
+                      trans="log", breaks=c(1, 2, 5, 10, 20))
+@
+\end{minipage}\\
+\hfil\begin{minipage}{.495\linewidth}
+<<bin05, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=5>>=
+binwidth=0.5
+binout1 <- RectBin2d(x,y,-binwidth/2,-binwidth/2,binwidth,binwidth,type="standard")[[1]]
+qplot(x,y, asp=1, geom="blank") +
+  geom_tile(binwidth=binwidth, aes(x=binxs, y=binys, fill=binfreq), data=binout1) +
+  ggtitle(sprintf("binwidth = %.2f", binwidth)) +
+  geom_vline(aes(xintercept=seq(min(binout1$binxs)-binwidth, max(binout1$binxs),
+                                by=binwidth)+binwidth/2), colour="grey90") + 
+  geom_hline(aes(yintercept=seq(min(binout1$binys)-binwidth, max(binout1$binys),
+                                by=binwidth)+binwidth/2), colour="grey90") +
+  theme_bw() + theme(panel.grid.major= element_blank(),
+                     panel.grid.minor= element_blank(), legend.position="bottom") +
+  scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend",
+                      trans="log", breaks=c(1, 2, 5, 10, 20))
+@
+\end{minipage}\hfil
+\begin{minipage}{.495\linewidth}
+<<bin1, echo=FALSE, out.width='\\linewidth',fig.width=4, fig.height=5>>=
+binwidth=1
+binout1 <- RectBin2d(x,y,-binwidth/2,-binwidth/2,binwidth,binwidth,type="standard")[[1]]
+qplot(x,y, asp=1, geom="blank") +
+  geom_tile(binwidth=binwidth, aes(x=binxs, y=binys, fill=binfreq), data=binout1) +
+  ggtitle(sprintf("binwidth = %.2f", binwidth)) +
+  geom_vline(aes(xintercept=seq(min(binout1$binxs)-binwidth, max(binout1$binxs),
+                                by=binwidth)+binwidth/2), colour="grey90") + 
+  geom_hline(aes(yintercept=seq(min(binout1$binys)-binwidth, max(binout1$binys),
+                                by=binwidth)+binwidth/2), colour="grey90") +
+  theme_bw() + theme(panel.grid.major= element_blank(),
+                     panel.grid.minor= element_blank(), legend.position="bottom") +
+  scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend",
+                      trans="log", breaks=c(1, 2, 5, 10, 20))
+@
+\end{minipage}
+\end{minipage}
+\caption{\label{binning}Series of scatterplots showing the original data (scatterplot, left), and versions of the binned data for different bin widths. The visual loss from binning at 0.1 is minimal, while a bin width of 1 gives a rough approximation.}
+\end{figure}
+
+In the first set of binned data, the bins and the points on the scatterplot are nearly identical, but the scatterplot contains information about overlapping points. The second and third sets of binned data, with bin width equal to 0.25 and 0.50 respectively, show higher-level summaries of the data but which may also provide more visually accessible information about the shape of the two-dimensional density between $x$ and $y$. The fourth set of binned data with bin width equal to 1.0 is nearly unrecognizable, because the bins are large enough that they provide very little additional information. 
+
+Loss of information occurs during the binning and rendering process. For the remainder of the paper we will assume that we are using colors in binned scatterplots to represent frequencies.  We distinguish two sources of loss in the construction of a binned scatterplot:
+
+
+\begin{itemize}
+\item {\it Spatial Loss}, $L^\text{S}$, occurs when points $(x_i, y_i)$ for observations $i \in \{1,\dots,n\}$ in the data set are reduced to a set of tiles centered at $(x_\ell^\ast, y_\ell^\ast)$ for bins $\ell \in \{1,\dots,\mathscr{L}\}$. By displaying frequency information using shaded tiles instead of individual points there is a loss of information about the exact location of the points. %\hh{XXX the frequency information is not what causes the loss}
+
+\item {\it Frequency Loss}, $L^\text{F}$, occurs when bin counts, $c_\ell \in \{1,\dots,\mathscr{L}\}$ are not mapped to a continuous shading scale. While shade can be \textit{rendered} continuously in HSV color space, thus representing frequency exactly, a human reader can not \textit{extract} this information at the same precision due to limitations of  human cognition.  %A discrete color scale may be used to aid the ability to read a binned scatterplot, however this is effectively 
+In order to model these limitations we 
+introduce a second stage of binning by using a discrete color scale for displaying binned frequencies, $b_C(c_\ell)$, $\ell \in \{1,\dots,\mathscr{L}\}$. %This loss in precision is then quantified as {\it Frequency loss}. %, thus losing precision in the display of the true frequencies.
+\end{itemize}
+
+Note that even though the losses from creating a binned scatterplot may turn out to be substantial there a huge gain with respect to the original scatterplot, where information can be masked in large data situations due to over-plotting of points. The idea of loss from one-dimensional binning was explored by Scott using mean squared error as the loss function to be optimized by the choice of the number of bins in  the construction of histograms \citep{scott1979}. He later extended this discussion to two-dimensional binning, where he compared the mean squared error loss for hexagonal, rectangular and triangular binning; finding that hexagonal and rectangular binning performed similarly, both far superior to triangular binning \citep{scott1992}. We will take a similar approach to quantifying loss resulting from the binning algorithms detailed in Section~\ref{GenBinning} above. 
+
+\subsection{Spatial Loss}
+\label{SpatialLoss}
+
+When the individual points of a scatterplot are collapsed to bin centers to be displayed as tiles in a binned scatterplot there is a loss of the location information.  This can be expressed as the Euclidean distance between points and the visual center of the tiles (i.e.\ the bin centers). Note that other distance metrics could be used, but the Euclidean distance has a desirable interpretability in $\mathbb{R}^2$. The \textit{total spatial loss}, $L^S$, is defined as 
+\begin{eqnarray}\label{totspatloss}
+L^S = \sum_{i=1}^{n} L_i^S = \sum_{i=1}^{n} \sqrt{ \left(x_i-b_X(x_i)\right)^2 + \left(y_i-b_Y(y_i)\right)^2 }
+\end{eqnarray} 
+%
+where $L_i^S$ is the loss in the  $i$th observation. 
+%
+Figure~\ref{fig:spatlossdemo2} visually displays the spatial loss for the data from  Table~\ref{DataReductionExample} as a result of standard rectangular binning. Observations $(x_i,y_i)$ and bin centers $\left(x_\ell^\ast,y_\ell^\ast\right)$ are displayed as black points and gray crosses, respectively. The length of line segments connecting these represent $L^S_i$, the spatial loss for each observation; thus, the combined length of all segments represents the total spatial loss, $L^S$.  
+
+<<spatlossdemo2,echo=F,include=T,eval=T,fig.width=12, fig.height=6, out.width='1\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Visualization of spatial loss for same data using standard, random and post-processed random binning algorithms.  Note that the total spatial loss for the standard algorithm is smaller than by random binning. The net spatial loss for the original random binned data is the total spatial loss of the post-processed assignment." >>= 
+n=12
+param1 = 1
+param2 = 1.6
+set.seed(52)
+x <- rbeta(n,param1, param2)*20-10
+y <- rbeta(n,param1, param2)*20-10
+# standard bin centers
+xcent <- rep(-5,n) ; xcent[x>0] <- 5
+ycent <- rep(-5,n) ; ycent[y>0] <- 5
+# standard bin gridlines
+temp <- data.frame(   
+  x=c( -10,   0,  10, -10, -10, -10), 
+  xend=c( -10,   0,  10,  10, 10, 10), 
+  y=c( -10, -10 , -10 , -10, 0 , 10), 
+  yend=c(10, 10 , 10, -10, 0, 10 ))
+
+p1 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+      geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
+      geom_segment(aes(x = x, y = y, xend = xcent, yend = ycent)) + 
+      geom_point(aes(x=x,y=y), size=I(3))+ 
+      theme_bw() + xlab("") + ylab("") +
+      ggtitle("Standard Binning") +
+      theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+            legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
+            aspect.ratio=1)
+
+# random bin centers
+set.seed(14)
+rxcent <- RandRectBin1d(x, -10, 10)
+rycent <- RandRectBin1d(y, -10, 10)
+# point 1 and 11 are special 
+linecolor <- rep("blue", 12)
+linecolor[c(1,11)] <- "red"
+
+p2 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
+  geom_segment(aes(x = x, y = y, xend = rxcent, yend = rycent, color=linecolor)) + 
+  scale_colour_manual(values = c("darkblue","red"))+
+  geom_point(aes(x=x,y=y), size=I(3))+ 
+  theme_bw() + xlab("") + ylab("") +
+  ggtitle("Random Binning") +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
+            aspect.ratio=1)
+
+# post process random bin centers to visually 
+# equivalent allocation with minimum spatial loss
+rxcentpost <- rxcent
+rycentpost <- rycent
+rxcentpost[1] <- rxcent[11]
+rycentpost[1] <- rycent[11]
+rxcentpost[11] <- rxcent[1]
+rycentpost[11] <- rycent[1]
+# point 1 and 11 are special 
+linecolor <- rep("blue", 12)
+linecolor[c(1,11)] <- "red"
+
+p3 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
+  geom_segment(aes(x = x, y = y, xend = rxcentpost, yend = rycentpost, color=linecolor)) + 
+  scale_colour_manual(values = c("darkblue","red"))+
+  geom_point(aes(x=x,y=y), size=I(3))+ 
+  theme_bw() + xlab("") + ylab("") +
+  ggtitle("Post-Processed Random Binning") +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
+            aspect.ratio=1)
+
+allbin <- data.frame(type=rep(c("Standard","Random","Post-Processed Random"),each=n),
+                     binxs = c(xcent,rxcent,rxcentpost), 
+                     binys = c(ycent,rycent,rycentpost))
+allbinfreq <- ddply(allbin, .(type,binxs,binys),summarise,
+                     freq = length(binxs))
+
+p4 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_tile(aes(x=binxs, y=binys, fill=freq),data=subset(allbinfreq,type=="Standard")) + 
+  scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend") + 
+  theme_bw() + xlab("") + ylab("")  +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        plot.margin = unit(c(0,1,0, 1),"cm"),legend.position="bottom",
+            aspect.ratio=1)+
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) 
+
+p5 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_tile(aes(x=binxs, y=binys, fill=freq),data=subset(allbinfreq,type=="Random")) + 
+  scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend") + 
+  theme_bw() + xlab("") + ylab("") +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        plot.margin = unit(c(0,1,0, 1),"cm"),legend.position="bottom",
+            aspect.ratio=1)+
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) 
+
+p6 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_tile(aes(x=binxs, y=binys, fill=freq),data=subset(allbinfreq,type=="Post-Processed Random")) + 
+  scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend") + 
+  theme_bw() + xlab("") + ylab("") +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        plot.margin = unit(c(0,1,0, 1),"cm"),legend.position="bottom",
+            aspect.ratio=1)+
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) 
+
+grid.arrange(p1,p2,p3,p4,p5,p6,nrow=2)
+@
+
+For random assignment the total spatial loss can be calculated by simply replacing the standard binning function with the random binning function in Equation~\ref{totspatloss}. The total spatial loss for randomly binned data is visualized in Figure~\ref{fig:spatlossdemo2}. Special consideration should be paid to the two points highlighted in red in the panel for random binning: in standard binning these points are in neighboring bins but have been allocated to the opposite bin during random binning. We see that the binned scatterplot remains identical if these points are re-allocated back to the closer centers; however, the total spatial loss is smaller after the random allocation is post-processed.  
+
+The minimum total spatial loss from all binning allocations that result in the same reduced binned data, and thus the same binned scatterplot, will be referred to as the \textit{net spatial loss}, $L^S_{net}$. The net spatial loss for standard binned data is always  equivalent to the total spatial loss due to the deterministic bin allocations. For random binning algorithms the net spatial loss is achieved by first exchanging bin assignments for pairs of points in neighboring bins that exist further from their own bin center than from their partner's bin center, then finding the total spatial loss from this processed binned data. 
+
+The spatial loss is a Euclidean distance, but the units affiliated with this distance are based on the units on which each variable is recorded. If the two variables in the binned scatterplot share the same units this leads to direct interpretability of the spatial loss.  However, if the two variables do not share the same units or magnitude of values it is advisable to standardize the variables prior to binning, thus the spatial loss is more universally interpretable as a distance in units of standard deviations. 
+
+%------------------------------------------------
+
+\subsection{Frequency Loss}
+\label{FreqLoss}
+
+It is important to note that there is no spatial loss for the traditional scatterplot, as the points are rendered at exact coordinates. The reason we are willing to sacrifice precision of location information is to alleviate the inherent loss of frequency information from overplotting, which can be immense for large data sets. When a point is rendered in a traditional scatterplot there is no graphical change once any additional points are placed at the same coordinates; thus visually implying a frequency of one data value at the location. This implicit loss of frequency information is then exacerbated when points are rendered as a circle with a radius large enough to also partially cover nearby points. In binned scatterplots, we have traded the exact locations for exact frequencies within bins. 
+
+Bin counts can be displayed using a continuous shading scale in HSV color space \citep{colorperception} and thus theoretically have no frequency loss. While the tiles of the binned scatterplot would be rendered precisely, the ability of a human with average vision to extract that information using a plot index for the frequency key for the plot is largely imprecise. Color perception of shade is extremely context sensitive allowing an inaccurate mapping of tile shade to the corresponding shade on the frequency key.
+It is therefore not realistic, to expect readers to be able to map colors to a continuous color scheme, even though theoretically we can distinguish enough different colors (see e.g.\ the discussion in \url{http://hypertextbook.com/facts/2006/JenniferLeong.shtml}). Figure~\ref{fig:context} shows an example of the context sensitivity of colors. Even though there is a lot of spread between the colors in this example, most onlookers have trouble answering the question about the relative relationship of the shading of the darkest/lightest points in each of the points clouds.
+
+
+\begin{figure}[hbtp]
+\centering
+<<context, echo=F, fig.width=6, fig.height=4.5, out.width='.5\\textwidth'>>=
+#col <- c(rnorm(200, mean=0, sd=10), rnorm(10, mean=50), rnorm(200, mean=100, sd=10), rnorm(10, mean=50))
+Shade <- c(rbeta(200, 1,10),rep(.5,10), rbeta(200,10,1), rep(.5,10))
+x <- c(rnorm(210, mean=0, sd=0.075), rnorm(210, mean=.5, sd=0.075))
+y <- c(rnorm(210, mean=0, sd=0.075), rnorm(210, mean=.5, sd=0.075))
+Shape <- c(rep("circle",200),rep("triangle",10),rep("circle",200),rep("triangle",10))
+
+require(ggplot2)
+qplot(x, y, colour=Shade, size=I(5),shape=Shape) + theme_bw() + 
+  xlab("") + ylab("")+
+  theme(aspect.ratio=1, axis.ticks=element_blank(), axis.text=element_blank()) +
+  scale_colour_gradient(limits=c(0,1), breaks=c(0,.5,1))
+@
+\caption{\label{fig:context}Assess the colors in this scatterplot. Are the triangles in the lighter cloud of points as dark as the triangles in the darker cloud of points? The answer is that all the triangles have the exact same shade!}
+\end{figure}
+
+Research suggests that even under optimal conditions, we can effectively compare only about seven colors \citep{colorperception}, which provides a physical upper limit on the amount of frequency variation we can perceive. As a result, a binning width which produces seven of fewer frequency categories is preferable.%, while minimizing numerical loss within that constraint. 
+
+ Whenever the shading scheme for rendering the counts in each bin is discretized there is a loss of frequency information. We can model this as a second stage of binning; wherein the bin counts, $c_\ell$, for bins $\ell \in \{1, \dots, \mathscr{L} \}$ are placed into frequency bins using any of the previously discussed univariate binning algorithms in Section~\ref{GenBinning}.  Figure~\ref{fig:FreqLossDemo} provides a visual example of a discrete color palette resulting from frequency binning.  
+
+<<FreqLossDemo,echo=F,include=T,eval=T,fig.width=6, fig.height=3, out.width='.8\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Continuous and discrete color scales for counts in the range 0 to 1000. Frequency binning done using standard rectangular binning with origin $\\beta_0 = 0$ and binwidth $\\omega_X = 200$. ">>= 
+#J= 1
+J2 = 200
+bound = 1000
+#id <- seq(0+J/2,bound-J/2,by=J )
+#fill <- seq(0+J/2,bound-J/2,by=J )
+id2 <- seq(0+J2/2,bound-J2/2, by=J2)
+fill2 <- seq(J2/2,bound-(J2/2), by=J2)
+
+low = "#132B43"
+high = "#56B1F7"
+library(scales)
+blueGradient <- matrix(seq_gradient_pal(high, low, "Lab")(0:4400/4400), byrow=TRUE,
+       nrow=1000, ncol=4401)
+g <- rasterGrob(blueGradient, interpolate=TRUE)
+
+p1 <- qplot(c(0,1000), 2, geom="blank") +   # just to set up the dimensions
+  annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +  
+  theme(plot.margin = unit(c(0.1,1,0.1, 1),"cm"), 
+        legend.position = "none",
+        axis.ticks=element_blank(),axis.text.y=element_blank(),
+        panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        panel.background=element_blank()
+        ) + scale_x_continuous("", breaks=c(0,250,500,750,1000), labels=c(0,250,500,750,1000)) + 
+  ylab("Continuous") 
+p2 <- qplot(id2, 2, geom="tile", fill=-fill2) + 
+  theme(plot.margin = unit(c(0.1,1,0.1, 1),"cm"), 
+        legend.position = "none",
+        axis.ticks=element_blank(),
+        axis.text.y=element_blank(),
+        panel.background=element_blank()) + 
+  ylab("Discrete") + xlab("Count")
+
+grid.arrange(p1,p2,nrow=2)
+#ggsave("./figure/FreqBin.pdf",width=5, height=1.5)
+@
+
+ 
+The goal of binning the frequencies and using a ordinally shaded color palette is to provide more distinctive perceivable breaks to aid the information extraction; however it does so at the cost of using shade to display binned frequencies, $b_c(c_\ell)$ instead of the true frequencies, $c_\ell$. The \textit{total frequency loss}, $L^F$, is defined as
+%
+\begin{eqnarray}\label{totfreqloss}
+L^F = \sum_{\ell=1}^{\mathscr{L}} L_\ell^F = \sum_{\ell=1}^{\mathscr{L}} (c_\ell-b_c(c_\ell))^2
+\end{eqnarray}  
+%
+where $L_\ell^F$ is the frequency loss for the $\ell^{th}$ bin. Note that this is effectively a sum of squared error from binning frequencies.
+
+While this numerical assessment of frequency loss does not exactly account for limitations in human perceptual ability, it does provide a more realistic model for the loss in perception that does occur.
+
+Frequency data consists of counts, which most commonly exhibit skew densities, i.e.\ there are usually a lot of cells with small cell counts and a few cells with extremely large counts. The use of quantile binning is promising in the case of frequency binning because it seeks to place the same number of values in each frequency bin, thus balance the number of tiles at each shade.
+
+Another alternative is to use a log transformation which produces a more symmetric distribution of frequency information, increasing perceptual resolution. This is consistent with the Weber-Fechner law which suggests that increased stimulus intensity is perceptually mapped on the log scale \citep{sp}. Using a logarithmic mapping of frequency to the color or size aesthetic provides a more natural perceptual experience and simultaneously increases the perceptual resolution of the graph. The \textit{log frequency loss}, $L^{\log F}$, is defined as
+%
+\begin{eqnarray}\label{logfrequency}
+L^{\log F} = \sum_{\ell \in \mathscr{L}^\ast} L_\ell^{\log F} = \sum_{\ell \in \mathscr{L}^\ast} (\log(c_\ell) - b_c(\log(c_\ell)))^2
+\end{eqnarray}
+%
+where $\mathscr{L}^\ast$ is the index set for all non-empty bins, which is done to avoid asymptotic problems from log transforming bin counts of zero. 
+
 % %  Similar to spatial binning, \hh{we define} a worst-case scenario for frequency binning that provides context to the magnitude of the total frequency loss.  If we use a single frequency bin then all tiles of the binned scatterplot are rendered with the same shade; thus the shade  represents the average bin density \hh{XXX this is different from the spatial loss - visually the shade would be half way between lowest and highest frequency, wouldn't it?}, $\bar{c} =  (\sum_{\ell=1}^{L} c_\ell) /L$.  We define the total frequency loss in the single shade scenario as the \textit{potential frequency loss}, $L^F_p$,  where
 % % %
 % % \begin{eqnarray}\label{potfreqloss}
