@@ -78,6 +78,10 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
 % Comment out the next line if NOT using chaptertitle
 \addtocontents{toc}{\def\protect\@chapapp{CHAPTER\ }}
 %-------------------------------------------------------------------------------
+%Optional Dedication
+\cleardoublepage \phantomsection
+\include{Preface/dedication}
+%-------------------------------------------------------------------------------
 %Optional Acknowledgements
 \cleardoublepage \phantomsection
 \include{Preface/acknowl}
@@ -92,11 +96,7 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
 
 \section{Introduction}
 
-This dissertation is a composite of research preformed in the fields of statistics education and statistical graphics. The three body chapters stand as the pillars of this work; tied together by the common theme of overcoming challenges and grasping opportunities that are posed by emerging technologies and prodigious data sources. In this first chapter we conduct a review of the literature that lays the foundation upon which the work of the following chapters is built. 
-
-We begin by investigating literature on the technological history of statistical education and a review of current uses of technological tools in the undergraduate statistics classroom. Development and application of educational technology in similar STEM disciplines are also explored to identify general pedagogical and design principles for effective implementation of technology in statistics curricula. As a note, Section~\ref{EdTech} is intended to be submitted for publication as a stand alone review of literature on technology in statistics education.
-
-The remaining sections of the literature review then investigate work from fields pertinent to the individual body chapters of this dissertation. Chapter 2 is an educational experiment comparing the learning outcomes from randomization-based and traditional statistical inference curricula. Literature to support this study come from the subjects of randomization-based inference curriculum development, learning assessment, comparative educational studies and experimentalism in education. Chapter 3 studies the development of a \texttt{shiny} \citep{shiny} application to connect students to large data; thus literature on developing and evaluating educational technology, as well as existing tools for statistics education and data science, are reviewed. Chapter 4 is tangential to the work with large data found in the \texttt{shiny} applications, however it contributes to research on binned scatterplots as a graphical tool for visualizing large data. Pertinent literature for this research include works on binning strategies, statistical graphics and perceptual psychology. Each body chapter in this dissertation is intended be submitted for publication individually; therefore, the works discussed in this comprehensive literature review will also be found cited throughout the respective chapters.
+Chapter 3 studies the development of a \texttt{shiny} \citep{shiny} application to connect students to large data; thus literature on developing and evaluating
 
 
 % <<litReview, child='Body/LitReview.Rnw'>>=
