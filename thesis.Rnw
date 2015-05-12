@@ -124,12 +124,14 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
 <<BinnedScatter, child='Body/BinnedScatter/Paper.Rnw'>>=
 @
 % \chaptocbreak
-% <<featureHierarchy, child='Body/FeatureHierarchy.Rnw'>>=
-% @
 % <<Conclusion, child='Body/Conclusion.Rnw'>>=
 % @
+
+<<Appendix, child='Appendix/Appendix1.Rnw'>>=
+@
+
 %-------------------------------------------------------------------------------
-% \include{Appendix/appendix1}
+%\include{Appendix/Appendix1} 
 % \include{Appendix/appendix2}
 %-------------------------------------------------------------------------------
 \include{Reference/bibtex}

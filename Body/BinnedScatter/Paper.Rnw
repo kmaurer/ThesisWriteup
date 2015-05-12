@@ -1039,10 +1039,10 @@ p6 <-qplot(ncolor, totalFreqLoss, geom="path",linetype=FreqBinType,
 grid.arrange(p1,p2,p3,p4,p5,p6, nrow=2)
 @
 
-Log transforming the frequencies prior to binning and using quantile based binning on the raw frequencies are two methods for dealing with the same problem for binned scatterplots: heavily right skewed bin counts where dense bins visually overshadow any structure in low density bins. However, using both -- quantile log frequency binning -- is not a recommended approach. Frequency groups for quantile binning are invariant to the log transformation because a monotone transformation does not affect groupings based on quantiles, thus it is preferable leave the frequencies untransformed before quantile binning for better contextual interpretability. In the common situation where bin frequencies are heavily skewed, the choice is between quantile frequency binning and standard log frequency binning.
+Log transforming the frequencies prior to binning and using quantile based binning on the raw frequencies are two methods for dealing with the same problem for binned scatterplots: heavily right skewed bin counts where dense bins visually overshadow any structure in low density bins. Frequency groups for quantile binning are invariant to the log transformation because a monotone transformation does not affect groupings based on quantiles, thus it is preferable leave the frequencies untransformed before quantile binning for better contextual interpretability. In the common situation where bin frequencies are heavily skewed, the choice is between quantile frequency binning and standard log frequency binning.
 
 Since the loss scales are not comparable, the choice is guided by desired interpretation. 
-Figure~\ref{freqbinning} shows binned scatterplots for the simulated normal data with quantile frequency binning and standard log frequency binning. For standard log frequency binning, the shade is to be interpreted as an ordinal indicator of the groups based on equally spaced groupings of log bin frequencies, whereas for quantile frequency binning the shade denotes groups based on frequency quantiles. This is analogous to the difference in interpreting a histogram of log transformed data and a boxplot in univariate visualization.
+Figure~\ref{freqbinning} shows binned scatterplots for the simulated normal data with quantile frequency binning and standard log frequency binning. For standard log frequency binning, the shade is to be interpreted as an ordinal indicator of the groups based on equally spaced groupings of log bin frequencies, whereas for quantile frequency binning the shade denotes groups based on frequency quantiles. This is analogous to the difference in interpreting a histogram of log transformed data and a boxplot in univariate visualization. Both shading schemes are effective at reducing the visual impact of the highest density at the center, allowing for the differences in the surrounding bin frequencies to be emphasized. It should be noted that the frequency binning algorithm produced binned scatterplots that visually very similar, but this will not always be the case. It occurred in this scenario because the distribution of log bin frequencies from the bivariate normal data is nearly uniform, thus the standard log binning aligns closely with the quantile binning.
 
 \begin{figure}[hbtp]
 <<FreqBinPlots, echo=FALSE, out.width='\\linewidth',fig.width=10, fig.height=4.8>>=
@@ -1357,33 +1357,32 @@ Future implementations of software for constructing binned scatterplots would be
 %----------------------------------------------------------------------------
 % \newpage
 % \begin{appendix}
-\section{Appendix}
-
-%----------------------------------------------------------------------------
-\subsection{Optimal Offset for Uniform Data Recorded to Resolution $\alpha$}
-\label{proof:offset}
-
-The following is proof that when univariate data is uniformly distributed at resolution $\alpha$ and standard rectangular binning is used with binwidths that are a scalar multiple of the data resolution (i.e. $\omega = k\alpha$ for some $k \in \{1,2,\dots\})$, then spatial loss is minimized by setting the binning origin to $\alpha/2$ units below the minimum data value; set $\beta = x_{(1)} - \alpha/2$.
-
-Let $x_1, x_2, \dots, x_k \in \mathbb{R}$ represent the values in a single bin such that $x_{i+1} = x_i + \alpha$ for some constant $\alpha \in \mathbb{R}$. Thus $x_j = x_1 + (j-1)\alpha$.
-
-Suppose then that we bin the data using standard rectangular binning with origin, $\beta = x_1 - \theta$, and binwidth $\omega$; where $\theta$ is the \textit{origin offset} from the data. Thus $b(x_j) = \beta + \omega/2 = (x_1 - \theta) + (k\alpha/2)$
-
-Spatial Loss, $L^S = \sum_{i=1}^{k} ||x_i-b_(x_i)|| $ is definitionally minimized when $b_(x_i)$ is the \textit{geometric median}. The geometric median for $x_1, \dots, x_k = Q_x(.5) = (x_{\lceil\frac{k+1}{2}\rceil}+x_{\lfloor \frac{k+1}{2}\rfloor})/2$ , where $Q_x(\cdot)$ is the empirical quantile function. 
-
-Thus the optimal offset is the $\theta$ such that
-
-$ b(x_i) = Q_x(.5) $ \\
-$ \Rightarrow (x_1 - \theta) + (k\alpha/2) = (x_{\lceil\frac{k+1}{2}\rceil}+x_{\lfloor \frac{k+1}{2}\rfloor})/2 $ \\
-$ \Rightarrow 2x_1 - 2\theta + k\alpha = (x_1 + (\lceil\frac{k+1}{2}\rceil - 1)\alpha ) + (x_1 + (\lfloor\frac{k+1}{2}\rfloor - 1)\alpha ) $ \\
-$ \Rightarrow -2\theta + k\alpha = (\lceil\frac{k+1}{2}\rceil - 1)\alpha  + (\lfloor\frac{k+1}{2}\rfloor - 1)\alpha  $ \\
-$ \Rightarrow -2\theta + k\alpha = ((k+1) - 2)\alpha  $ \\
-$ \Rightarrow -2\theta = -\alpha $ \\
-$ \Rightarrow \theta = \alpha/2 $ \\
-
-Thus the optimal offset for reducing spatial loss in this scenario is $\theta = \alpha/2$.  This result holds for data that is symmetrically distributed within the bin since the median will not change.  It extends to multiple contiguous bins with resolution $\alpha$ data that has symmetrically distributed data withing each bin. 
-
-If the same conditions are extended to the two dimensional case, then the origin for minimal spatial loss is at $(x_{(1)}-\alpha_x/2, y_{(1)}-\alpha_y/2)$ where $\alpha_x$ and $\alpha_y$  are the data resolution for each dimension, respectively. 
-
-\end{appendix}
+% \section{Appendix}  
+%   MOVED to Appendix1.Rnw file
+% %----------------------------------------------------------------------------
+% \subsection{Optimal Offset for Uniform Data Recorded to Resolution $\alpha$}
+% \label{proof:offset}
+% 
+% The following is proof that when univariate data is uniformly distributed at resolution $\alpha$ and standard rectangular binning is used with binwidths that are a scalar multiple of the data resolution (i.e. $\omega = k\alpha$ for some $k \in \{1,2,\dots\})$, then spatial loss is minimized by setting the binning origin to $\alpha/2$ units below the minimum data value; set $\beta = x_{(1)} - \alpha/2$.
+% 
+% Let $x_1, x_2, \dots, x_k \in \mathbb{R}$ represent the values in a single bin such that $x_{i+1} = x_i + \alpha$ for some constant $\alpha \in \mathbb{R}$. Thus $x_j = x_1 + (j-1)\alpha$.
+% 
+% Suppose then that we bin the data using standard rectangular binning with origin, $\beta = x_1 - \theta$, and binwidth $\omega$; where $\theta$ is the \textit{origin offset} from the data. Thus $b(x_j) = \beta + \omega/2 = (x_1 - \theta) + (k\alpha/2)$
+% 
+% Spatial Loss, $L^S = \sum_{i=1}^{k} ||x_i-b_(x_i)|| $ is definitionally minimized when $b_(x_i)$ is the \textit{geometric median}. The geometric median for $x_1, \dots, x_k = Q_x(.5) = (x_{\lceil\frac{k+1}{2}\rceil}+x_{\lfloor \frac{k+1}{2}\rfloor})/2$ , where $Q_x(\cdot)$ is the empirical quantile function. 
+% 
+% Thus the optimal offset is the $\theta$ such that
+% 
+% $ b(x_i) = Q_x(.5) $ \\
+% $ \Rightarrow (x_1 - \theta) + (k\alpha/2) = (x_{\lceil\frac{k+1}{2}\rceil}+x_{\lfloor \frac{k+1}{2}\rfloor})/2 $ \\
+% $ \Rightarrow 2x_1 - 2\theta + k\alpha = (x_1 + (\lceil\frac{k+1}{2}\rceil - 1)\alpha ) + (x_1 + (\lfloor\frac{k+1}{2}\rfloor - 1)\alpha ) $ \\
+% $ \Rightarrow -2\theta + k\alpha = (\lceil\frac{k+1}{2}\rceil - 1)\alpha  + (\lfloor\frac{k+1}{2}\rfloor - 1)\alpha  $ \\
+% $ \Rightarrow -2\theta + k\alpha = ((k+1) - 2)\alpha  $ \\
+% $ \Rightarrow -2\theta = -\alpha $ \\
+% $ \Rightarrow \theta = \alpha/2 $ \\
+% 
+% Thus the optimal offset for reducing spatial loss in this scenario is $\theta = \alpha/2$.  This result holds for data that is symmetrically distributed within the bin since the median will not change.  It extends to multiple contiguous bins with resolution $\alpha$ data that has symmetrically distributed data withing each bin. 
+% 
+% If the same conditions are extended to the two dimensional case, then the origin for minimal spatial loss is at $(x_{(1)}-\alpha_x/2, y_{(1)}-\alpha_y/2)$ where $\alpha_x$ and $\alpha_y$  are the data resolution for each dimension, respectively. 
+% 
 
