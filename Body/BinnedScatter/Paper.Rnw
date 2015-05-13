@@ -1,15 +1,27 @@
-\chapter{Binning Strategies and Related Loss for Large Data}
+\chapter{Binning Strategies and Related Loss for Large Data Visualization}
 \label{BinnedScatter}
 
 
 %opening
-% \title{Binning Strategies and Related Loss for Large Data}
+% \title{Binning Strategies and Related Loss for Large Data Visualization}
 % \author{Karsten Maurer$^1$, Susan VanderPlas$^1$, Heike Hofmann$^{1,2}$\\$^1$Department of Statistics, $^2$Human Computer Interaction\\Iowa State University}
+ 
+\begin{center}
+\textbf{Status}: In Preparation for Submission to \textit{Journal of Computational and Graphical Statistics} (JCGS)\\
+\end{center} 
+
+\begin{center}
+\textbf{Authors}\\
+Karsten Maurer, Iowa State University, Primary Author\\
+Susan Vanderplas, Iowa State University
+Heike Hofmann, Iowa State University
+\end{center}
 
 \begin{center}
 \textbf{Abstract}\\
-Dealing with the data deluge of the Big Data Age is both exciting and challenging. The demands of large data require us to re-think strategies of visualizing data. Plots employing binning methods have been suggested in the past as viable alternative to standard plots based on raw data, as the resulting area plots tend to not be affected by increases in data as much. This comes with the price of loss of information inherent to any binning scheme. In this paper we discuss properties of two commonly used binning algorithms. We define loss of information in the specific setting of two dimensional displays, provide readily applicable tools for loss evaluation and discuss the two binning schemes with respect to their loss in the framework of a simulation and two case studies.
 \end{center}
+Dealing with the data deluge of the Big Data Age is both exciting and challenging. The demands of large data require us to re-think strategies of visualizing data. Plots employing binning methods have been suggested in the past as viable alternative to standard plots based on raw data, as the resulting area plots tend to not be affected by increases in data as much. This comes with the price of loss of information inherent to any binning scheme. In this paper we discuss properties of two commonly used binning algorithms. We define loss of information in the specific setting of two dimensional displays, provide readily applicable tools for loss evaluation and discuss the two binning schemes with respect to their loss in the framework of a simulation and two case studies.
+
 
 
 \section{Introduction}
@@ -1344,11 +1356,11 @@ ggsave("AirlineStdBinning15mins.pdf", binned, width=6, height=6, dpi=576)
 
 \section{Conclusions and Future Work}
 
-Large Data sets of continuous variables are very difficult to visualize in raw form, due to over-plotting of points. Binning allows for the visualization and manipulation of large data sets, and easily translates into binned scatterplots which are more appropriate for the human visual system. Reducing the data for binned scatterplots has distinct computational and visual advantages, however the aggregation can come at the cost of losing precision in the spatial and frequency information.
+Large Data sets of continuous variables are very difficult to visualize in raw form, due to over-plotting of points. Binning allows for the visualization and manipulation of large data sets, and easily translates into binned scatterplots which are more appropriate for the human visual system. Reducing the data for binned scatterplots has distinct computational and visual advantages, however the aggregation comes at the cost of losing precision in the spatial and frequency information.
 
-We have presented two algorithms for spatially binning data points; standard and random rectangular binning algorithms. The random binning algorithm displayed strong advantage of avoiding the problem of artificial stripes that occurred when data recorded to a coarse resolution was binned using a bin width that was a non-integer multiple of the resolution. However, standard binning algorithm is superior due to lower spatial loss, and data with coarse resolution ($\alpha_x$ units in the X dimension and $\alpha_y$ units in the Y dimension) can avoid creating artificial stripes if a bin dimensions are integer multiples of $\alpha_x$ and $\alpha_y$.  It was also shown through simulation that for coarse data, a reasonable default for the binning origin is offset to ($\alpha_x/2$,$\alpha_y/2$) because it resulted in minimal or near minimal spatial loss for symmetric data and preformed well even for skewed data.
+We have presented two algorithms for spatially binning data points; standard and random rectangular binning algorithms. The random binning algorithm displayed strong advantage of avoiding the problem of artificial stripes that occurred when data recorded to a coarse resolution was binned using a bin width that was a non-integer multiple of the resolution. However, standard binning algorithm is superior due to lower spatial loss. For data with resolution ($\alpha_x$ units in the X dimension and $\alpha_y$ units in the Y dimension) artificial stripes in the standard binning process can be avoided, if  bin dimensions are chosen as integer multiples of $\alpha_x$ and $\alpha_y$.  We were also able to show through simulation that  a reasonable default for the binning origin is an offset of $(\alpha_x/2, \alpha_y/2)$ because it resulted in minimal or near minimal spatial loss for symmetric data and performed well even for skewed data. 
 
-Spatially binning with smaller bin dimensions will lead to lower spatial losses; however, finer binning requires more processing time and does not highlight large scale density structure. It is left to the plot designer to decide how much spatial information they are willing to sacrifice in order to simplify the display of density structure; we do however suggest to err on the side of smaller bins which allow for visualization of finer density structure with lower spatial loss.
+Spatial binning with smaller bin dimensions will lead to lower spatial losses; however, finer binning requires more processing time and does not highlight large scale density structure. It is left to the plot designer to decide how much spatial information they are willing to sacrifice in order to simplify the display of density structure. %; we do however suggest to err on the side of smaller bins which allow for visualization of finer density structure with lower spatial loss.
 
 If we elect to use frequency binning to aid the perceptual mapping tile shades to the plot key for frequency, it is recommended to use between four and seven distinct shades. This is done to minimize the frequency loss within the bounds of human perceptual ability to distinguish multiple shades simultaneously. Using quantile frequency binning and log transforming the bin counts prior to standard frequency binning are shown to be reasonable methods -- with slight different interpretability -- for handling situations with heavily skewed bin count distributions.
 
