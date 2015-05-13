@@ -1,10 +1,24 @@
 \chapter{Comparison of Learning Outcomes for Simulation-Based and Traditional Inference Curricula in a Designed Educational Experiment}
 \label{CurriculumStudy}
-        
+ 
+ 
 \begin{center}
-\textbf{abstract}\\
-Conducting inference is a cornerstone upon which the practice of statistics is based. As such, a large portion of most introductory statistics courses is focused on teaching the fundamentals of statistical inference. The goal of this study is to make a formal comparison of learning outcomes under the traditional and simulation-based inference curricula. A randomized experiment was conducted to administer the two curricula to students in an introductory statistics course.  The results indicate that students receiving the simulation-based curriculum have significantly higher learning outcomes for confidence interval related topics. While the results are not comprehensive in assessing the effect on all facets of learning, they indicate that learning outcomes for core concepts of statistical inference can be significantly improved with the simulation-based approach. 
+\textbf{Status}: Submitted for Review to \textit{Techology Innovations in Statistics Education} (TISE)\\
+\end{center} 
+
+\begin{center}
+\textbf{Authors}\\
+Karsten Maurer, Iowa State University, Primary Author\\
+Dennis Lock, Iowa State University
 \end{center}
+
+
+\begin{center}
+\textbf{Abstract}\\
+\end{center}
+
+Conducting inference is a cornerstone upon which the practice of statistics is based. As such, a large portion of most introductory statistics courses is focused on teaching the fundamentals of statistical inference. The goal of this study is to make a formal comparison of learning outcomes under the traditional and simulation-based inference curricula. A randomized experiment was conducted to administer the two curricula to students in an introductory statistics course.  The results indicate that students receiving the simulation-based curriculum have significantly higher learning outcomes for confidence interval related topics. While the results are not comprehensive in assessing the effect on all facets of learning, they indicate that learning outcomes for core concepts of statistical inference can be significantly improved with the simulation-based approach. 
+
 
 <<setup,echo=F,include=F,eval=T, cache=T>>=
 ### Preliminaries 
