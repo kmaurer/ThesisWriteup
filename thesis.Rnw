@@ -123,10 +123,10 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
 \chaptocbreak
 <<BinnedScatter, child='Body/BinnedScatter/Paper.Rnw'>>=
 @
-% \chaptocbreak
-% <<Conclusion, child='Body/Conclusion.Rnw'>>=
-% @
-
+\chaptocbreak
+<<Conclusions, child='Body/Conclusions/Conclusions.Rnw'>>=
+@
+\chaptocbreak
 <<Appendix, child='Appendix/Appendix1.Rnw'>>=
 @
 
