@@ -989,11 +989,9 @@ You will notice that the summaries are all broken down by state, but the states 
 \section{Appendix: Cronbach's $\alpha$ Properties}
 \label{appendCronbach}
 
-Recall the form of Cronbach's $\alpha$ from equation~(\ref{eq:alpha}):
+Recall the form of Cronbach's $\alpha$ from equation~(\ref{eq:alpha}):\\
 
-\begin{center}
-$\alpha = \left(K/(K-1)\right) \left( 1- \sum_{i=1}^K \V{Y_i} \right.\left/  \V{\sum_{j=1}^K Y_j}  \right)$,
-\end{center}
+$\alpha = K/(K-1) \cdot \left( 1- \sum_{i=1}^K \V{Y_i} \right.\left/  \V{\sum_{j=1}^K Y_j}  \right)$
 
 \textit{Claim 1:} Perfect agreement in items leads to $\alpha = 1$ 
 
@@ -1039,15 +1037,17 @@ $\Rightarrow$  $\alpha = \left(K/(K-1)\right) \left( 1- \sum_{i=1}^K \V{Y_i} \ri
 
 \section{Appendix: Optimal Offset for Symmetric Data Recorded to Resolution $\alpha_x$}
 \label{proof:offset}
-The following proof assumes three conditions for standard rectangular binning of a set univariate data hold: (i) data are recorded to a resolution of $\alpha_x$ units in the $X$ dimension, (ii) points are symmetric distributed within standard rectangular bins, (iii) the bin width, $\omega_x$, is an integer multiples of $\alpha_x$ (i.e. $\omega_x = k\alpha_x$ for some $k \in \{1,2,\dots\}$).  Under these conditions it will be shown that spatial loss is minimized by setting the binning origin, $\beta_x$, to $\alpha_x/2$ units below the minimum data value (i.e. $\beta_x = x_{(1)} - \alpha_x/2$).
+The following proof assumes three conditions for standard rectangular binning of a set univariate data hold: (i) data are recorded to a resolution of $\alpha_x$ units in the $X$ dimension, (ii) points are symmetric distributed within standard rectangular bins, (iii) the bin width, $\omega_x$, is an integer multiples of $\alpha_x$ (i.e. $\omega_x = k\alpha_x$ for some $k \in \{1,2,\dots\}$).  Under these conditions it will be shown that spatial loss is minimized by setting the binning origin, $\beta_x$, to $\alpha_x/2$ units below the minimum data value (i.e. $\beta_x = x_{(1)} - \alpha_x/2$).\\
 
-\noindent Let $x_1, x_2, \dots, x_k \in \mathbb{R}$ represent the values in a single bin such that $x_{i+1} = x_i + \alpha_x$ for some constant $\alpha_x \in \mathbb{R}$. Thus $x_j = x_1 + (j-1)\alpha_x$.
+Let $x_1, x_2, \dots, x_k \in \mathbb{R}$ represent the values in a single bin such that $x_{i+1} = x_i + \alpha_x$ for some constant $\alpha_x \in \mathbb{R}$. Thus $x_j = x_1 + (j-1)\alpha_x$.
 
-\noindent Suppose then that we bin the data using standard rectangular binning with origin, $\beta_x = x_1 - \theta$, and binwidth $\omega$; where $\theta$ is the \textit{origin offset} from the data. Thus $b(x_j) = \beta_x + \omega/2 = (x_1 - \theta) + (k\alpha_x/2)$
+Suppose then that we bin the data using standard rectangular binning with origin, $\beta_x = x_1 - \theta$, and binwidth $\omega$; where $\theta$ is the \textit{origin offset} from the data. Thus 
 
-\noindent Spatial Loss, $L^S = \sum_{i=1}^{k} ||x_i-b_(x_i)|| $ is definitionally minimized when $b_(x_i)$ is the \textit{geometric median}. The geometric median for $x_1, \dots, x_k = Q_x(.5) = (x_{\lceil\frac{k+1}{2}\rceil}+x_{\lfloor \frac{k+1}{2}\rfloor})/2$ , where $Q_x(\cdot)$ is the empirical quantile function. 
+$b(x_j) = \beta_x + \omega/2 = (x_1 - \theta) + (k\alpha_x/2)$
 
-\noindent Thus the optimal offset is the $\theta$ such that
+Spatial Loss, $L^S = \sum_{i=1}^{k} ||x_i-b_(x_i)|| $ is definitionally minimized when $b_(x_i)$ is the \textit{geometric median}. The geometric median for $x_1, \dots, x_k = Q_x(.5) = (x_{\lceil\frac{k+1}{2}\rceil}+x_{\lfloor \frac{k+1}{2}\rfloor})/2$ , where $Q_x(\cdot)$ is the empirical quantile function. 
+
+Thus the optimal offset is the $\theta$ such that
 
 $ b(x_i) = Q_x(.5) $ \\
 $ \Rightarrow (x_1 - \theta) + (k\alpha_x/2) = (x_{\lceil\frac{k+1}{2}\rceil}+x_{\lfloor \frac{k+1}{2}\rfloor})/2 $ \\

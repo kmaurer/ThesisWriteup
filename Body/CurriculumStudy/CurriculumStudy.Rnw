@@ -3,7 +3,7 @@
  
  
 \begin{center}
-\textbf{Status}: Submitted for Review to \textit{Techology Innovations in Statistics Education} (TISE)\\
+\textbf{Status}: Submitted for Review to \textit{Technology Innovations in Statistics Education} (TISE)\\
 \end{center} 
 
 \begin{center}
