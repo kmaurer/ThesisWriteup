@@ -211,9 +211,6 @@ The following appendix is the midterm exam in its entirety, along with point des
 %load packages that will be invisible on slides
 <<configForMidtermAppendix, echo=FALSE, include=FALSE >>=
 ### Setting up R ###
-
-setwd("C:\\Users\\Karsten\\Dropbox\\Dissertation\\CurriculumStudy\\DraftTISE\\Exams\\Exam1")
-#setwd("../../../stat104/Spring2014/Exams/Exam1")
 #load necessary packages
 #library(productplots)
 library(graphics)
@@ -222,8 +219,6 @@ library(gridExtra)
 library(reshape)
 library(reshape2)
 library(plyr)
-
-versionlet <- "A"
 
 #Wellbeing metrics
 wbmetric <- "thriving" ; wbperc <- 55
