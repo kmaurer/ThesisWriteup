@@ -441,7 +441,7 @@ We next turn our attention to the polarity of the survey items; specifically we 
 qu.means <- read.csv("quMeans.csv",header=T)
 
 ggplot() +
-  geom_bar(aes(x=as.character(value-3), weight=means,fill=polarity),data=qu.means,width=.5, position="dodge", size=I(2)) + 
+  geom_bar(aes(x=as.factor(value-3), weight=means,fill=polarity),data=qu.means,width=.5, position="dodge", size=I(2)) + 
   theme_bw() + scale_colour_brewer("", palette="Set1") + 
   scale_shape_manual("", values=c("-","+")) +
 #  scale_shape_manual("", values=15:18) +
@@ -564,7 +564,7 @@ Table~\ref{pctable} displays the proportion of variance explained by each of the
 
 In the analysis of student responses, we find that the internal consistency, assessed with Cronbach's $\alpha$ and fluctuation diagrams, is acceptable for interpreting the combined item responses that measure ease of use and engagement with the census data. We do not have the same certainty with the responses to Concept items and therefore split the Concept items into two sets: the Positive and Negative Concept item sets. This split is supported by the initial principal component analysis of the six topic and polarity item pair scores. The follow-up principal component analysis on the combined responses for each of the four resulting item sets indicates that the factors were all fairly orthogonal. This ensures us that the survey was effective at eliciting unique characteristics of the user experience.
 
-The barcharts found in Figure \ref{fig:OverallSetBars} show that the distribution for each item set is heavily skewed to the left, with the majority of students having neutral to positive responses. The small bump at the far left of each distribution indicates that there was a small minority of students with expressedly negative views. The response distributions indicate that on average students found the Shiny Database Sampler easy to use, found that the tool connected them to sampling concepts and felt moderately engaged with the census data that was accessed with the application. 
+The barcharts found in Figure \ref{fig:OverallSetBars} show that the distribution for each item set is heavily skewed to the left, with the majority of students having neutral to positive responses. The small tail to the left in each distribution indicates that there was a small minority of students with expressedly negative views. The response distributions indicate that on average students found the Shiny Database Sampler easy to use, found that the tool connected them to sampling concepts and felt moderately engaged with the census data that was accessed with the application. 
 
 
 \section{Conclusions and Future Work}
