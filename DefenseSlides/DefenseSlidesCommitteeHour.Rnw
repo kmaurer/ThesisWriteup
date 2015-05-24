@@ -1,0 +1,1809 @@
+\documentclass{beamer} 
+% \usepackage{graphicx}
+\usepackage{graphics}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage{bbm}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{graphicx,float,wrapfig,subfig,tabularx,ulem}
+\usepackage{color}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{mathrsfs}
+
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+
+\setbeamercovered{transparent}
+\renewcommand{\ni}{\noindent}
+
+\newcommand{\distas}[1]{\mathbin{\overset{#1}{\sim}}}%
+\newcommand{\Cov}{\text{Cov}}%
+
+<<setup,echo=F,include=F,eval=T>>=
+### Preliminaries 
+## Load Packages
+library(car)
+library(ggplot2)
+library(subselect)
+library(qtlmt)
+library(multcomp)
+library(lattice)
+library(gridExtra)
+library(reshape2)
+library(plyr)
+library(boot)
+library(psy)
+library(plyr)
+library(graphics)
+library(xtable)
+library(dbData)
+library(devtools)
+library(RColorBrewer)
+library(hexbin)
+library(MASS)
+library(scales)
+@
+
+<<BinnedScatterPrep, echo=FALSE, eval=TRUE, cache=TRUE, include=FALSE>>=
+source("BinningLossFunctions.R")
+spatlossdatSquareBins <- read.csv("Data/SpatialLossData.csv",header=TRUE)
+
+connect <- dbConnect(dbDriver("MySQL"), host="mysql2.stat.iastate.edu", 
+                     port=3306, user="dbaccess", dbname="baseball")
+pitch <- new("dataDB", co=connect, table="Pitching")
+pitchdat <- dbGetQuery(connect,  sprintf("select G, SO from Pitching"))
+
+d1 <- dbData(pitch, vars=c( "G", "SO")) # Games, Strike Outs
+
+xtd.data <- function(x) {
+# replicate each line as often as given by the last entry
+  k <- dim(x)[2]
+
+  res <- data.frame(sapply(1:(k-1), function(var) {
+    	return(rep(x[,var], x[,k]))
+		}
+	))
+	names(res) <- names(x)[1:(k-1)]
+	return(res)
+}
+d1.ext <- xtd.data(d1)
+dbDisconnect(connect)
+@
+
+<<surveyprep, echo=FALSE, eval=TRUE, cache=TRUE, include=FALSE>>=
+# Preliminaries
+dat <- read.csv("Data/SurveyResults.csv",header=T)
+
+#list of questions that were inversely coded
+flipcoded <- c(3,5,6,7,10,11)
+# recode to match positive worded response
+for (i in flipcoded){
+  dat[,i] <- 6-dat[,i]
+}
+dat$student <- 1:nrow(dat)
+#centered version
+cdat <- dat[1:12]
+for(i in 1:ncol(cdat)){
+  cdat[,i] <- cdat[,i]-3
+}
+
+names(dat) <- c("Eas1","Con1","Eng1","Eas2","Con2","Eng2",
+                "Eas3","Con3","Eng3","Eas4","Con4","Eng4",
+                "Section","Student")
+
+
+#reshape data
+meltdat <- melt(dat[,c(1:12,14)], measure.vars=c(1:12))
+meltdat$set <- factor(rep(rep(c("Ease","Concept","Engagement"),4),each=nrow(dat)),levels=c("Ease","Concept","Engagement"))
+meltdat$set4 <- rep(rep(c("Ease","Concept","Engagement"),4),each=nrow(dat))
+meltdat$set4[meltdat$variable=="Con1" | meltdat$variable=="Con3"] <- "Positive Concept"
+meltdat$set4[meltdat$variable=="Con2" | meltdat$variable=="Con4"] <- "Negative Concept"
+meltdat$set4 <- factor(meltdat$set4, levels=c("Ease","Positive Concept","Negative Concept","Engagement"))
+meltdat$centered <- as.factor(meltdat$value-3)
+meltdat$value <- as.factor(meltdat$value)
+meltdat$question.in.set <- rep(paste("Item", 1:4,sep=" "),each=3*nrow(dat))
+meltdatNoNA <- meltdat[which(meltdat$value != "NA"),]
+#create short DF of summary stats
+sumstats <- ddply(meltdat,.(variable),summarize,
+                  mean = round(mean(as.numeric(as.character(centered)), na.rm=TRUE),2),
+                    sd = round(sd(as.numeric(as.character(centered)),na.rm=T),2) )
+
+# Set up for fluctuation diagrams
+ggfluctuation <- function (table, type = "size", floor = 0, ceiling = max(table$freq, na.rm = TRUE)) 
+{
+#    .Deprecated()
+    if (is.table(table)) 
+        table <- as.data.frame(t(table))
+    oldnames <- names(table)
+    names(table) <- c("x", "y", "result")
+    table <- transform(table, x = as.factor(x), y = as.factor(y), 
+        freq = result)
+
+    if (type == "size") {
+        table <- transform(table, freq = sqrt(pmin(freq, ceiling)/ceiling), 
+            border = ifelse(is.na(freq), "grey90", ifelse(freq > 
+                ceiling, "grey30", "grey50")))
+        table[is.na(table$freq), "freq"] <- 1
+        table <- subset(table, freq * ceiling >= floor)
+    }
+
+    if (type == "size") {
+        nx <- length(levels(table$x))
+        ny <- length(levels(table$y))
+        p <- ggplot(table, aes_string(x = "x", y = "y", height = "freq", 
+            width = "freq", fill = "border")) + geom_tile(colour = "white") + 
+            scale_fill_identity() + theme(aspect.ratio = ny/nx)
+    }
+    
+    else {
+        p <- ggplot(table, aes_string(x = "x", y = "y", fill = "freq")) + 
+        geom_tile(colour = "white") + scale_fill_gradient2(expression(w[ij]), low = "red", mid="white", high = "blue")
+    }
+    p$xlabel <- oldnames[1]
+    p$ylabel <- oldnames[2]
+    p
+} 
+theme_fluct <- theme(panel.background = element_rect(fill = "white", 
+                colour = NA), panel.border = element_rect(fill = NA, 
+                colour = "grey50"), panel.grid.major = element_line(colour = "grey90", 
+                size = 0.2), panel.grid.minor = element_line(colour = "grey98", 
+                size = 0.5)) 
+
+var(cdat[,1]+cdat[,4])
+4*cov(cdat[,1],cdat[,4])/var(cdat[,1]+cdat[,4])
+cov(cdat[,1],cdat[,4])/ (sd(cdat[,1])*sd(cdat[,4]))
+2*(1- (var(cdat[,1])+var(cdat[,4]))/var(cdat[,1]+cdat[,4]))
+cor(cdat[,1],cdat[,4])
+@
+
+\title[Applications of Technology and Large Data in Statistics Education and Statistical Graphics]{Applications of Technology and Large Data in Statistics Education and Statistical Graphics}
+\author[K. Maurer]{Karsten Maurer}
+\date{June 4, 2015}
+\institute[ISU]{Iowa State University}
+\begin{document}
+
+\begin{frame}
+    \maketitle
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Presentation Outline}  
+  Quantifying Loss in Binned Scatterplots
+    \begin{itemize}
+      \item Scatterplot Adaptations
+      \item Binning
+      \item Loss Functions
+      \item Impact of Binning Specification on Loss
+      \item Results and Recommendations
+    \end{itemize}    
+  Shiny Database Sampler
+    \begin{itemize}
+      \item Development
+      \item Applications
+      \item Student User Survey
+      \item Results
+    \end{itemize}
+
+\end{frame}
+
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{}  
+
+\begin{center}
+\large Loss and Binned Scatterplots\\
+\normalsize Chapter 4
+\end{center}
+
+\end{frame}
+
+% 
+% %-------------------------------------------------
+% 
+% \begin{frame}
+%     \frametitle{Outline}
+% Bivariate Data Visualization   
+%   \begin{itemize}
+%     \item Traditional scatterplot
+%     \item Adaptations for large data
+%     \item Binned Scatterplots
+%   \end{itemize} 
+% \pause
+% 
+% Spatial Binning Algorithms
+%   \begin{itemize}
+%     \item Loss functions
+%     \item Binning Properties
+%   \end{itemize} 
+% \pause
+% 
+% Frequency Binning Algorithms
+%   \begin{itemize}
+%     \item Loss functions
+%     \item Binning Properties
+%   \end{itemize} 
+% \pause
+% 
+% Recommendations for Specification
+% \end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Bivariate Data Visualization }
+Example Data from Baseball   
+  \begin{itemize}
+    \item Sean Lahman's Baseball database (\url{http://www.seanlahman.com/baseball-archive/})
+    \item Variables are Games Played and Strike Outs
+    \item Observations: 42583 MLB pitcher seasons
+    \item Data from 1871-2009
+  \end{itemize}
+Goal: Visualize relationship between games played and strike outs
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Traditional Scatterplot}
+<<TradScatterplot, echo=FALSE , warning=FALSE, fig.width=4, fig.height=4, out.width='.6\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+qplot(data=d1, x=G, y=SO, geom="point", main="Games and Strike Outs in ML Baseball", size=I(2)) + theme_bw() + xlab("Games (Count)")+ ylab("Strike Outs (Count)")
+@
+
+\center Heavy Over-plotting
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Adaptations to Scatterplots}
+Lots of Recommendations for Dealing with Scatterplot Over-plotting
+
+\vspace{.5cm}
+
+Change Point Rendering
+  \begin{itemize}
+    \item Open Points
+    \item Alpha-Blending
+    \item Generalized Scatterplots
+  \end{itemize} \pause
+  
+Plotting Binned Aggregations
+  \begin{itemize}
+    \item Sunflower Plots
+    \item Bubble Plots
+    \item Binned Scatterplots
+  \end{itemize}
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Open-Circle Scatterplot}
+<<OpenCircleScatterplot, echo=FALSE , warning=FALSE, fig.width=4, fig.height=4, out.width='.6\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+qplot(data=d1, x=G, y=SO, geom="point", main="Games and Strike Outs in ML Baseball", shape="o", size=I(5)) + scale_shape_identity() + theme_bw() + xlab("Games (Count)")+ ylab("Strike Outs (Count)")
+@
+
+\center Helps slightly, but still allows for overplotting
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Alpha-Blended Scatterplot}
+<<AlphaBlendScatterplot, echo=FALSE , warning=FALSE, fig.width=4, fig.height=4, out.width='.6\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+qplot(data=d1, x=G, y=SO, geom="point", main="Games and Strike Outs in ML Baseball", size=I(2), alpha=I(0.05)) + theme_bw() + xlab("Games (Count)")+ ylab("Strike Outs (Count)")
+@
+
+\center Fairly effective, but downplays outliers
+
+\end{frame}
+
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Bubble Plot}
+<<BubblePlot, echo=FALSE , warning=FALSE, fig.width=4, fig.height=4, out.width='.6\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+d1.hex.obj <- hexbin(d1.ext$G, d1.ext$SO)
+d1.hex <- data.frame(hcell2xy(d1.hex.obj))
+names(d1.hex) <- c("G", "SO")
+d1.hex$Freq <-  d1.hex.obj@count
+
+qplot(data=d1.hex, x=G, y=SO, geom="point", size=Freq+1) + 
+  scale_size_area("Log Frequency", max_size=4, trans="log", breaks=c(1, 10, 100, 1000, 10000))+ theme_bw() + xlab("Games (Count)")+ ylab("Strike Outs (Count)") + theme(legend.position="bottom")
+@
+
+\center Mapping frequency to size of point at bin center
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Binned Scatterplot}
+<<BinnedScatterplotBaseball, echo=FALSE , warning=FALSE, fig.width=4, fig.height=4, out.width='.6\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+binout1 <- RectBin2d(pitchdat$G,pitchdat$SO,.5,-.5,5,25,type="standard")
+qplot(binxs, binys, geom="tile", fill=binfreq, data=binout1[[1]],
+      main="Binned Scatterplot") +
+  xlab("Games (Count)")+ ylab("Strike Outs (Count)") +
+  scale_fill_gradient("Frequencies", low="#56B1F7", high="#132B43") + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     legend.key.width = unit(1, "cm"),
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(0.5,.1,.1,.1),"cm"),
+                     legend.text=element_text(size=12) )
+@
+\center Mapping frequency to shade of tile
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Binned Scatterplot}
+<<LogBinnedScatterplotBaseball, echo=FALSE , warning=FALSE, fig.width=4, fig.height=4, out.width='.6\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+binout1 <- RectBin2d(pitchdat$G,pitchdat$SO,.5,-.5,5,25,type="standard")
+qplot(binxs, binys, geom="tile", fill=log(binfreq), data=binout1[[1]],
+      main="Binned Scatterplot with Log Frequencies") +
+  xlab("Games (Count)")+ ylab("Strike Outs (Count)") +
+  scale_fill_gradient("Log Frequencies", low="#56B1F7", high="#132B43") + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     legend.key.width = unit(1, "cm"),
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(0.5,.1,.1,.1),"cm"),
+                     legend.text=element_text(size=12) )
+@
+\center Mapping $\log$(frequency) to shade of tile.
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Binning Functions}
+
+Goal for Binned Scatterplot:
+  \begin{itemize}
+    \item Reduced Binned Data Triples $(x^\ast, y^\ast, c)$
+    \item $(x^\ast,y^\ast)$ = bin center
+    \item $c$ = bin frequency count
+  \end{itemize}
+
+Need binning function to uniquely map points to bins
+  \begin{itemize}
+    \item $b(.) : (x,y) \rightarrow (x^\ast,y^\ast)$
+  \end{itemize}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Rectangular Binning Functions}
+
+Rectangular binning bins each dimension univariately
+  \begin{itemize}
+    \item $b(x_i,y_i) = (b_X(x_i),b_Y(y_i))$
+    \item Forms rectangular binned grid
+  \end{itemize}
+\pause
+
+\vspace{.25cm}
+  
+Generally $b_X(.) : x_i \rightarrow x^\ast_j$ is defined as 
+%
+\begin{eqnarray}\label{rectbin}
+b_X(x_i) = \left\{\begin{array}{ll} 
+  x^\ast_{1} &\text{ for all } x_i = \beta_{0} \\
+  x^\ast_j & \text{ for all } x_i \in (\beta_{j-1} , \beta_j] 
+  \end{array}\right\}
+\end{eqnarray}  
+
+where $(\beta_{j-1},\beta_{j}]$ for $j \in \{1,\dots,J\}$ are sequence of 
+$J$ adjacent intervals spanning range of X data.
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Rectangular Binning Functions}
+
+Standard Rectangular Binning
+  \begin{itemize}
+    \item Use equally spaced intervals
+    \item Bin width $= \omega_X$
+    \item $ \{\beta_j \text{ }|\text{ } \beta_j = \beta_{j-1} + \omega_X \}$
+    \item $x_j^\ast = (\beta_{j-1} + \beta_j) /2$
+  \end{itemize}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Reduced Binned Data}
+
+\tiny
+\begin{table}[H]
+\begin{minipage}[t]{.33\textwidth}\centering\subfloat[Original Data, 12 rows]{
+\begin{tabular}{rr}\hline
+       $x$ &  $y$  \\ \hline
+-7.7325 & -9.6340 \\ 
+  -8.1176 & -1.4529 \\ 
+  -5.8996 & -3.2033 \\ 
+  -7.0375 & -5.5563 \\ 
+  -3.6354 & -3.9315 \\ 
+  -8.7639 & 0.9874 \\ 
+  -2.9781 & 8.6802 \\ 
+  0.8210 & -8.6118 \\ 
+  5.4477 & -8.4555 \\ 
+  4.6849 & -5.6620 \\ 
+  9.4785 & 1.1133 \\ 
+  1.7579 & 5.3759 \\  \hline
+\end{tabular}}
+\end{minipage}\hfil
+\begin{minipage}[t]{.33\textwidth}\centering\subfloat[Binned Data Centers, 12 rows]{
+\begin{tabularx}{.7\textwidth}{rr} \hline
+  $b_X(x)$ & \hspace{.4cm} $b_Y(y)$  \\ \hline
+  -5 & -5 \\ 
+  -5 & -5 \\ 
+  -5 & -5 \\ 
+  -5 & -5 \\ 
+  -5 & -5 \\ 
+  -5 & 5 \\ 
+  -5 & 5 \\ 
+  5 & -5 \\ 
+  5 & -5 \\ 
+  5 & -5 \\ 
+  5 & 5 \\ 
+  5 & 5 \\  \hline
+\end{tabularx}}
+\end{minipage}\hfil
+\begin{minipage}[t]{.33\textwidth}\centering\subfloat[Reduced Binned Data, 4 rows]{
+\begin{tabularx}{.7\textwidth}{rrr}\hline
+ \hspace{.2cm} $x^\ast$   &   \hspace{.2cm} $y^\ast$ & \hspace{.4cm}c \\ \hline
+-5 & -5 & 5 \\ 
+  -5 & 5 & 2 \\ 
+  5 & -5 & 3 \\ 
+  5 & 5 & 2 \\  \hline
+\end{tabularx}}
+\vfil
+\end{minipage}
+\caption{\label{DataReductionExample}Original, Binned and Reduced Binned Data Tables, with data storage sizes.  Binned using standard rectangular approach with origin $(\beta_{0,x},\beta_{0,y})$ = (-10,-10) and bin widths $\omega_x = \omega_y = 10$. }
+\end{table}
+\normalsize
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Rectangular Binning Functions}
+
+Random Rectangular Binning
+  \begin{itemize}
+    \item Define set of bin centers: $\{x_j^\ast \text{ }|\text{ } x_j^\ast > x_{j-1}^\ast \}$
+    \item Assign points at random to surrounding bin centers
+    \item Probabilities inversely proportional do distance from bin centers
+  \end{itemize}
+  
+\begin{eqnarray}\label{randbin1}
+b^r_X(x_i) = \left\{\begin{array}{ll} 
+  x^\ast_j & \text{ with probability } (x^\ast_{j+1} - x_i)/(x^\ast_{j+1} -x^\ast_{j}) \\
+  x^\ast_{j+1} &\text{ with probability }  (x_i - x^\ast_{j})/(x^\ast_{j+1} -x^\ast_{j})
+  \end{array}\right\}
+\end{eqnarray}  
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Standard vs. Random Rectangular Binning}
+<<StandVsRandDemo, echo=FALSE , warning=FALSE, fig.width=8, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+n=12
+param1 = 1
+param2 = 1.6
+set.seed(52)
+x <- rbeta(n,param1, param2)*20-10
+y <- rbeta(n,param1, param2)*20-10
+# standard bin centers
+xcent <- rep(-5,n) ; xcent[x>0] <- 5
+ycent <- rep(-5,n) ; ycent[y>0] <- 5
+# standard bin gridlines
+temp <- data.frame(   
+  x=c( -10,   0,  10, -10, -10, -10), 
+  xend=c( -10,   0,  10,  10, 10, 10), 
+  y=c( -10, -10 , -10 , -10, 0 , 10), 
+  yend=c(10, 10 , 10, -10, 0, 10 ))
+
+p1 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+      geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
+      geom_segment(aes(x = x, y = y, xend = xcent, yend = ycent)) + 
+      geom_point(aes(x=x,y=y), size=I(3))+ 
+      theme_bw() + xlab("") + ylab("") +
+      ggtitle("Standard Binning") +
+      theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+            legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
+            aspect.ratio=1)
+
+# random bin centers
+set.seed(14)
+rxcent <- RandRectBin1d(x, -10, 10)
+rycent <- RandRectBin1d(y, -10, 10)
+
+p2 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
+  geom_segment(aes(x = x, y = y, xend = rxcent, yend = rycent)) + 
+  geom_point(aes(x=x,y=y), size=I(3))+ 
+  theme_bw() + xlab("") + ylab("") +
+  ggtitle("Random Binning") +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
+            aspect.ratio=1)
+
+
+grid.arrange(p1,p2,nrow=1)
+@ 
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Spatial Loss}
+ 
+Create loss function for spatial information
+    \begin{itemize}
+        \item Use Euclidean distance between points and bin centers
+        \item Spatial loss for $i^{th}$ observation: $L_i^S = \sqrt{ \left(x_i-b_X(x_i)\right)^2 + \left(y_i-b_Y(y_i)\right)^2 } $ 
+        \item \textit{Total} spatial loss: $L^S = \sum_{i=1}^{n} L_i^S$
+    \end{itemize} \pause
+   
+\vspace{.25cm}
+
+Slight issue with spatial loss for random binning
+    \begin{itemize}
+        \item Many possible random assignments result in same reduced binned data
+        \item Find assignment with minimum total spatial loss
+        \item Call this \textit{net} spatial loss
+    \end{itemize}
+
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Post Processing Random Rectangular Binning}
+<<RandNetSpatialLossDemo, echo=FALSE , warning=FALSE, fig.width=7.5, fig.height=5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+n=12
+param1 = 1
+param2 = 1.6
+set.seed(52)
+x <- rbeta(n,param1, param2)*20-10
+y <- rbeta(n,param1, param2)*20-10
+# standard bin centers
+xcent <- rep(-5,n) ; xcent[x>0] <- 5
+ycent <- rep(-5,n) ; ycent[y>0] <- 5
+# standard bin gridlines
+temp <- data.frame(   
+  x=c( -10,   0,  10, -10, -10, -10), 
+  xend=c( -10,   0,  10,  10, 10, 10), 
+  y=c( -10, -10 , -10 , -10, 0 , 10), 
+  yend=c(10, 10 , 10, -10, 0, 10 ))
+
+# random bin centers
+set.seed(14)
+rxcent <- RandRectBin1d(x, -10, 10)
+rycent <- RandRectBin1d(y, -10, 10)
+# point 1 and 11 are special 
+linecolor <- rep("blue", 12)
+linecolor[c(1,11)] <- "red"
+
+p2 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
+  geom_segment(aes(x = x, y = y, xend = rxcent, yend = rycent, color=linecolor)) + 
+  scale_colour_manual(values = c("darkblue","red"))+
+  geom_point(aes(x=x,y=y), size=I(3))+ 
+  theme_bw() + xlab("") + ylab("") +
+  ggtitle("Random Binning") +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
+            aspect.ratio=1)
+
+# post process random bin centers to visually 
+# equivalent allocation with minimum spatial loss
+rxcentpost <- rxcent
+rycentpost <- rycent
+rxcentpost[1] <- rxcent[11]
+rycentpost[1] <- rycent[11]
+rxcentpost[11] <- rxcent[1]
+rycentpost[11] <- rycent[1]
+# point 1 and 11 are special 
+linecolor <- rep("blue", 12)
+linecolor[c(1,11)] <- "red"
+
+p3 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) + 
+  geom_segment(aes(x = x, y = y, xend = rxcentpost, yend = rycentpost, color=linecolor)) + 
+  scale_colour_manual(values = c("darkblue","red"))+
+  geom_point(aes(x=x,y=y), size=I(3))+ 
+  theme_bw() + xlab("") + ylab("") +
+  ggtitle("Post-Processed Random Binning") +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        legend.position="none",plot.margin = unit(c(0,1,0, 1),"cm"),
+            aspect.ratio=1)
+
+allbin <- data.frame(type=rep(c("Standard","Random","Post-Processed Random"),each=n),
+                     binxs = c(xcent,rxcent,rxcentpost), 
+                     binys = c(ycent,rycent,rycentpost))
+allbinfreq <- ddply(allbin, .(type,binxs,binys),summarise,
+                     freq = length(binxs))
+
+p5 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_tile(aes(x=binxs, y=binys, fill=freq),data=subset(allbinfreq,type=="Random")) + 
+  scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend") + 
+  theme_bw() + xlab("") + ylab("") +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        plot.margin = unit(c(0,1,0, 1),"cm"),legend.position="bottom",
+            aspect.ratio=1)+
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) 
+
+p6 <- qplot(xcent, ycent, geom="point", size=I(5), shape=I(3), color=I("gray")) +
+  geom_tile(aes(x=binxs, y=binys, fill=freq),data=subset(allbinfreq,type=="Post-Processed Random")) + 
+  scale_fill_gradient(low="#56B1F7", high="#132B43", guide="legend") + 
+  theme_bw() + xlab("") + ylab("") +
+  theme(panel.grid.major= element_blank(),panel.grid.minor= element_blank(),
+        plot.margin = unit(c(0,1,0, 1),"cm"),legend.position="bottom",
+            aspect.ratio=1)+
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data=temp) 
+
+grid.arrange(p2,p3,p5,p6,nrow=2)
+@ 
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Rectangular Binning Specifications}
+    
+Rectangular Binning Specification
+    \begin{itemize}
+        \item Binning function
+        \item Bin dimensions 
+        \item Binning origin
+    \end{itemize} \pause
+    
+Properties of Interest
+    \begin{itemize}
+        \item Net spatial loss
+        \item Computation time
+        \item Visually misleading features 
+    \end{itemize}   
+
+\end{frame}
+
+
+%---------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Rectangular Binning Specifications}
+
+Standard versus Random Rectangular Binning
+  \begin{itemize}
+    \item Standard binning computationally faster
+    \item Standard binning is superior for spatial loss
+    \item Random binning locally smooths bin frequencies
+  \end{itemize}  
+
+Small versus Large Bins 
+  \begin{itemize}
+    \item Net spatial loss decreases as bin dimensions decrease
+    \item Computation time increases as bin dimensions decrease
+    \item Small bins allow fine bivariate structure to show through
+    \item Large bins emphasize large scale bivariate structure
+  \end{itemize}  
+
+\end{frame}
+
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study}
+    
+Explore Properties with Three Simulated Data Sets
+
+100000 observations from:
+
+\begin{itemize}
+\item Set I: $x_i$ and $y_i \sim \text{iid Exp}(\lambda=11)$
+
+\item Set II: $x_i$ and $y_i \sim \text{iid Normal}(\mu=50,\sigma^2=11^2)$
+
+\item Set III: $x_i$ and $y_i \sim \text{iid Uniform}(a=0,b=100)$
+\end{itemize}
+
+Data then rounded to nearest even integer to induce a \textit{data resolution} of 2 units
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+% \begin{frame}
+%     \frametitle{Simulated Data}
+<<SimulatedDataScatters, echo=FALSE, cache=TRUE, include=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+n=100000
+set.seed(31415)
+unifdat <- data.frame(x= runif(n, min=0, max=100),
+                      y= runif(n, min=0, max=100),
+                      type="Uniform",
+                      record = "Fine")
+normdat <- data.frame(x= rnorm(n, mean=50, sd=11),
+                     y= rnorm(n, mean=50, sd=11),
+                     type="Normal",
+                     record = "Fine")
+expdat <- data.frame(x= rexp(n, .11),
+                     y= rexp(n, .11),
+                     type="Exponential",
+                     record = "Fine")
+datlist <- list(unifdat,normdat,expdat)
+### round all data to resolution alpha
+alpha <- 2
+for(i in 1:3){
+  datlist[[i]]$roundx <- ((datlist[[i]]$x + 1)%/%alpha)*alpha
+  datlist[[i]]$roundy <- ((datlist[[i]]$y + 1)%/%alpha)*alpha
+}
+
+# plot the original data
+# make rounded data find overlapping points to make plot rendering faster
+dat <- rbind(datlist[[1]],datlist[[2]],datlist[[3]])
+smallround <- ddply(dat,.(type,record,roundx,roundy),summarise,
+      overlap = length(roundx))
+smallround <-cbind(data.frame(x=smallround$roundx,y=smallround$roundy), 
+                   smallround[,1:4])
+smallround$record <- "Coarse"
+alldat <- rbind(dat,smallround)
+alldat$type <- factor(alldat$type, levels=c("Exponential","Normal","Uniform"))
+
+qplot(x,y,geom="point",data=subset(alldat, record=="Fine"),facets=.~type, size=I(1)) + 
+  theme_bw() + theme(aspect.ratio=1) +
+  #ggtitle("Scatterplots of Simulated Data") +
+  xlab("X") + ylab("Y") + 
+  scale_x_continuous(breaks=c(0,25,50,75,100)) + 
+  scale_y_continuous(breaks=c(0,25,50,75,100))
+@ 
+
+% \end{frame}
+
+% %-------------------------------------------------
+% 
+% \begin{frame}
+%     \frametitle{Spatial Loss vs Bin Size}
+% <<SpatialLossPlot, echo=FALSE , warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+% spatlossdatSquareBins$bintype <- factor(spatlossdatSquareBins$bintype, levels=c("standard","random"))
+% qplot(widthx,totalSpatialLoss,geom="path",colour=bintype, linetype=bintype,
+%       data=spatlossdatSquareBins,group=bintype, facets=.~distrib, size=I(1)) +
+%   theme_bw() + ylab("Net Spatial Loss") +
+%   xlab("Size of Square Bins") + ylim(c(0, 1100000))
+% @ 
+% 
+% \end{frame}
+% 
+% %-------------------------------------------------
+% 
+% \begin{frame}
+%     \frametitle{Binning Time vs Bin Size}
+% <<BinningTimePlot, echo=FALSE , warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+% qplot(widthx,as.numeric(binTime),geom="path",colour=bintype, linetype=bintype,
+%       data=spatlossdatSquareBins,group=bintype, facets=.~distrib, size=I(1)) +
+%   theme_bw() + ylab("Binning Time (sec)") +
+%   xlab("Size of Square Bins")
+% @ 
+% 
+% \end{frame}
+% 
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulated Data}
+<<SimulatedCoarseDataScatters, echo=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+qplot(x,y,geom="point",data=subset(alldat, record=="Coarse"),facets=.~type, size=I(1)) + 
+  theme_bw() + theme(aspect.ratio=1) +
+  #ggtitle("Scatterplots of Simulated Data") +
+  xlab("X") + ylab("Y") + 
+  scale_x_continuous(breaks=c(0,25,50,75,100)) + 
+  scale_y_continuous(breaks=c(0,25,50,75,100))
+@ 
+
+\center Scatterplots of simulated data recorded to nearest even integer
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Selecting Bin Width}
+  
+<<Stripes, echo=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+setwd("C:\\Users\\Karsten\\Documents\\GitHub\\dbaccess")
+allbindat <- read.csv("StripeBinData.csv",header=TRUE)
+allbindat$BinningType <- factor(allbindat$BinningType, levels=c("Standard","Random"))
+
+p1 <- qplot(binxs, binys, geom="tile", fill=binfreq, data=subset(allbindat,BinSize=="1 X 1 Unit")) +
+  facet_grid(BinningType~BinSize)+
+  ggtitle(" ") +   xlab("") + ylab("") +
+  scale_fill_gradient(low="#56B1F7", high="#132B43",
+                      limits=c(0, 450),name="Bin Count") + 
+  theme_bw() + theme(legend.position="none",aspect.ratio=1,
+                     panel.grid= element_blank())
+
+p2 <- qplot(binxs, binys, geom="tile", fill=binfreq, data=subset(allbindat,BinSize=="4 X 4 Unit")) +
+  facet_grid(BinningType~BinSize)+
+  ggtitle(" ") +   xlab("") + ylab("") +
+  scale_fill_gradient(low="#56B1F7", high="#132B43",
+                      limits=c(0, 450),name="Bin Count") + 
+  theme_bw() + theme(legend.position="none",aspect.ratio=1,
+                     panel.grid= element_blank())
+
+p3 <- qplot(binxs, binys, geom="tile", fill=binfreq, data=subset(allbindat,BinSize=="5 X 5 Unit")) +
+  facet_grid(BinningType~BinSize)+
+  ggtitle(" ") +   xlab("") + ylab("") +
+  scale_fill_gradient(low="#56B1F7", high="#132B43",
+                      limits=c(0, 450),name="Bin Count") + 
+  theme_bw() + theme(legend.position="none",aspect.ratio=1,
+                     panel.grid= element_blank())
+
+grid.arrange(p1,p2,p3, nrow=1)
+@   
+%
+\center Binned Scatterplots of Uniform Data \\
+
+\center Bin dimensions for standard binning should be integer multiples of the resolution of the data to avoid \textit{artificial} stripes.
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Selecting a Binning Origin}
+
+Specifying a binning origin to lower spatial loss
+  \begin{itemize}
+    \item Avoid heavy overhangs outside data boundaries
+    \item Try to align bin centers with possible data values 
+  \end{itemize}
+
+A reliable default based on the data resolution
+  \begin{itemize}
+    \item Recorded to nearest $\alpha_x$ units in the X dimension 
+    \item Recorded to nearest $\alpha_y$ units in the Y dimension
+    \item $x_{(1)}$ and $y_{(1)}$ are the minimum data values in each dimension
+    \item Set binning origin at $(x_{(1)}, y_{(1)}) - (\alpha_x/2,\alpha_y/2) $
+  \end{itemize}  
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Selecting a Binning Origin}
+  
+<<ExponentialOriginShift, echo=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+#create binned data for fine exponential with 10X10 bins at good and bad origin
+binoutExp5 <- RectBin2d(datlist[[3]]$x,datlist[[3]]$y,0,0,10,10,type="standard")
+binoutExp5offset <- RectBin2d(datlist[[3]]$x,datlist[[3]]$y,-9,-9,10,10,type="standard")
+
+p1 <- qplot(binxs, binys, geom="tile", fill=log(binfreq), data=binoutExp5[[1]]) +  
+  ggtitle("Origin at (0,0)") +
+  scale_fill_gradient(low="#56B1F7", high="#132B43") + 
+  theme_bw() + theme(legend.position="none",
+                     aspect.ratio=1, panel.grid= element_blank()) +
+  xlab("") + ylab("") + geom_hline(yintercept=0) + geom_vline(xintercept=0)
+p2 <- qplot(binxs, binys, geom="tile", fill=log(binfreq), data=binoutExp5offset[[1]]) +  
+  ggtitle("Origin at (-9,-9)") + 
+  scale_fill_gradient(low="#56B1F7", high="#132B43") + 
+  theme_bw() + theme(legend.position="none",
+                     aspect.ratio=1, panel.grid= element_blank()) +
+  xlab("") + ylab("") + geom_hline(yintercept=0) + geom_vline(xintercept=0)
+
+grid.arrange(p1,p2,nrow=1)
+@   
+  
+\center Exponential data binned with 10X10 square bins.\\
+Net spatial loss for binning origin at (0,0) is 7\% lower than (-9,-9).
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Selecting a Binning Origin}
+  
+<<OriginShiftCoarse, echo=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+library(plyr)
+setwd("C:\\Users\\Karsten\\Documents\\GitHub\\dbaccess")
+lossOrigin <- read.csv("LossesByOriginBinwidth.csv",header=TRUE)
+lossOrigin$binsize <- factor(paste(lossOrigin$widthx,"X",lossOrigin$widthx,sep=""),
+                             levels=c("2X2","4X4","6X6","8X8","10X10"))
+
+mins <- ddply(lossOrigin, .(widthx, bintype, distrib), summarise,
+              minx = max(originx[which(totalSpatialLoss == min(totalSpatialLoss))]),
+              minloss = min(totalSpatialLoss))
+mins$binsize <- paste(mins$widthx,"X",mins$widthx,sep="")
+
+qplot(originx,totalSpatialLoss/1000,geom="path",group=distrib, colour=distrib,
+      data=subset(lossOrigin,bintype=="standard"), size=I(1))+ 
+  facet_grid(distrib~binsize, scales="free_x", space="free_x") + theme_bw() + 
+  theme(panel.grid= element_blank(), legend.position="none")+
+  geom_vline(xintercept = -1, colour=I("darkgray")) +
+  geom_point(aes(x=minx, y=minloss/1000), data=subset(mins, bintype=="standard"), size=3.5) +
+  ylab("Net Spatial Loss (in thousands of units)") + xlab("Origin Offset") + 
+  scale_x_continuous(breaks = seq(-10, 0, by = 1))
+@   
+
+\center Net spatial loss for simulated data (with 2X2 resolution)  \\
+Binning origin at (-1,-1) is good default option for all bin sizes
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Frequency Binning}
+  
+Bin count mapped to shade can be rendered continuously in HCL color space
+
+\vspace{.25cm}
+
+Why would we discretize the frequency shading?
+  \begin{itemize}
+    \item Make inability to accurately visually map bin shades to plot keys explicit
+  \end{itemize}  
+
+
+<<Freq4NoBins, echo=FALSE, warning=FALSE, fig.width=8, fig.height=4, out.width='.9\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+binout1 <- RectBin2d(datlist[[2]]$x,datlist[[2]]$y,0,0,5,5,type="standard")
+binoutFreqGroups4 <- freqBin(binout1, binType="standard", ncolor=4, logCount=FALSE)
+binoutFreqGroups7 <- freqBin(binout1, binType="standard", ncolor=7, logCount=FALSE)
+binoutFreqGroups10 <- freqBin(binout1, binType="standard", ncolor=10, logCount=FALSE)
+
+# Plot with 4 Binned Frequencies
+labels = unique(binoutFreqGroups4[[1]]$freqlabel)
+cols <- seq_gradient_pal(low="#56B1F7", high="#132B43", space="Lab")((0:4)/4)
+# Plot with 4 Binned Frequencies
+p4<- qplot(binxs, binys, geom="tile", fill=factor(freqgroup), data=binoutFreqGroups4[[1]],
+           main="4 Standard Freq Bins") +
+  xlab("") + ylab("")+
+  scale_fill_manual("Frequencies", values=cols, 
+                      guide = guide_legend(label.position="bottom", label.hjust=0.5,  
+                                           title.position = "top"),
+                      labels=labels) + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     legend.key.width = unit(1, "cm"),
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(0.1,.1,.1,.1),"cm"),
+                     legend.text=element_text(size=12) ) 
+
+
+
+
+p0 <- qplot(binxs, binys, geom="tile", fill=binfreq, data=binout1[[1]],
+      main="No Freq Binning") +
+  xlab("") + ylab("")+
+  scale_fill_gradient("Frequency", low="#56B1F7", high="#132B43",
+                      guide = guide_colourbar(label.position="bottom", label.hjust=0.5,  
+                                              title.position = "top",
+                                              barwidth = unit(6, "cm"))) + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(.1,.1,.1,.1),"cm") )
+
+grid.arrange(p0,p4,nrow=1)
+@  
+
+\end{frame}
+
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Frequency Binning}
+  
+How do we discretize the frequency shading?
+  \begin{itemize}
+    \item Add second stage of binning
+    \item Use one dimensional binning algorithms on bin counts, $c_\ell$
+    \item Shade ordinally based on binned frequency groups
+    \item May transform counts before frequency binning \\ (i.e. log counts)
+  \end{itemize}  
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Frequency Binning}
+  
+Standard Frequency Binning
+  \begin{itemize}
+    \item Create k frequency groups using equal bin width
+  \end{itemize}  
+\pause
+
+\vspace{.25cm}
+
+Quantile Frequency Binning
+  \begin{itemize}
+    \item Create k frequency groups based on empirical quantiles of raw bin counts
+    \item Roughly equal number of tiles in each shade
+  \end{itemize}  
+\pause
+
+\vspace{.25cm}
+
+Shade interpretability analogous to: "Histogram vs Boxplot"
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Frequency Loss}
+
+Frequency Loss
+  \begin{itemize}
+    \item bin frequencies, $c_\ell$, for spatial bins $\ell \in \{1, \dots, \mathscr{L} \}$\\
+    \item binned frequencies, $b_C(c_\ell)$
+  \end{itemize}  
+%
+\begin{eqnarray}\label{totfreqloss}
+L^F = \sum_{\ell=1}^{\mathscr{L}} (c_\ell-b_c(c_\ell))^2
+\end{eqnarray}  
+\pause
+
+Log Frequency Loss
+  \begin{itemize}
+    \item If bin frequencies, $c_\ell$, are log transformed 
+    \item binned log frequencies, $b_C(\log(c_\ell))$
+  \end{itemize} 
+  %
+\begin{eqnarray}\label{logfrequency}
+L^{\log F} = \sum_{\ell \in \mathscr{L}^\ast} (\log(c_\ell) - b_c(\log(c_\ell)))^2
+\end{eqnarray}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Frequency Binning Specification}
+  
+3 Main Choices
+  \begin{itemize}
+    \item Number of frequency groups (k)
+    \item Transform counts (yes/no)
+    \item Binning algorithm (standard/quantile)
+  \end{itemize}  
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Number of Frequency Groups}
+  
+<<Freq4710NoBins, echo=FALSE, warning=FALSE, fig.width=10, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+binout1 <- RectBin2d(datlist[[2]]$x,datlist[[2]]$y,0,0,5,5,type="standard")
+binoutFreqGroups4 <- freqBin(binout1, binType="standard", ncolor=4, logCount=FALSE)
+binoutFreqGroups7 <- freqBin(binout1, binType="standard", ncolor=7, logCount=FALSE)
+binoutFreqGroups10 <- freqBin(binout1, binType="standard", ncolor=10, logCount=FALSE)
+
+# Plot with 4 Binned Frequencies
+p4<- qplot(binxs, binys, geom="tile", fill=freqgroup, data=binoutFreqGroups4[[1]],
+           main="4 Standard Freq Bins") +
+  xlab("") + ylab("")+
+  scale_fill_gradient("Frequency", low="#56B1F7", high="#132B43")+ 
+  theme_bw() + theme(legend.position="none",aspect.ratio=1,
+                     plot.margin = unit(c(0.1,.1,.1,.1),"cm") )
+
+# Plot with 7 Binned Frequencies
+p7<- qplot(binxs, binys, geom="tile", fill=freqgroup, data=binoutFreqGroups7[[1]],
+            main="7 Standard Freq Bins") +
+  xlab("") + ylab("")+
+  scale_fill_gradient("Frequency", low="#56B1F7", high="#132B43")+ 
+  theme_bw() + theme(legend.position="none",aspect.ratio=1,
+                     plot.margin = unit(c(0.1,.1,.1,.1),"cm") )
+
+# Plot with 10 Binned Frequencies
+p10 <- qplot(binxs, binys, geom="tile", fill=freqgroup, data=binoutFreqGroups10[[1]],
+           main="10 Standard Freq Bins") +
+  xlab("") + ylab("")+
+  scale_fill_gradient("Frequency", low="#56B1F7", high="#132B43")+ 
+  theme_bw() + theme(legend.position="none",aspect.ratio=1,
+                     plot.margin = unit(c(0.1,.1,.1,.1),"cm") )
+
+p0 <- qplot(binxs, binys, geom="tile", fill=binfreq, data=binout1[[1]],
+      main="No Freq Binning") +
+  xlab("") + ylab("")+
+  scale_fill_gradient("Frequency", low="#56B1F7", high="#132B43",
+                      guide = guide_colourbar(label.position="bottom", label.hjust=0.5,  
+                                              title.position = "top")) + 
+  theme_bw() + theme(legend.position="none",aspect.ratio=1,
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(.1,.1,.1,.1),"cm") )
+
+grid.arrange(p4,p7,p10,p0,nrow=1)
+@  
+
+\center How many different shades can we distinguish simultaneously? \\ 
+Research suggests 7 is max for the typical person $\Rightarrow$ use k $\le 7$
+
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Frequency Loss Simulation}
+  
+<<FreqLossLineplot, echo=FALSE, warning=FALSE, fig.width=11, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+freqLossSimDat <- NULL
+distrib <- c("Uniform", "Normal", "Exponential")
+for (distidx in 1:3){
+  binout1 <- RectBin2d(datlist[[distidx]]$x,datlist[[distidx]]$y,0,0,5,5,type="standard")
+  for (ncol in 1:10){
+    binoutFreq <- rbind(freqBin(binout1, binType="standard", ncolor=ncol, logCount=FALSE)[[2]],
+                        freqBin(binout1, binType="quantile", ncolor=ncol, logCount=FALSE)[[2]], 
+                        freqBin(binout1, binType="standard", ncolor=ncol, logCount=TRUE)[[2]], 
+                        freqBin(binout1, binType="quantile", ncolor=ncol, logCount=TRUE)[[2]])
+    binoutFreq$FreqBinType <- c("Standard", "Quantile", "Standard Log", "Quantile Log")
+    binoutFreq$DistType <- distrib[distidx]
+    binoutFreq$ncolor <- ncol 
+    freqLossSimDat <- rbind(freqLossSimDat,binoutFreq)
+  }
+}
+
+freqLossSimDat$FreqBinType <- factor(freqLossSimDat$FreqBinType , levels= c("Standard", "Quantile", "Standard Log", "Quantile Log"))
+
+plotdat <- freqLossSimDat[(freqLossSimDat$FreqBinType!="Standard Log" & freqLossSimDat$FreqBinType!="Quantile Log" & freqLossSimDat$DistType=="Exponential"),]
+p1 <- qplot(ncolor, totalFreqLoss, geom="path",linetype=FreqBinType,
+      data=plotdat , color = FreqBinType, size=I(1)) +
+  facet_grid(.~DistType, scales="free_y") +  theme_bw() +
+  scale_x_continuous(breaks=1:10) + ylim(0,max(plotdat$totalFreqLoss)) +
+  xlab("Freq Bins") + ylab("Total Freq Loss") + 
+  theme(legend.position="bottom",plot.margin = unit(c(.1,.1,.1,.1),"cm"))
+
+plotdat <- freqLossSimDat[(freqLossSimDat$FreqBinType!="Standard Log" & freqLossSimDat$FreqBinType!="Quantile Log" & freqLossSimDat$DistType=="Normal"),]
+p2 <-  qplot(ncolor, totalFreqLoss, geom="path",linetype=FreqBinType,
+      data=plotdat , color = FreqBinType, size=I(1)) +
+  facet_grid(.~DistType, scales="free_y") +  theme_bw() +
+  scale_x_continuous(breaks=1:10) + ylim(0,max(plotdat$totalFreqLoss)) +
+  xlab("Freq Bins") + ylab("Total Freq Loss") + 
+  theme(legend.position="bottom",plot.margin = unit(c(.1,.1,.1,.1),"cm"))
+
+plotdat <- freqLossSimDat[(freqLossSimDat$FreqBinType!="Standard Log" & freqLossSimDat$FreqBinType!="Quantile Log" & freqLossSimDat$DistType=="Uniform"),]
+p3 <-qplot(ncolor, totalFreqLoss, geom="path",linetype=FreqBinType,
+      data=plotdat , color = FreqBinType, size=I(1)) +
+  facet_grid(.~DistType, scales="free_y") +  theme_bw() +
+  scale_x_continuous(breaks=1:10) + ylim(0,max(plotdat$totalFreqLoss)) +
+  xlab("Freq Bins") + ylab("Total Freq Loss") + 
+  theme(legend.position="bottom",plot.margin = unit(c(.1,.1,.1,.1),"cm"))
+
+grid.arrange(p1,p2,p3, nrow=1)
+@  
+
+\center Number of Frequency Bins vs. Frequency Loss
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Log Frequency Loss Simulation}
+  
+<<LogFreqLossLineplot, echo=FALSE, warning=FALSE, fig.width=11, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+plotdat <- freqLossSimDat[((freqLossSimDat$FreqBinType=="Standard Log" |freqLossSimDat$FreqBinType=="Quantile Log")  & freqLossSimDat$DistType=="Exponential"),]
+p4 <- qplot(ncolor, totalFreqLoss, geom="path",linetype=FreqBinType,
+      data=plotdat , color=FreqBinType, size=I(1)) +
+  facet_grid(.~DistType, scales="free_y") +  theme_bw() +
+  scale_x_continuous(breaks=1:10) + ylim(0,max(plotdat$totalFreqLoss)) +
+  xlab("Freq Bins") + ylab("Total Log Freq Loss") + 
+  theme(legend.position="bottom",plot.margin = unit(c(.1,.1,.1,.1),"cm"))
+
+plotdat <- freqLossSimDat[((freqLossSimDat$FreqBinType=="Standard Log" |freqLossSimDat$FreqBinType=="Quantile Log") & freqLossSimDat$DistType=="Normal"),]
+p5 <- qplot(ncolor, totalFreqLoss, geom="path",linetype=FreqBinType,
+      data=plotdat , color = FreqBinType, size=I(1)) +
+  facet_grid(.~DistType, scales="free_y") +  theme_bw() +
+  scale_x_continuous(breaks=1:10) + ylim(0,max(plotdat$totalFreqLoss)) +
+  xlab("Freq Bins") + ylab("Total Log Freq Loss") + 
+  theme(legend.position="bottom",plot.margin = unit(c(.1,.1,.1,.1),"cm"))
+
+plotdat <- freqLossSimDat[((freqLossSimDat$FreqBinType=="Standard Log" |freqLossSimDat$FreqBinType=="Quantile Log") & freqLossSimDat$DistType=="Uniform"),]
+p6 <-qplot(ncolor, totalFreqLoss, geom="path",linetype=FreqBinType,
+      data=plotdat , color = FreqBinType, size=I(1)) +
+  facet_grid(.~DistType, scales="free_y") +  theme_bw() +
+  scale_x_continuous(breaks=1:10) + ylim(0,2) +
+  xlab("Freq Bins") + ylab("Total Log Freq Loss") + 
+  theme(legend.position="bottom",plot.margin = unit(c(.1,.1,.1,.1),"cm"))
+
+grid.arrange(p4,p5,p6, nrow=1)
+@  
+
+\center Number of Log Frequency Bins vs. Log Frequency Loss
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Dealing With Skewed Bin Counts}
+
+Distribution of bin counts are commonly skewed
+
+<<SkewCounts, echo=FALSE, warning=FALSE, message=FALSE, fig.width=11, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+binout1 <- RectBin2d(datlist[[2]]$x,datlist[[2]]$y,0,0,5,5,type="standard")
+p1 <- qplot(binxs, binys, geom="tile", fill=binfreq, data=binout1[[1]],
+      main="No Freq Binning") +
+  xlab("") + ylab("")+
+  scale_fill_gradient("Frequency", low="#56B1F7", high="#132B43",
+                      guide = guide_colourbar(label.position="bottom", label.hjust=0.5,  
+                                              title.position = "top")) + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(.1,.1,.1,.1),"cm") )
+p2 <- qplot(binfreq, geom="histogram", data=binout1[[1]], main="Histogram of Raw Bin Counts")+
+  theme_bw() + xlab("Bin Frequency") + ylab("Number of Bins")
+grid.arrange(p1,p2, nrow=1)
+@  
+
+\center Removes ability to see differences in low density bins
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Dealing With Skewed Bin Counts}
+
+Transforming bin counts is one way to reduce visual impact of high density bins
+
+<<SkewCountFreqBinning, echo=FALSE, warning=FALSE, fig.width=11, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+binout1 <- RectBin2d(datlist[[2]]$x,datlist[[2]]$y,0,0,5,5,type="standard")
+freqgrps = 5
+binoutFreqGroups <- freqBin(binout1, binType="standard", ncolor=freqgrps, logCount=FALSE)
+binoutQuantFreqGroups <- freqBin(binout1, binType="quantile", ncolor=freqgrps, logCount=FALSE)
+binoutLogFreqGroups <- freqBin(binout1, binType="standard", ncolor=freqgrps, logCount=TRUE)
+binoutQuantLogFreqGroups <- freqBin(binout1, binType="quantile", ncolor=freqgrps, logCount=TRUE)
+cols <- seq_gradient_pal(low="#56B1F7", high="#132B43", space="Lab")((0:freqgrps)/freqgrps)
+# Plot with Quantile Binned Frequencies
+labels = paste(unique(binoutQuantFreqGroups[[1]]$freqlabel), "\n", c("1st Pentile","2nd Pentile","3rd Pentile","4th Pentile","5th Pentile"), sep="")
+p3 <- qplot(binxs, binys, geom="tile", fill=factor(freqgroup), data=binoutQuantFreqGroups[[1]],
+            main="Quantile Freq Binning") +
+    xlab("") + ylab("")+
+  scale_fill_manual("Frequencies", values=cols, 
+                      guide = guide_legend(label.position="bottom", label.hjust=0.5,  
+                                           title.position = "top"),
+                      labels=labels) + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     legend.key.width = unit(1, "cm"),
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(0.5,.1,.1,.1),"cm"),
+                     legend.text=element_text(size=12) ) 
+# Plot with standard binned Log Frequencies
+labels = unique(binoutLogFreqGroups[[1]]$freqlabel)
+p4 <- qplot(binxs, binys, geom="tile", fill=factor(freqgroup), data=binoutLogFreqGroups[[1]],
+            main="Standard Log Freq Binning") +
+    xlab("") + ylab("")+
+  scale_fill_manual("Log Frequencies", values=cols, 
+                      guide = guide_legend(label.position="bottom", label.hjust=0.5,  
+                                           title.position = "top"),
+                      breaks=unique(binoutLogFreqGroups[[1]]$freqgroup),
+                      labels=labels) + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     legend.key.width = unit(1, "cm"),
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(0.5,.1,.1,.1),"cm") ,
+                     legend.text=element_text(size=12)) 
+grid.arrange(p4,p3, nrow=1)
+@  
+
+\center Quantile frequency binning adds a second option for overcoming skew in visualization
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Practical Takeaways for Binned Scatterplots}
+  
+Spatial Binning
+  \begin{itemize}
+      \item Standard binning algorithm superior to random binning in spatial loss and computation speed
+      \item Smaller bins superior for precisely displaying spatial information     
+      \item Make bin dimensions integer multiples of data resolution
+      \item Quality default for origin offset based on data resolution
+  \end{itemize}  
+\pause
+
+\vspace{.25cm}
+
+Frequency Binning
+  \begin{itemize}
+    \item Use 4 to 7 frequency bins
+    \item Use standard log freq or quantile freq binning for desired interpretation
+  \end{itemize}  
+
+\end{frame}
+
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Application to Baseball Data}
+
+<<BaseballRecommended1, echo=FALSE, warning=FALSE,fig.width=4, fig.height=4, out.width='.5\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+# Standard binning ~ 50 in each direction
+# so range(x)/50 = 100/50 = 2 , range(y)/50 = 500/50 = 10 
+# origin at (min(pitchdat$G)-0.5, min(pitchdat$SO)-0.5) = (0.5, -0.5)
+binout1 <- RectBin2d(pitchdat$G,pitchdat$SO,.5,-.5,2,10,type="standard")
+
+qplot(binxs, binys, geom="tile", fill=binfreq, data=binout1[[1]],
+      main="Standard Freq Binning") +
+  xlab("Games (count)") + ylab("Strike Outs (count)")+
+  scale_fill_gradient("Frequencies", low="#56B1F7", high="#132B43") + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     legend.key.width = unit(1, "cm"),
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(0.5,-.5,.1,-.5),"cm"),
+                     legend.text=element_text(size=12) )
+@  
+
+Use Standard Rectangular Binning 
+  \begin{itemize}
+    \item Want approx 50 bins in each dimension $\Rightarrow$ use 2X10 bins
+    \item Binning origin at (0.5,-0.5)  $\Rightarrow$ net spatial loss is 3\% lower than for origin at (1,0)
+  \end{itemize}  
+
+\end{frame}
+
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Application to Baseball Data}
+
+<<BaseballRecommended2, echo=FALSE, warning=FALSE,fig.width=9, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+binout1 <- RectBin2d(pitchdat$G,pitchdat$SO,.5,-.5,2,10,type="standard")
+
+## quantile freq binning
+binoutQuantFreqGroups <- freqBin(binout1, binType="quantile", ncolor=4, logCount=FALSE)
+labels = paste(sort(unique(binoutQuantFreqGroups[[1]]$freqlabel)), "\n",c("1st Quartile","2nd Quartile","3rd Quartile","4th Quartile") , sep="")
+cols <- seq_gradient_pal(low="#56B1F7", high="#132B43", space="Lab")((0:5)/5)
+p2 <- qplot(binxs, binys, geom="tile", fill=factor(freqlabel), data=binoutQuantFreqGroups[[1]],
+            main="Quantile Freq Binning") +
+  xlab("Games (count)") + ylab("Strike Outs (count)")+
+  scale_fill_manual("Frequencies", values=cols, 
+                    guide = guide_legend(label.position="bottom", label.hjust=0.5,  
+                                         title.position = "top"),
+                    labels=labels) + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     legend.key.width = unit(1, "cm"),
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(0.5,-1,-.1,-1),"cm"),
+                     legend.text=element_text(size=12) ) 
+
+## standard log freq binning
+binoutLogFreqGroups <- freqBin(binout1, binType="standard", ncolor=4, logCount=TRUE)
+binoutLogFreqGroups[[1]]$freqlabel <- factor(binoutLogFreqGroups[[1]]$freqlabel, 
+                                             levels = unique(binoutLogFreqGroups[[1]]$freqlabel)[c(3,5,2,4,1)])
+labels = levels(binoutLogFreqGroups[[1]]$freqlabel)
+cols <- seq_gradient_pal(low="#56B1F7", high="#132B43", space="Lab")((0:5)/5)
+
+p3 <- qplot(binxs, binys, geom="tile", fill=factor(freqlabel), data=binoutLogFreqGroups[[1]],
+      main="Standard Log Freq Binning") +
+  xlab("Games (count)") + ylab("Strike Outs (count)")+
+  scale_fill_manual("Log Frequencies", values=cols, 
+                    guide = guide_legend(label.position="bottom", label.hjust=0.5,  
+                                         title.position = "top"),
+                    labels=labels) + 
+  theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
+                     legend.key.width = unit(1, "cm"),
+                     panel.grid= element_blank(),
+                     plot.margin = unit(c(0.5,-1,.1,-1),"cm"),
+                     legend.text=element_text(size=12) ) 
+
+# plot three binned scatterplots (raw, standard log freq, quantile freq)
+grid.arrange(p2,p3, nrow=1)
+@  
+
+\center After frequency binning with 4 shade groups
+
+\end{frame}
+
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{}  
+
+\begin{center}
+\large Shiny Database Sampler \\
+\normalsize Chapter 3
+\end{center}
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Software Development}    
+  Goals
+    \begin{itemize}
+      \item Connect intro students with big data
+      \item Bypass technical hurdles of big data
+    \end{itemize} \pause
+  Technical Components
+    \begin{itemize}
+      \item \textit{Data storage}: MySQL
+      \item \textit{Computation}: \texttt{R}, \texttt{shiny}, \texttt{RMySQL}
+      \item \textit{User interface}: accessed through web browser
+    \end{itemize} \pause
+  Interface Design
+    \begin{itemize}
+      \item Quality characteristics of software design
+      \item Cognitive load theory
+      \item Human centered design
+      \item Pedagogical value and curricular integration
+    \end{itemize}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{}
+    
+\begin{center}  
+  \includegraphics[width=.9\textwidth]{Figure/SampleAndSummarizeWithPanelLabels.png}
+\end{center}
+\center \href{http://shiny.stat.iastate.edu/karstenm/ShinyDatabaseSampler/}{User Interface}
+
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Applications}    
+  Lab Assignment
+    \begin{itemize}
+      \item Groups assignment
+      \item Questions on hypothetical sampling goals
+      \item Use Shiny Database Samplers to gather and explore samples
+    \end{itemize}
+  Course Projects
+    \begin{itemize}
+      \item Group project
+      \item Research question with focus on bivariate associations
+      \item Shiny Database Sampler use by some for mock surveys
+    \end{itemize}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Survey}    
+  Student User Survey
+    \begin{itemize}
+      \item 265 students from stat 104
+      \item Survey followed lab assignment
+      \item Likert scaled responses to 3 sets of 4 items
+      \item Item Sets designed to focus on 3 attributes of interest
+      \begin{itemize}
+        \item Ease of use
+        \item Connection to sampling concepts
+        \item Engagement with data
+      \end{itemize}
+      \item Two per item set written in negative, then reverse scored
+    \end{itemize}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Survey}
+
+\begin{table}[hbtp]
+\centering
+\scriptsize
+\begin{tabular}{cp{2.75in}c}
+Topic Set & Item & Polarity\\[3pt]
+  \hline
+Ease & \it I found the web tool easy to use & $+$\\  
+ & \it The layout of the web tool was intuitive & $+$  \\  
+ &  \it Using the web tool was difficult & $-$ \\  
+ &  \it Learning to use the web tool was hard & $-$  \\  [3pt]
+  \hline
+Concept &  \it The web tool helped me understand sampling concepts & $+$  \\   
+&  \it I understand sampling ideas less after using the web tool & $-$ \\  
+&  \it Sampling techniques are clearer after using the web tool & $+$  \\  
+&  \it The web tool made me less sure how to randomly sample & $-$ \\  
+   \hline
+Engagement &  \it I did not enjoy working with the Census data & $-$  \\  
+& \it I thought the Census data was boring & $-$  \\  
+& \it Knowing that the Census data was from real people made it more interesting & $+$  \\   
+& \it I liked analyzing the Census data & $+$ \\   
+\end{tabular}
+\caption{Survey Items}
+\label{tab:surveyquestions}
+\end{table}
+
+\normalsize
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Survey}
+<<fluctuationDiagrams,echo=F, message=FALSE, include=T,eval=T,fig.width=12, fig.height=6, out.width='.98\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold'>>=
+#ease of use
+e12 <- ggfluctuation(table(cdat$q1,cdat$q4)) +
+  xlab("Ease Item 1") + ylab("Ease Item 2") + theme_fluct
+e13 <- ggfluctuation(table(cdat$q1,cdat$q7)) + xlab("Ease Item 1") + 
+  ylab("Ease Item 3") + theme_fluct
+e14 <- ggfluctuation(table(cdat$q1,cdat$q10)) + xlab("Ease Item 1") + 
+  ylab("Ease Item 4") + theme_fluct
+e23 <- ggfluctuation(table(cdat$q4,cdat$q7)) + xlab("Ease Item 2") + 
+  ylab("Ease Item 3") + theme_fluct
+e24 <- ggfluctuation(table(cdat$q4,cdat$q10)) + xlab("Ease Item 2") + 
+  ylab("Ease Item 4") + theme_fluct
+e34 <- ggfluctuation(table(cdat$q7,cdat$q10)) + xlab("Ease Item 3") + 
+  ylab("Ease Item 4") + theme_fluct
+
+#concept
+c12 <- ggfluctuation(table(cdat$q2,cdat$q5)) +
+  xlab("Concept Item 1") + ylab("Concept Item 2") + theme_fluct
+c13 <- ggfluctuation(table(cdat$q2,cdat$q8)) +
+  xlab("Concept Item 1") + ylab("Concept Item 3") + theme_fluct
+c14 <- ggfluctuation(table(cdat$q2,cdat$q11)) +
+  xlab("Concept Item 1") + ylab("Concept Item 4") + theme_fluct
+c23 <- ggfluctuation(table(cdat$q5,cdat$q8)) +
+  xlab("Concept Item 2") + ylab("Concept Item 3") + theme_fluct
+c24 <- ggfluctuation(table(cdat$q5,cdat$q11)) +
+  xlab("Concept Item 2") + ylab("Concept Item 4") + theme_fluct
+c34 <- ggfluctuation(table(cdat$q8,cdat$q11)) +
+  xlab("Concept Item 3") + ylab("Concept Item 4") + theme_fluct
+
+#Engagement with cdata
+d12 <- ggfluctuation(table(cdat$q3,cdat$q6)) +
+  xlab("Engagement Item 1") + ylab("Engagement Item 2") + theme_fluct
+d13 <- ggfluctuation(table(cdat$q3,cdat$q9)) +
+  xlab("Engagement Item 1") + ylab("Engagement Item 3") + theme_fluct
+d14 <- ggfluctuation(table(cdat$q3,cdat$q12)) +
+  xlab("Engagement Item 1") + ylab("Engagement Item 4") + theme_fluct
+d23 <- ggfluctuation(table(cdat$q6,cdat$q9)) +
+  xlab("Engagement Item 2") + ylab("Engagement Item 3") + theme_fluct
+d24 <- ggfluctuation(table(cdat$q6,cdat$q12)) +
+  xlab("Engagement Item 2") + ylab("Engagement Item 4") + theme_fluct
+d34 <- ggfluctuation(table(cdat$q9,cdat$q12)) +
+  xlab("Engagement Item 3") + ylab("Engagement Item 4") + theme_fluct
+
+grid.arrange(e12,e13,e14,e23,e24,e34,
+             c12,c13,c14,c23,c24,c34,
+             d12,d13,d14,d23,d24,d34,
+             nrow=3) 
+@
+
+\center Fluctuation Diagrams of All Item Pairs within Topic Sets
+
+\end{frame}
+
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Survey}
+
+\begin{table}[hbtp]
+\centering
+\begin{tabular}{lrc}
+  \hline
+Set & Estimate & 95\% Confidence Interval \\ 
+  \hline
+Ease & 0.70 & (0.613 , 0.759)\\ 
+  Concept & 0.53 & (0.410 , 0.637) \\ 
+  Engagement & 0.72 & (0.643 , 0.776) \\ 
+   \hline
+\end{tabular}
+\caption{Cronbach's $\alpha$ Estimates for each item set with 95\% central bootstrap confidence interval based on 10,000 bootstrap samples} 
+\label{cronbachstuff}
+\end{table}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Survey}
+<<PCA6plot,echo=F, message=FALSE, include=T,eval=T,fig.width=8, fig.height=4, out.width='.9\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold'>>=
+#average score per student per set
+cdat$student <- 1:nrow(cdat)
+
+# Try PCA with 4 values Ease, Engagement, Concept+ and Concept-
+Set6Scores <- ddply(cdat,.(student),summarize,
+                  EasePos = mean(c(q1,q4), na.rm=TRUE),
+                  EaseNeg = mean(c(q7,q10), na.rm=TRUE),
+                  ConceptsPos = mean(c(q2,q8), na.rm=TRUE),
+                  ConceptsNeg = mean(c(q5,q11), na.rm=TRUE),
+                  EngagedPos = mean(c(q9,q12), na.rm=TRUE),
+                  EngagedNeg = mean(c(q3,q6), na.rm=TRUE)  )
+pc6 <- princomp(Set6Scores[,2:7],na.rm=T)
+
+pc6loadings <- loadings(pc6)[1:6,]
+pc6vars <- data.frame( PrinComp = 1:6,
+            PropOfVar = (pc6[[1]]^2)/sum(pc6[[1]]^2),
+            CumPropOfVar = cumsum((pc6[[1]]^2)/sum(pc6[[1]]^2)) ,
+            row.names=NULL)
+colnames(pc6vars) <- c("PC" , "Prop. of Var", "Cumulative Prop. of Var")
+load23dat <- data.frame(pc6loadings[,2:3], compname = row.names(pc6loadings))
+require(grid)
+ggplot(data=load23dat)+ 
+  geom_hline(x=0, colour="darkgray") + geom_vline(y=0, colour="darkgray")+
+  geom_point(aes(x=Comp.2, y=Comp.3),size=3.5) + xlim(c(-.73,.6)) + 
+  theme_bw() + xlab("Component 2") + ylab("Component 3") +
+  geom_segment(aes(x = 0, y = 0, xend = Comp.2, yend = Comp.3), colour="grey40") + 
+  geom_text(aes(x=0.825*Comp.2, y=0.825*Comp.3, label=compname)) +coord_fixed() + 
+  theme(plot.margin=unit(c(0,0,0,0), unit="cm")) + coord_fixed(ratio = 1)
+@
+\center Item Pair Loadings on Components 2 and 3 from the Principal Component Analysis with Six Topic/Polarity Item Pairs
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Survey}
+<<OverallSetBars,echo=F, message=FALSE, include=T ,eval=T,fig.width=9, fig.height=2.5, out.width='.99\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold'>>=
+meltdatNoNA$value <- as.numeric(as.character(meltdatNoNA$value))
+qu.summary <- ddply(meltdatNoNA, .(set, question.in.set, value), summarize,
+n=length(value) )
+qu.summary$polarity <- rep(c("Pos","Pos","Neg","Neg","Pos","Neg","Pos","Neg","Neg","Neg","Pos","Pos"),each=5)
+qu.summary$glyphShift <- .05
+qu.summary$glyphShift[qu.summary$polarity=="Neg"] <- -.05
+
+qu.means <- ddply(qu.summary, .(set, value, polarity), summarize, means=mean(n))
+
+# #write.csv(qu.means, "quMeans.csv",row.names=FALSE)
+# qu.means <- read.csv("quMeans.csv",header=T)
+
+ggplot() +
+  geom_bar(aes(x=as.factor(value-3), weight=means,fill=polarity),data=qu.means,width=.5, position="dodge", size=I(2)) + 
+  theme_bw() + scale_colour_brewer("", palette="Set1") + 
+  scale_shape_manual("", values=c("-","+")) +
+#  scale_shape_manual("", values=15:18) +
+#  geom_point(aes(x=as.character(value-3), y=n,  colour=question.in.set, shape=polarity), data=qu.summary, size=I(7),position="dodge") +
+  facet_grid(facets=.~set) + 
+  xlab("Responses (Post Reverse-Scoring All Negative Item)") + ylab("Count") 
+@
+\center Item Set Response Distributions by Polarity
+
+\end{frame}
+
+
+
+
+% %-------------------------------------------------
+% 
+% \begin{frame}
+%     \frametitle{Survey}
+%     
+%   Four sets for final analysis
+%     \begin{itemize}
+%       \item Ease and Engagement item sets
+%       \item Two polarity-based sets for Concept items
+%     \end{itemize}
+%   
+%   \pause
+% 
+%   Are these sets measuring unique latent characteristics?
+% 
+% <<PCA4,echo=F, message=FALSE, include=F,eval=T,fig.width=7.5, fig.height=5, out.width='.49\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold'>>=
+% #average score per student per set
+% cdat$student <- 1:nrow(cdat)
+% 
+% # Try PCA with 4 values Ease, Engagement, Concept+ and Concept-
+% Set4Scores <- ddply(cdat,.(student),summarize,
+%                   Ease = mean(c(q1,q4,q7,q10), na.rm=TRUE),
+%                   ConceptsPos = mean(c(q2,q8), na.rm=TRUE),
+%                   ConceptsNeg = mean(c(q5,q11), na.rm=TRUE),
+%                   Engaged = mean(c(q3,q6,q9,q12), na.rm=TRUE)  )
+% pc4 <- princomp(Set4Scores[,2:5],na.rm=T)
+% 
+% summary(pc4)
+% loadings(pc4)
+% 
+% pc4loadings <- loadings(pc4)[1:4,]
+% pc4vars <- data.frame( PrinComp = 1:4,
+%             PropOfVar = (pc4[[1]]^2)/sum(pc4[[1]]^2),
+%             CumPropOfVar = cumsum((pc4[[1]]^2)/sum(pc4[[1]]^2)) ,
+%             row.names=NULL)
+% colnames(pc4vars) <- c("PC" , "Prop. of Var", "Cumulative Prop. of Var")
+% @
+% 
+% \begin{table}[hbtp]
+% \centering
+% \footnotesize
+% \begin{tabular}{lrrrrr}
+% \hline 
+% & Principal Component & 1 & 2 & 3 & 4 \\ 
+% \hline
+% Variances \hspace{.1in} & Prop. of Var & \Sexpr{sprintf("%.3f", pc4vars[1,2])} & \Sexpr{sprintf("%.3f", pc4vars[2,2])}  & \Sexpr{sprintf("%.3f", pc4vars[3,2])} & \Sexpr{sprintf("%.3f", pc4vars[4,2])}  \\
+% & Cumu. Prop. of Var & \Sexpr{sprintf("%.3f", pc4vars[1,3])} & \Sexpr{sprintf("%.3f", pc4vars[2,3])}  & \Sexpr{sprintf("%.3f", pc4vars[3,3])} & \Sexpr{sprintf("%.3f", pc4vars[4,3])}  \\
+% \hline
+% Loadings & Ease & \Sexpr{sprintf("%.3f", pc4loadings[1,1])} & \Sexpr{sprintf("%.3f", pc4loadings[1,2])} & \Sexpr{sprintf("%.3f", pc4loadings[1,3])} & \Sexpr{sprintf("%.3f", pc4loadings[1,4])}\\
+% & Pos. Concept &  \Sexpr{sprintf("%.3f", pc4loadings[2,1])} & \Sexpr{sprintf("%.3f", pc4loadings[2,2])} & \Sexpr{sprintf("%.3f", pc4loadings[2,3])} & \Sexpr{sprintf("%.3f", pc4loadings[2,4])}\\
+% & Neg. Concept &  \Sexpr{sprintf("%.3f", pc4loadings[3,1])} & \Sexpr{sprintf("%.3f", pc4loadings[3,2])} & \Sexpr{sprintf("%.3f", pc4loadings[3,3])} & \Sexpr{sprintf("%.3f", pc4loadings[3,4])}\\
+% & Engagement &  \Sexpr{sprintf("%.3f", pc4loadings[4,1])} & \Sexpr{sprintf("%.3f", pc4loadings[4,2])} & \Sexpr{sprintf("%.3f", pc4loadings[4,3])} & \Sexpr{sprintf("%.3f", pc4loadings[4,4])}\\
+% \hline
+% \end{tabular}
+% \caption{Principal Component Analysis with Final Four Item Sets} 
+% \label{pctable}
+% \end{table}
+% 
+% \normalsize
+% 
+% \end{frame}
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Results} 
+      Ease of use
+        \begin{itemize}
+          \item Students found the interface easy to use
+        \end{itemize}
+      Connection to sampling concepts
+        \begin{itemize}
+          \item Student views were neutral toward the learning benefit
+          \item However they did not believe it hurt their understanding
+        \end{itemize}
+      Engagement with data
+        \begin{itemize}
+          \item Students were moderately engaged with the census data
+        \end{itemize}
+\end{frame}
+
+%--------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Thanks!}
+
+\center Thank you for attending! \\
+
+\center Any questions?
+
+\end{frame}
+
+
+
+
+
+
+\end{document}

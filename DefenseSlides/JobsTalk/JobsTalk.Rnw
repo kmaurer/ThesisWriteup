@@ -1,0 +1,1182 @@
+\documentclass{beamer} 
+% \usepackage{graphicx}
+\usepackage{graphics}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage{bbm}
+
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+
+\setbeamercovered{transparent}
+\renewcommand{\ni}{\noindent}
+
+\newcommand{\distas}[1]{\mathbin{\overset{#1}{\sim}}}%
+\newcommand{\Cov}{\text{Cov}}%
+
+<<setup,echo=F,include=F,eval=T>>=
+### Preliminaries 
+## Load Packages
+library(car)
+library(ggplot2)
+library(subselect)
+library(qtlmt)
+library(multcomp)
+library(lattice)
+library(gridExtra)
+library(reshape2)
+library(plyr)
+library(boot)
+
+
+## Load Data
+setwd("C:\\Users\\Karsten\\Dropbox\\Dissertation\\CurriculumStudy\\DraftTISE")
+dat <- read.csv("./Data/DataForStudyAnalysis.csv",header=T)
+#change factor level order to put sweeney as default control group
+dat$room <- factor(dat$room.x, levels=c("sweeney", "kildee"))
+dat$lab5perc <- dat$lab5perc * 100
+dat$hw2perc <- dat$hw2perc * 100
+dat$treatment <- "Simulation-Based"
+dat$treatment[which(dat$room=="sweeney")] <- "Traditional"
+@
+
+<<ARTISTModSelectDiag,echo=F,include=F,eval=T>>=
+### Build MANCOVA model for ARTIST scaled multiple choice scores for CI and HT
+## Backward Stepwise Selection Using AIC as selection criterion
+#start with biggest possible model
+mod2 <- lm(cbind(ConfMC,HypMC)~ midterm + Section +
+             hw1perc +  hw2perc + hw3perc + hw4perc + hw5perc + hw6perc + hw7perc +
+            lab1perc +lab2perc +lab3perc +lab4perc +lab5perc +lab6perc + lab7perc +  room , data=dat)
+summary(manova(mod2))
+#backward stepwise to reduce model
+mod2backward <- mStep(mod2, k=2, trace=TRUE) #k=2 means to use AIC
+summary(manova(mod2backward))
+#removal of lab2, hw4 due to p-values over .1 
+#also remove hw5 due to worries about colinearity with lab5 (same topics)
+mod2small <- update(mod2backward, .~. -  lab2perc - hw4perc - hw5perc)
+summary(manova(mod2small), tests=c("Pillai","Wilks"))
+summarytab <- summary(manova(mod2small))$stats
+#significant overall effects: midterm and lab5 (random sampling lab)
+#weak overall effect of treatment
+summary(mod2small)
+mod2smallCI <- lm(ConfMC~ midterm + lab5perc + room, data=dat)
+summary(mod2smallCI)
+CIcis <- data.frame(confint(mod2smallCI,level=.95))
+CIcis$ests <- mod2smallCI$coeff
+mod2smallHT <- lm(HypMC~ midterm + lab5perc + room, data=dat)
+summary(mod2smallHT)
+HTcis <- data.frame(confint(mod2smallHT,level=.95))
+HTcis$ests <- mod2smallHT$coeff
+#individually there is a significant effect of treatment on CI score
+  #multiple comparisons adjustment ?!?!
+
+
+#individually there is no significant effect of treatment on HT score
+
+#--------------------------------------------------
+### Check Conditions for MANCOVA linear model fit
+## check response correlations to avoid colinearity in multivariate model
+#Rule of Thumb: ~ .3 to .55 then MANCOVA will work well
+with(dat, cor(ConfMC,HypMC)) #Not overly correlated
+
+## Normality of responses
+#qplot(dat$ConfMC)
+#qplot(dat$HypMC)
+#each is reasonably normal univariately
+#qplot(dat$ConfMC,dat$HypMC) + geom_jitter()
+# reasonable bivariate normal
+
+## check residual plots for homoscedesticity and linearity
+qplot(mod2small$fitted.values[,1] ,mod2small$residuals[,1]) + 
+  geom_hline(yintercept=0) + geom_jitter()
+qplot(mod2small$fitted.values[,2] ,mod2small$residuals[,2]) + 
+  geom_hline(yintercept=0) + geom_jitter()
+# these seem fine (put into appendix)
+
+## Independence of responses between students must be assumed
+@
+
+<<results, echo=FALSE, include=FALSE>>=
+load("C:\\Users\\Karsten\\Dropbox\\Dissertation\\CurriculumStudy/SimulationStudy/SimulationResults.RData")
+library(plyr)
+eta <- (0:5)/10
+results <- ldply(1:6, function(x) data.frame(eta=eta[x], resultlist[[x]]))
+# beta1s and beta2s are actually tau1 and tau2
+simresults = ddply(results, .(eta), summarise,
+      trt1=mean(beta1s),
+      trt2=mean(beta2s),
+      type1.1=mean(pval1s<0.05),
+      type1.2=mean(pval2s<0.05),      
+      betamidterm1s = mean(betamidterm1s),
+      pvalmidterms1s = mean(pvalmidterm1s),
+      sebetamidterm1s = mean(SEbetamidterm1s),
+      betamidterm2s = mean(betamidterm2s),
+      pvalmidterms2s = mean(pvalmidterm2s),
+      sebetamidterm2s = mean(SEbetamidterm2s),
+      avgpillai = mean(pillais),
+      avgpillaipval = mean(pillaipvals),
+      sebeta1s = mean(SEbeta1s),
+      sebeta2s = mean(SEbeta1s),
+      sdbeta1 = sd(beta1s),
+      sdbeta2 = sd(beta2s)
+)
+
+
+L <- length(resultlist)
+M = nrow(resultlist[[1]]) 
+errorsummary <- data.frame(T2ErrorRateBetaMidterm1 = rep(NA, L),
+                           T2ErrorRateBetaMidterm2 = rep(NA, L),
+                           T2ErrorRateBetaLab1 = rep(NA, L),
+                           T2ErrorRateBetaLab2 = rep(NA, L),
+                           T1ErrorRateBeta1 = rep(NA, L),
+                           T1ErrorRateBeta2 = rep(NA, L),
+                           T1ErrorRatePillai = rep(NA, L))
+
+for (l in 1:L){
+  errorsummary[l,1] <- 1- length(which(resultlist[[l]]$pvalmidterm1s <= 0.05)) / M
+  errorsummary[l,2] <- 1- length(which(resultlist[[l]]$pvalmidterm2s <= 0.05)) / M
+  errorsummary[l,3] <- 1- length(which(resultlist[[l]]$pvallab1s <= 0.05)) / M
+  errorsummary[l,4] <- 1- length(which(resultlist[[l]]$pvallab2s <= 0.05)) / M
+  errorsummary[l,5] <- length(which(resultlist[[l]]$pval1s <= 0.05)) / M
+  errorsummary[l,6] <- length(which(resultlist[[l]]$pval2s <= 0.05)) / M
+  errorsummary[l,7] <- length(which(resultlist[[l]]$pillaipvals <= 0.05)) / M
+}
+errorsummary$eta <- eta
+#errorsummary
+@
+
+
+
+\title[Comparison of Learning Outcomes for Simulation-Based and Traditional Curricula for Statistical Inference in a Designed Educational Experiment]{Comparison of Learning Outcomes for Simulation-Based and Traditional Curricula for Statistical Inference in a Designed Educational Experiment}
+\author[K. Maurer]{Karsten Maurer}
+\date{February 2, 2015}
+\institute[ISU]{Iowa State University}
+\begin{document}
+
+\begin{frame}
+    \maketitle
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Educational Background}
+
+    \begin{itemize}
+        \item BA in Statistics and History from University of Minnesota, Morris (2009)
+        \item MS in Statistics from Iowa State University (2011)
+        \item PhD in Statistics In Progress at Iowa State University (Planned Summer 2015)
+    \end{itemize}
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Research Interests}
+Statistics Education
+        \begin{itemize}
+          \item Technology for Stat Ed
+          \item Curriculum Development
+        \end{itemize}
+        
+Statistical Graphics
+        \begin{itemize}
+          \item Visualization of Large Data Sources
+          \item Graphical Perception
+        \end{itemize}
+
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Presentation Outline}  
+    \begin{itemize}
+      \item Statistical-Inference Curricula
+      \item Experimental Design
+      \item Data Description
+      \item Model Based Analysis
+        \begin{itemize}
+          \item Model Selection
+          \item Results
+          \item Model Assessment
+        \end{itemize}
+      \item Discussion and Conclusions
+    \end{itemize}
+\end{frame}
+
+%--------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Curriculum Study Introduction}  
+    
+Study Goal: Compare student learning outcomes for under two introductory curricula for statistical inference in a designed educational experiment\\
+
+\vspace{.1in}
+   
+Two Curricula for Statistical Inference
+  \begin{itemize}
+    \item Traditional statistical inference curricula
+    \item Simulation-based statistical inference curricula
+  \end{itemize}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Statistical Inference Curricula}
+   Traditional Curriculum for Statistical Inference 
+    \begin{itemize}
+        \item Result of Stat Ed reform movement of 1990's
+        \item Summarized in GAISE College Report (2005)
+        \item Statistical inference through theory-based approach
+        \begin{itemize}
+        \item Normal model, CLT, formulas and tables
+        \end{itemize}
+        \item Textbooks Examples
+          \begin{itemize}
+            \item Introduction to the Practice Statistics (Moore, 2005)
+            \item Statistics: The Art and Science of Learning From Data (Agresti \& Franklin, 2012)
+          \end{itemize}
+    \end{itemize}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Statistical Inference Curricula}
+   Simulation-Based Curriculum for Statistical Inference
+    \begin{itemize}
+        \item Builds from Traditional curriculum for statistical inference
+        \item Simulation/randomization to teach core concepts of inference
+        \item Statistical inference introduced through simulation-based methods
+          \begin{itemize}
+          \item Bootstrap confidence intervals
+          \item Simulation/randomization-based hypothesis tests
+          \end{itemize}
+          \item Textbooks Examples
+            \begin{itemize}
+              \item Statistics: Unlocking the Power of Data (Lock, Lock, Morgan, Lock \& Lock, 2012)
+              \item Introduction to Statistical Investigations (Tintle, Chance, Cobb, Rossman, Roy, Swanson \& VanderStoep, 2014)
+            \end{itemize}
+        \item May elect to additionally teach theory-based methods  
+    \end{itemize}
+\end{frame}
+
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation-Based Statistical Inference Classroom Example}
+   Can Dolphins Communicate? 
+    \begin{itemize}
+        \item Example from workshop section led by Alan Rossman
+        \item Well known study from 1960s investigated if dolphins could communicate abstract ideas
+        \item 2 trained dolphins: Buzz and Doris
+        \item Trained:
+        \begin{itemize}
+          \item Press button 1 when light blinking
+          \item Press button 2 when light steady.
+          \item Correct $\rightarrow$ get fish!
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation-Based Statistical Inference Classroom Example}
+    
+\includegraphics[width=1\textwidth]{Dolphins.png}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation-Based Statistical Inference Classroom Example}
+   
+    \begin{itemize}
+        \item Buzz pressed right button 15/16 times.
+        \item Test H$_o$:  Buzz guessing
+        \item Simulate under H$_o$ to make randomization distribution
+        \item Using coins first then \texttt{\href{http://lock5stat.com/statkey/}{Statkey}} software
+        \item Compare data to randomization distribution
+    \end{itemize}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Experimental Design: Subjects}
+   Conducted within Stat 104: Introduction to Statistics
+      \begin{itemize}
+        \item Agricultural and biological science students
+        \item (2 hour lecture + 2 hour lab) / week
+        \item 16 week course
+      \end{itemize} \pause
+   116 Students enrolled in two sections of Stat 104
+      \begin{itemize}
+        \item 4 Students dropped by week 2 of course
+        \item 11 Students did not consent to data release
+        \item 101 Students consented to data release
+      \end{itemize}    
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Experimental Design: Random Assignment}
+   Each student randomly assigned to inference curriculum 
+   
+   \vspace{.1in}
+   
+   Resulted in four cohorts
+      \begin{itemize}
+        \item Cohort A: Section 1 / Simulation-Based
+        \item Cohort B: Section 2 / Simulation-Based
+        \item Cohort C: Section 1 / Traditional
+        \item Cohort D: Section 2 / Traditional
+      \end{itemize} 
+
+    101 students consented to release of course data for study
+    \begin{itemize}
+        \item 50 students from Traditional Curriculum
+        \item 51 students from Simulation-Based Curriculum
+    \end{itemize}      
+      
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Experimental Design: Treatments}
+  
+  \includegraphics[width=1\textwidth]{CurriculaPaths2.pdf}
+\center Curricula Schedules
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Experimental Design: Treatment Administration}
+
+\includegraphics[keepaspectratio=true, width=1\textwidth]{LectureInstructionWithRoomsAndKey.pdf}
+
+\center Lecture: Instructor and Room Schedule
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Experimental Design: Treatment Administration}
+
+\includegraphics[keepaspectratio=true, width=1\textwidth]{LabInstructionWithRooms.pdf}
+
+\center Lab: Instructor and Room Schedule
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Data Description}
+Course Administration
+    \begin{itemize}
+        \item Enrollment Section
+        \item Statistical Inference Curriculum
+    \end{itemize} \pause
+Pre-Treatment Measures
+    \begin{itemize}
+        \item Homework 1-7 Scores
+        \item Lab 1-7 Scores 
+        \item Midterm Exam Score
+    \end{itemize} \pause
+Learning Outcomes: ARTIST scaled question sets
+    \begin{itemize}
+        \item Hypothesis Testing (HT) score out of 10 
+        \item Confidence Intervals (CI) score out of 10  
+    \end{itemize}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Data Description}
+<<ScoreHistsByGroup, echo=FALSE , warning=FALSE, fig.width=15, fig.height=8, out.width='1\\linewidth', fig.pos='h',fig.align='center'>>=
+dat$treatment <- "Simulation-Based"
+dat$treatment[which(dat$room=="sweeney")] <- "Traditional"
+
+smalldat <- dat[,c("treatment","midterm","ConfMC","HypMC","AppliedCI","AppliedHT")]
+meltsmall <- melt(smalldat, id=c("treatment"))
+trtsumstats <- ddply(dat, .(treatment), summarize,
+                   avgmidterm = round(mean(midterm),1 ), 
+                   sdmidterm = round(sd(midterm), 2 ), 
+                   avgConfMC = round(mean(ConfMC),1 ), 
+                   sdConfMC = round(sd(ConfMC), 2 ), 
+                   avgHypMC = sprintf("%.1f",round(mean(HypMC),1 )), 
+                   sdHypMC = round(sd(HypMC), 2 ), 
+                   avgAppliedCI = round(mean(AppliedCI),1 ), 
+                   sdAppliedCI = round(sd(AppliedCI), 2 ), 
+                   avgAppliedHT = round(mean(AppliedHT), 1 ), 
+                   sdAppliedHT = round(sd(AppliedHT), 2 ) , 
+                   avgLab5 = round(mean(lab5perc), 1 ), 
+                   sdLab5 = round(sd(lab5perc), 2 )  ) 
+
+titlesize =1.5
+xaxissize =1.3
+sumstatfont = 6
+yscale <- c(0,25)
+
+themeForMultHist <- theme(plot.margin=unit(c(1,0,1,0), "cm"),
+                          axis.title.y= element_blank() ,
+                          strip.text.y = element_text(size = 15),
+                          #strip.background = element_blank(),
+                          plot.title = element_text(size = rel(titlesize)),
+                          axis.title.x = element_text(size = rel(xaxissize)))
+
+
+p0 <- qplot(midterm, data=dat, facets = treatment ~ ., binwidth=8, origin=4) + theme_bw()  +  
+  xlab("Score (Out of 100)") + ggtitle("Midterm Exam") +
+  #ylim(yscale) +
+  geom_text(aes(x, y, label=lab), 
+    data=data.frame(x=-1,y=12, lab=c(paste("mean =",trtsumstats[1,2]),paste("mean =",trtsumstats[2,2])) ,
+    treatment=c("Simulation-Based","Traditional")), hjust=0, vjust=1, size= rel(sumstatfont)  )  + 
+  geom_text(aes(x, y, label=lab), 
+    data=data.frame(x=-1,y=.85*12, lab=c(paste("sd =",trtsumstats[1,3]), paste("sd =",trtsumstats[2,3])) ,
+    treatment=c("Simulation-Based","Traditional")), hjust=0, vjust=1, size= rel(sumstatfont)    )+
+  themeForMultHist + 
+  scale_x_continuous(limits=c(-1, 100),breaks=seq(from=0, to=100, by=25))
+
+p1 <- qplot(lab5perc, data=dat, facets = treatment ~ ., binwidth=10) + theme_bw() + 
+  #ylim(yscale) + 
+  xlab("Score (Out of 100)") + ylab("")  +  ggtitle("Lab 5") +
+  geom_text(aes(x, y, label=lab), 
+    data=data.frame(x=-1,y=38, lab=c(paste("mean =",trtsumstats[1,12]),
+                                    paste("mean =",trtsumstats[2,12])) ,
+    treatment=c("Simulation-Based","Traditional")), hjust=0, vjust=1 , size= rel(sumstatfont)   )  + 
+  geom_text(aes(x, y, label=lab), 
+    data=data.frame(x=-1,y=.85*38, lab=c(paste("sd =",trtsumstats[1,13]),
+                                    paste("sd =",trtsumstats[2,13])) ,
+    treatment=c("Simulation-Based","Traditional")), hjust=0, vjust=1 , size= rel(sumstatfont)   )+
+  themeForMultHist+ 
+  scale_x_continuous(limits=c(-1, 101),breaks=seq(from=0, to=100, by=25))
+
+
+p2 <- qplot(ConfMC, data=dat, facets = treatment ~ ., binwidth=1) + theme_bw() + 
+  xlab("Score (Out of 10)") + ylab("")  + ggtitle("ARTIST CI") +
+  #ylim(yscale) +
+  geom_text(aes(x, y, label=lab), 
+    data=data.frame(x=-1,y=12, lab=c(paste("mean =",trtsumstats[1,4]),
+                                    paste("mean =",trtsumstats[2,4])) ,
+    treatment=c("Simulation-Based","Traditional")), hjust=0, vjust=1 , size= rel(sumstatfont)   )  + 
+  geom_text(aes(x, y, label=lab), 
+    data=data.frame(x=-1,y=.85*12, lab=c(paste("sd =",trtsumstats[1,5]),
+                                    paste("sd =",trtsumstats[2,5])) ,
+    treatment=c("Simulation-Based","Traditional")), hjust=0, vjust=1, size= rel(sumstatfont)    )+
+  themeForMultHist + 
+  scale_x_continuous(limits=c(-1, 11),breaks=seq(from=0, to=10, by=2))
+
+
+p3 <- qplot(HypMC, data=dat, facets = treatment ~ ., binwidth=1) + theme_bw() + 
+  #ylim(yscale) + 
+  xlab("Score (Out of 10)") + ylab("")  +  ggtitle("ARTIST HT") +
+  geom_text(aes(x, y, label=lab), 
+    data=data.frame(x=-1,y=13, lab=c(paste("mean =",trtsumstats[1,6]),
+                                    paste("mean =",trtsumstats[2,6])) ,
+    treatment=c("Simulation-Based","Traditional")), hjust=0, vjust=1 , size= rel(sumstatfont)   )  + 
+  geom_text(aes(x, y, label=lab), 
+    data=data.frame(x=-1,y=.85*13, lab=c(paste("sd =",trtsumstats[1,7]),
+                                    paste("sd =",trtsumstats[2,7])) ,
+    treatment=c("Simulation-Based","Traditional")), hjust=0, vjust=1 , size= rel(sumstatfont)   )+
+  themeForMultHist + 
+  scale_x_continuous(limits=c(-1, 11),breaks=seq(from=0, to=10, by=2))
+
+
+
+grid.arrange(textGrob("", rot = 90, gp = gpar(cex = 1.5)),
+             arrangeGrob(p0,p1,p2,p3, nrow=1), 
+             #arrangeGrob(textGrob("Simulation-Based", vjust = 1,
+             #                     gp = gpar(cex = 1.5), rot = 90),
+             #            textGrob("Traditional", vjust = 1, 
+             #                     gp = gpar(cex = 1.5), rot = 90)),
+             widths=unit.c(unit(2, "lines"), unit(1, "npc") - unit(2, "lines")),
+             nrow=1
+             )
+@
+
+\center Histograms and summary statistics of scores by curriculum group
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model}
+Modeling approach based on data characteristics
+    \begin{itemize}
+        \item Bivariate responses: ARTIST scores for CI and HT
+        \item Binary curricula indicator
+        \item Continuous covariates: pre-treatment scores
+    \end{itemize} \pause
+Multivariate Analysis of Covariance (MANCOVA) Model
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model}
+
+Bivariate MANCOVA Model Structure
+
+\begin{eqnarray}\label{eq:mancova}
+y_{ik} = \tau_{k} \mathbbm{1}_{\{i \in T\}} + \beta_{0k} + \sum_{p=1}^{P}x_{ip}\beta_{pk} + \epsilon_{ik},
+\end{eqnarray}
+
+ \begin{tabular}{lp{5in}}
+ $y_{ik}$ &  $k^{th}$ response ($k \in \left\{1,2\right\}$) from  student $i$, $ 1 \le i \le n$,\\
+ $\tau_{k}$ & treatment effect on response $k$, and \\
+ $\mathbbm{1}_{\{i \in T\}}$ & indicator function student $i$ in Simulation-Based group\\
+ $\beta_{0k}$ & common intercept for response $k$, and \\
+ $\beta_{kp}$, & $1 \le p \le P$ model coefficients of $P$ covariates. \\
+ $x_{ip}$ & $p^{th}$ pre-treatment covariate score of student $i$\\
+ %$\epsilon}_{ik}$ & error for $k^{th}$ response from $i^{th}$ student. 
+ \end{tabular}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model}
+
+Bivariate MANCOVA Model Error Structure
+
+\[
+\vec{\epsilon}_{i} = 
+\begin{bmatrix}
+  \epsilon_{i1} \\ \epsilon_{i2} 
+ \end{bmatrix}  
+ \distas{iid} \text{MVN} \left( 
+ \begin{bmatrix}
+  0 \\ 0 
+ \end{bmatrix},
+ \Sigma = \begin{bmatrix}
+  \sigma_{11}^2 & \sigma_{12}^2 \\ 
+  \sigma_{21}^2 & \sigma_{22}^2
+ \end{bmatrix}
+ \right)
+\]
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model Selection}
+   
+Model Selection Process
+    \begin{itemize}
+        \item Bivariate MANCOVA model fit initially with all covariates
+        \item Backward stepwise selection process based on AIC
+        \item Additional covariates removed due to collinearity
+    \end{itemize}
+Selected Parameters for ARTIST Model
+    \begin{itemize}
+        \item Midterm exam score
+        \item Lab 5 score
+        \item Curriculum treatment effect
+    \end{itemize}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model Results: Bivariate Effects}
+    
+\begin{table}[hbtp]
+\centering
+\begin{tabular}{lrrr} \hline
+ & Pillai's $\Lambda$ & Approx. F & Pr($>$$|$F$|$)\\ 
+ \hline  
+Midterm & \Sexpr{sprintf("%.4f",round(summarytab[1,2],4))} & \Sexpr{sprintf("%.4f",round(summarytab[1,3],4))} &
+\Sexpr{sprintf("%.4f",round(summarytab[1,6],6))}\\ 
+Lab 5 & \Sexpr{sprintf("%.4f",round(summarytab[2,2],4))} & \Sexpr{sprintf("%.4f",round(summarytab[2,3],4))} &
+\Sexpr{sprintf("%.4f",round(summarytab[2,6],6))}\\ 
+Treatment & \Sexpr{sprintf("%.4f",round(summarytab[3,2],4))} & \Sexpr{sprintf("%.4f",round(summarytab[3,3],4))} &
+\Sexpr{sprintf("%.4f",round(summarytab[3,6],6))}\\ 
+\hline
+\end{tabular}
+\end{table}
+
+\center Pillai's $\Lambda$ tests for overall covariate effects
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model Results: Univariate Effects}
+    
+\begin{table}[H]
+\centering
+\begin{tabular}{rccc}
+  \hline
+ & Covariate Values & Estimate & 95\% Confidence Interval \\ 
+  \hline
+Intercept & 1 & \Sexpr{sprintf("%.4f",round(HTcis[1,3],6))} & \Sexpr{paste("(",sprintf("%.4f",round(HTcis[1,1],6)),",", sprintf("%.4f",round(HTcis[1,2],6)),")",sep=" ")} \\ 
+  Midterm & \{0,1,...100\} & \Sexpr{sprintf("%.4f",round(HTcis[2,3],6))} & \Sexpr{paste("( ",sprintf("%.4f",round(HTcis[2,1],6)),",", sprintf("%.4f",round(HTcis[2,2],6)),")",sep=" ")} \\ 
+  Lab 5  &  \{0,1,...100\} & \Sexpr{sprintf("%.4f",round(HTcis[3,3],6))} & \Sexpr{paste("( ",sprintf("%.4f",round(HTcis[3,1],6)),",", sprintf("%.4f",round(HTcis[3,2],6)),")",sep=" ")} \\ 
+  Treatment &  \{0,1\} & \Sexpr{sprintf("%.4f",round(HTcis[4,3],6))} & \Sexpr{paste("( ",sprintf("%.4f",round(HTcis[4,1],6)),",", sprintf("%.4f",round(HTcis[4,2],6)),")",sep=" ")} \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+\center ARTIST Model coefficients for hypothesis testing topic score
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model Results: Univariate Effects}
+    
+\begin{table}[hbtp]
+\centering
+\begin{tabular}{rccc}
+  \hline
+ & Covariate Values & Estimate & 95\% Confidence Interval \\ 
+  \hline
+Intercept & 1 & \Sexpr{sprintf("%.4f",round(CIcis[1,3],6))} & \Sexpr{paste("(",sprintf("%.4f",round(CIcis[1,1],6)),",", sprintf("%.4f",round(CIcis[1,2],6)),")",sep=" ")} \\ 
+  Midterm & \{0,1,...100\} & \Sexpr{sprintf("%.4f",round(CIcis[2,3],6))} & \Sexpr{paste("( ",sprintf("%.4f",round(CIcis[2,1],6)),",", sprintf("%.4f",round(CIcis[2,2],6)),")",sep=" ")} \\ 
+  Lab 5  &  \{0,1,...100\} & \Sexpr{sprintf("%.4f",round(CIcis[3,3],6))} & \Sexpr{paste("( ",sprintf("%.4f",round(CIcis[3,1],6)),",", sprintf("%.4f",round(CIcis[3,2],6)),")",sep=" ")} \\ 
+  Treatment &  \{0,1\} & \Sexpr{sprintf("%.4f",round(CIcis[4,3],6))} & \Sexpr{paste("( ",sprintf("%.4f",round(CIcis[4,1],6)),",", sprintf("%.4f",round(CIcis[4,2],6)),")",sep=" ")} \\ 
+   \hline
+\end{tabular}
+\end{table}
+\center ARTIST Model coefficients for confidence interval topic score
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model Assessment}
+   
+Model Assumptions Needing Assessment
+    \begin{itemize}
+        \item Normality of errors
+        \item Linearity 
+        \item Constant variance
+        \item Independence between students
+    \end{itemize}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model Assessment}
+<<ARTISTModDiagPlots, echo=FALSE , warning=FALSE, fig.width=4, fig.height=4, out.width='.33\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
+#qqp1 <- 
+qplot(sample=mod2small$residuals[,1], stat="qq", xlab="Theoretical Normal Quantiles",
+       ylab="ARTIST CI Score Residual") +  theme_bw() + theme(aspect.ratio=1)
+
+#qqp2 <- 
+  qplot(sample=mod2small$residuals[,2], stat="qq", xlab="Theoretical Normal Quantiles",
+      ylab="ARTIST HT Score Residual") +  theme_bw() + theme(aspect.ratio=1)
+
+#grid.arrange(qqp1,qqp2,nrow=2)
+
+qplot(mod2small$residuals[,1],mod2small$residuals[,2],
+      xlab="ARTIST CI Score Residual",  ylab="ARTIST HT Score Residual")  +  theme_bw()
+@
+\center Normal quantile plots (left \& center) \\
+
+\center Bivariate residuals scatterplot (right) 
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model Assessment}
+<<residualsARTIST, echo=FALSE , message=FALSE, warning=FALSE, fig.width=8, fig.height=3.2, out.width='.9\\linewidth', fig.pos='h',fig.align='center'>>=
+## check residual plots for homoscedesticity and linearity
+jitheight <- .1
+p1 <- qplot(mod2small$fitted.values[,1] ,mod2small$residuals[,1], geom = "jitter") + 
+  geom_hline(yintercept=0) +geom_jitter(position = position_jitter(height = jitheight )) +
+  xlab("ARTIST CI Score Fitted Value") + ylab("ARTIST CI Score Residual") +  theme_bw() + geom_smooth()
+p2 <- qplot(mod2small$fitted.values[,2] ,mod2small$residuals[,2]) + 
+  geom_hline(yintercept=0) +geom_jitter(position = position_jitter(height = jitheight )) +
+  xlab("ARTIST HT Score Fitted Value") + ylab("ARTIST HT Score Residual") +  theme_bw() + geom_smooth()
+grid.arrange(p1,p2,nrow=1)
+# these seem fine (put into appendix)
+@
+
+\center ARTIST Model residual plots overlaid with Loess smoother
+\end{frame}
+
+%-------------------------------------------------
+
+
+\begin{frame}
+    \frametitle{Model Assessment}
+
+Recall:
+\[
+\vec{\epsilon}_{i} = 
+\begin{bmatrix}
+  \epsilon_{i1} \\ \epsilon_{i2} 
+ \end{bmatrix}  
+ \distas{iid} \text{MVN} \left( 
+ \begin{bmatrix}
+  0 \\ 0 
+ \end{bmatrix},
+ \Sigma = \begin{bmatrix}
+  \sigma_{11}^2 & \sigma_{12}^2 \\ 
+  \sigma_{21}^2 & \sigma_{22}^2
+ \end{bmatrix}
+ \right)
+\]
+
+Assumption of Independence
+    \begin{itemize}
+        \item Student score pairs are related:  $\Cov[\epsilon_{i1}, \epsilon_{i2}] = \sigma_{12}^2$
+        \item Scores between students independent: $\Cov[\epsilon_{ik}, \epsilon_{j\ell}] = 0$, $\forall i\ne j$
+    \end{itemize} \pause
+    
+    \vspace{.1in}
+    
+Impact of Violation of Independence
+    \begin{itemize}
+        \item Type I error rate when testing for curriculum treatment effect
+        \item Bias in parameter estimation
+    \end{itemize}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Model Assessment}
+
+Simulation Study
+    \begin{itemize}
+        \item Simulate responses under independence violation
+        \item Assume MANCOVA model as generative model
+          \begin{itemize}
+            \item Set coefficient values, $\beta_{pk}$ for intercept, midterm and lab 5 based estimates from reduced MANCOVA
+            \item No curriculum treatment effect (i.e. $\tau_1 = \tau_2 = 0$)
+          \end{itemize}
+    \end{itemize}
+    
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study}
+    
+Assumption: 
+\[
+\Cov[\epsilon_{ik}, \epsilon_{j\ell}] = 0, \  \text{ for all } i \ne j
+\]
+    
+\vspace{.05in}    
+    
+Independence Violation:\\ 
+
+\begin{itemize}
+\item Stage 1:
+\end{itemize}
+    \[
+\Cov[\epsilon_{ik}, \epsilon_{j\ell}] = \eta \sigma_{k\ell}^2, \ \text{ where } \eta \in [0,1]  \text{ for all } i \ne j, \text{ and } k,\ell \in \{1,2\}
+\]
+
+\begin{itemize}
+\item Stage 2:
+\end{itemize}
+    \[
+\Cov[\epsilon_{ik}, \epsilon_{j\ell}] = c \eta \sigma_{k\ell}^2, \ \text{ where } \eta \in [0,1]  \text{ for all } i \ne j, \text{ and } k,\ell \in \{1,2\}    
+\]
+\hspace{1.5in} $c = 1$ for all i,j classmates\\
+\hspace{1.5in} $c \in [0,1]$ for all i,j non-classmates
+
+\end{frame}
+
+% %-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study}
+
+\center No Violation of Between Student Independence
+
+\begin{equation} \hspace*{-1cm} \footnotesize
+\begin{bmatrix} 
+ \epsilon_{11} \\ \vdots \\ \epsilon_{n1} \\ \epsilon_{12} \\ \vdots \\ \epsilon_{n2} 
+\end{bmatrix} \sim \text{N}\left(\tiny
+\vec{0} , 
+ \left[\begin{array}{ccccc|ccccc}
+\sigma_{11}^2 & 0 & \cdots & 0 & 0 & \sigma_{12}^2 & 0 & \cdots & 0 & 0\\
+0 & \sigma_{11}^2 & \ddots & 0 & 0 & 0 & \sigma_{12}^2 & \ddots & 0 & 0\\
+\vdots & \ddots & \ddots &\ddots &\vdots & \vdots & \ddots & \ddots &\ddots &\vdots \\
+0 & 0 & \ddots & \sigma_{11}^2 & 0 & 0 & 0 & \ddots & \sigma_{12}^2 & 0\\
+0 & 0 & \cdots & 0 & \sigma_{11}^2 & 0 & 0 & \cdots & 0 & \sigma_{12}^2\\
+\hline
+\sigma_{12}^2 & 0 & \cdots & 0 & 0 & \sigma_{22}^2 & 0 & \cdots & 0 & 0\\
+0 & \sigma_{12}^2 & \ddots & 0 & 0 & 0 & \sigma_{22}^2 & \ddots & 0 & 0\\
+\vdots & \ddots & \ddots &\ddots &\vdots & \vdots & \ddots & \ddots &\ddots &\vdots \\
+0 & 0 & \ddots & \sigma_{12}^2 & 0 & 0 & 0 & \ddots & \sigma_{22}^2 & 0\\
+0 & 0 & \cdots & 0 & \sigma_{12}^2 & 0 & 0 & \cdots & 0 & \sigma_{22}^2\\  
+ \end{array}\right]
+ \right) \nonumber 
+ \end{equation}
+
+\end{frame}
+
+% %-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study}
+    
+\center Stage 1 Violation of Between Student Independence
+
+\begin{equation} \hspace*{-.6cm} \footnotesize
+\begin{bmatrix} 
+ \epsilon_{11} \\ \vdots \\ \epsilon_{n1} \\ \epsilon_{12} \\ \vdots \\ \epsilon_{n2} 
+\end{bmatrix}\sim \text{N}\left(\tiny
+\vec{0} , 
+ \left[\begin{array}{ccccc|ccccc}
+  \sigma_{11}^2 & \eta \sigma_{11}^2 & \cdots & \eta \sigma_{11}^2 & \eta \sigma_{11}^2 & \sigma_{12}^2 & \eta \sigma_{12}^2 & \cdots & \eta \sigma_{12}^2 & \eta \sigma_{12}^2\\
+  \eta \sigma_{11}^2 & \sigma_{11}^2 & \ddots & \eta \sigma_{11}^2 & \eta \sigma_{11}^2 & \eta \sigma_{12}^2 & \sigma_{12}^2 & \ddots & \eta \sigma_{12}^2 & \eta \sigma_{12}^2\\
+\vdots & \ddots & \ddots &\ddots &\vdots & \vdots & \ddots & \ddots &\ddots &\vdots \\
+\eta \sigma_{11}^2 & \eta \sigma_{11}^2 & \ddots & \sigma_{11}^2 & \eta \sigma_{11}^2 & \eta \sigma_{12}^2 & \eta \sigma_{12}^2 & \ddots & \sigma_{12}^2 & \eta \sigma_{12}^2\\
+\eta \sigma_{11}^2 & \eta \sigma_{11}^2 & \cdots & \eta \sigma_{11}^2 & \sigma_{11}^2 & \eta \sigma_{12}^2 & \eta \sigma_{12}^2 & \cdots & \eta \sigma_{12}^2 & \sigma_{12}^2\\
+\hline
+\sigma_{12}^2 & \eta \sigma_{12}^2 & \cdots & \eta \sigma_{12}^2 & \eta \sigma_{12}^2 & \sigma_{22}^2 & \eta \sigma_{22}^2 & \cdots & \eta \sigma_{22}^2 & \eta \sigma_{22}^2\\
+  \eta \sigma_{12}^2 & \sigma_{12}^2 & \ddots & \eta \sigma_{12}^2 & \eta \sigma_{12}^2 & \eta \sigma_{22}^2 & \sigma_{22}^2 & \ddots & \eta \sigma_{22}^2 & \eta \sigma_{22}^2\\
+\vdots & \ddots & \ddots &\ddots &\vdots & \vdots & \ddots & \ddots &\ddots &\vdots \\
+\eta \sigma_{12}^2 & \eta \sigma_{12}^2 & \ddots & \sigma_{12}^2 & \eta \sigma_{12}^2 & \eta \sigma_{22}^2 & \eta \sigma_{22}^2 & \ddots & \sigma_{22}^2 & \eta \sigma_{22}^2\\
+\eta \sigma_{12}^2 & \eta \sigma_{12}^2 & \cdots & \eta \sigma_{12}^2 & \sigma_{12}^2 & \eta \sigma_{22}^2 & \eta \sigma_{22}^2 & \cdots & \eta \sigma_{22}^2 & \sigma_{22}^2\\  
+ \end{array}\right]
+ \right) \nonumber 
+ \end{equation}
+
+\end{frame}
+
+%---------------------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study}
+    
+\center Stage 2 Violation of Between Student Independence
+
+\begin{equation} \hspace*{-1cm} \footnotesize
+\begin{bmatrix} 
+ \epsilon_{11} \\ \vdots \\ \epsilon_{n1} \\ \epsilon_{12} \\ \vdots \\ \epsilon_{n2} 
+\end{bmatrix}\sim \text{N}\left(\tiny
+\vec{0} , 
+ \left[\begin{array}{ccccc|ccccc}
+  \sigma_{11}^2 &  \eta \sigma_{11}^2 & \cdots & c \eta \sigma_{11}^2 & c \eta \sigma_{11}^2 & \sigma_{12}^2 & \eta \sigma_{12}^2 & \cdots & c \eta \sigma_{12}^2 & c\eta \sigma_{12}^2\\
+  \eta \sigma_{11}^2 & \sigma_{11}^2 & \ddots & c\eta \sigma_{11}^2 & c\eta \sigma_{11}^2 & \eta \sigma_{12}^2 & \sigma_{12}^2 & \ddots & c\eta \sigma_{12}^2 & c\eta \sigma_{12}^2\\
+\vdots & \ddots & \ddots &\ddots &\vdots & \vdots & \ddots & \ddots &\ddots &\vdots \\
+c\eta \sigma_{11}^2 & c\eta \sigma_{11}^2 & \ddots & \sigma_{11}^2 & \eta \sigma_{11}^2 & c\eta \sigma_{12}^2 & c\eta \sigma_{12}^2 & \ddots & \sigma_{12}^2 & \eta \sigma_{12}^2\\
+c\eta \sigma_{11}^2 & c\eta \sigma_{11}^2 & \cdots & \eta \sigma_{11}^2 & \sigma_{11}^2 & c\eta \sigma_{12}^2 & c\eta \sigma_{12}^2 & \cdots & \eta \sigma_{12}^2 & \sigma_{12}^2\\
+\hline
+\sigma_{12}^2 & \eta \sigma_{12}^2 & \cdots & c\eta \sigma_{12}^2 & c\eta \sigma_{12}^2 & \sigma_{22}^2 & \eta \sigma_{22}^2 & \cdots & c\eta \sigma_{22}^2 & c\eta \sigma_{22}^2\\
+\eta \sigma_{12}^2 & \sigma_{12}^2 & \ddots & c\eta \sigma_{12}^2 & c\eta \sigma_{12}^2 & \eta \sigma_{22}^2 & \sigma_{22}^2 & \ddots & c\eta \sigma_{22}^2 & c\eta \sigma_{22}^2\\
+\vdots & \ddots & \ddots &\ddots &\vdots & \vdots & \ddots & \ddots &\ddots &\vdots \\
+c\eta \sigma_{12}^2 & c\eta \sigma_{12}^2 & \ddots & \sigma_{12}^2 & \eta \sigma_{12}^2 & c\eta \sigma_{22}^2 & c\eta \sigma_{22}^2 & \ddots & \sigma_{22}^2 & \eta \sigma_{22}^2\\
+c\eta \sigma_{12}^2 & c\eta \sigma_{12}^2 & \cdots & \eta \sigma_{12}^2 & \sigma_{12}^2 & c\eta \sigma_{22}^2 & c\eta \sigma_{22}^2 & \cdots & \eta \sigma_{22}^2 & \sigma_{22}^2\\  
+ \end{array}\right]
+ \right) \nonumber 
+ \end{equation}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study}
+
+Simulation Process: Repeat M times
+%
+\begin{enumerate}
+\item Simulate an error vector, $\vec{\epsilon}^{\hspace{.1cm}(m)}$, under violated error structure.
+\item Derive responses:
+%
+\[
+\begin{bmatrix}
+  \vec{y}_1^{\hspace{.1cm}(m)} \\ \vec{y}_2^{\hspace{.1cm}(m)}
+  \end{bmatrix}   =
+   % %----
+ \begin{bmatrix}
+  X\vec{\beta}_1 \\ X\vec{\beta}_2
+  \end{bmatrix} + 
+  \vec{\epsilon}^{\hspace{.1cm}(m)}
+\]
+%
+\item Randomly permute treatment label to break association with covariates
+\item Fit full ARTIST Model (assuming independence)
+\item Record estimates, standard errors, etc. 
+\end{enumerate}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study}
+    
+Stage 1:
+    \begin{itemize}
+        \item Repeat $M = 25,000$ simulations at each $\eta$ in $\{0,0.1,0.2,0.3,0.4,0.5\}$
+    \end{itemize}
+    
+    \vspace{.1in}
+
+Stage 2:
+    \begin{itemize}
+        \item Repeat $M = 10,000$ simulations at each combination of $\eta$ in $\{0,0.1,0.2,0.3,0.4,0.5\}$ and $c$ in $\{0.9, 0.925, 0.95, 0.975, 1\}$
+    \end{itemize}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study: Stage 1 Results}
+    
+\begin{table}[hbtp]
+\centering
+\begin{tabular}{cccc} \hline
+$\eta$  & Pillai's Test & t-test (CI) & t-test (HT) \\
+& $\text{H}_o : \tau_1 = \tau_2 = 0$  & $\text{H}_o : \tau_1 = 0$ &  $\text{H}_o : \tau_2 = 0$\\ 
+ \hline  
+\Sexpr{sprintf("%.1f",round(errorsummary[1,8],1))} & \Sexpr{sprintf("%.4f",round(errorsummary[1,7],4))} & \Sexpr{sprintf("%.4f",round(errorsummary[1,5],4))} &\Sexpr{sprintf("%.4f",round(errorsummary[1,6],4))} \\
+\Sexpr{sprintf("%.1f",round(errorsummary[2,8],1))} & \Sexpr{sprintf("%.4f",round(errorsummary[2,7],4))} & \Sexpr{sprintf("%.4f",round(errorsummary[2,5],4))} &\Sexpr{sprintf("%.4f",round(errorsummary[2,6],4))} \\
+\Sexpr{sprintf("%.1f",round(errorsummary[3,8],1))} & \Sexpr{sprintf("%.4f",round(errorsummary[3,7],4))} & \Sexpr{sprintf("%.4f",round(errorsummary[3,5],4))} &\Sexpr{sprintf("%.4f",round(errorsummary[3,6],4))} \\
+\Sexpr{sprintf("%.1f",round(errorsummary[4,8],1))} & \Sexpr{sprintf("%.4f",round(errorsummary[4,7],4))} & \Sexpr{sprintf("%.4f",round(errorsummary[4,5],4))} &\Sexpr{sprintf("%.4f",round(errorsummary[4,6],4))} \\
+\Sexpr{sprintf("%.1f",round(errorsummary[5,8],1))} & \Sexpr{sprintf("%.4f",round(errorsummary[5,7],4))} & \Sexpr{sprintf("%.4f",round(errorsummary[5,5],4))} &\Sexpr{sprintf("%.4f",round(errorsummary[5,6],4))} \\
+\Sexpr{sprintf("%.1f",round(errorsummary[6,8],1))} & \Sexpr{sprintf("%.4f",round(errorsummary[6,7],4))} & \Sexpr{sprintf("%.4f",round(errorsummary[6,5],4))} &\Sexpr{sprintf("%.4f",round(errorsummary[6,6],4))} \\
+\hline
+\end{tabular}
+\end{table}
+
+\center Type I error rates for tests for curriculum treatment effect
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study: Stage 1 Results}
+    
+<<simhistogrid, echo=FALSE , message=FALSE, warning=FALSE, fig.width=10, fig.height=6, out.width='1\\linewidth', fig.pos='h',fig.align='center',cache=TRUE>>=
+library(ggplot2)
+library(reshape2)
+etas <- seq(from=0, to=0.5, by=.1) 
+plotbetadata <- data.frame(eta = rep(as.character(etas),each=M))
+plotbetadata <- cbind(plotbetadata, rbind(resultlist[[1]][,c(1,2,7,8,13,14)],
+                                          resultlist[[2]][,c(1,2,7,8,13,14)],
+                                          resultlist[[3]][,c(1,2,7,8,13,14)],
+                                          resultlist[[4]][,c(1,2,7,8,13,14)],
+                                          resultlist[[5]][,c(1,2,7,8,13,14)],
+                                          resultlist[[6]][,c(1,2,7,8,13,14)]) )
+names(plotbetadata) <- c("eta","beta[11]","beta[12]","beta[21]","beta[22]","tau[1]","tau[2]")
+plotbetadata$eta <- paste("eta==",plotbetadata$eta,sep="")
+meltplotbetadata <- melt(plotbetadata, id=c("eta"))
+trueeffects <- unique(meltplotbetadata[,1:2])
+trueeffects$value <-  rep(c(0.046132,0.037915,0.017485, 0.008211,0,0),each=6)
+number_ticks <- function(n) {function(limits) pretty(limits, n)}
+qplot(value, geom="histogram", data=meltplotbetadata,fill=I("gray42")) + 
+  facet_grid(eta~variable, scales = "free",labeller = label_parsed) +
+  geom_vline(aes(xintercept = value), data=trueeffects, color="black")+ theme_bw()+
+  ylab("") + xlab("Estimated Parameter Values") +
+  scale_x_continuous(breaks=number_ticks(3))
+@
+\center Parameter estimates from 25,000 simulations at each $\eta$.
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study: Stage 1 Results}
+\begin{table}[hbtp]
+\centering
+\begin{tabular}{ccccc} \hline
+$\eta$ & $s_{\tau_1}$ & $\hat{\text{SE}}\left[\tau_1\right]$ & $s_{\tau_2}$ & $\hat{\text{SE}}\left[\tau_2\right]$\\ 
+ \hline  
+\Sexpr{sprintf("%.1f",round(simresults[1,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[1,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[1,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[1,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[1,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[2,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[2,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[2,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[2,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[2,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[3,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[3,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[3,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[3,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[3,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[4,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[4,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[4,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[4,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[4,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[5,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[5,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[5,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[5,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[5,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[6,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[6,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[6,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[6,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[6,17],4))} \\
+\hline
+\end{tabular}
+\end{table}
+
+\center Standard deviation for simulated treatment effect estimates, $s_{\tau_k}$, and average standard errors for treatment effects, $\hat{\text{SE}}\left[\tau_k\right]$
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study: Stage 2 Results}
+    
+<<sim2plots, echo=FALSE , message=FALSE, warning=FALSE, fig.width=8, fig.height=3, out.width='1\\linewidth', fig.pos='h',fig.align='center', cache=TRUE>>=
+library(ggplot2)
+errorsummary2 <- read.csv("C:\\Users\\Karsten\\Dropbox\\Dissertation\\CurriculumStudy/SimulationStudy/Sim1000ClassCovResults.csv")
+meltsim2 <- melt(errorsummary2, id=c("eta", "nonclassmate"))
+meltsim2$variable2 <- factor(meltsim2$variable, labels = c("H[o]: tau[1]==0", "H[o]: tau[2]==0", "Pillai"))
+qplot(eta, value, geom="path", data=meltsim2, colour=as.factor(nonclassmate), group=nonclassmate, size=I(1.2)) +
+  geom_point(size=I(1.6),colour=("Black"))+
+   facet_grid(. ~ variable2, labeller = label_parsed) +
+  xlab(expression(eta)) + ylab("Type I Error Rate") + 
+  theme_bw() + labs(colour='Non-classmate Variance
+Scaling Parameter (c)') + geom_hline(yintercept=0.05, linetype=2)+
+   geom_hline(yintercept=0, linetype=1)+
+  ylim(c(0,.50))+
+  scale_colour_manual(values = c("gray85","gray70","gray55","gray40","gray25"))
+@
+\center Type I error rates for tests of treatment effects
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study: Stage 2 Results}
+    
+Type I error rates increase as $c$ increases
+
+\vspace{.1in}
+
+What does $c$ represent?
+    \begin{itemize}
+        \item covariance disparity attributable to \textit{non-treatment} factors 
+        \item generative model must carry no curriculum treatment effect
+    \end{itemize}
+    
+\vspace{.2in}
+    
+Cannot estimate $c$ due to classroom confounding with treatment
+    
+\vspace{.1in}
+     
+Steps taken to minimize non-treatment differences in classroom
+    \begin{itemize}
+        \item Alternation of instruction
+        \item Identical curricula weeks 1 to 8
+        \item Physical classrooms similar
+    \end{itemize}
+  
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Discussion and Conclusions}
+Study Results:
+    \begin{itemize}
+      \item Simulation-based group scored significantly higher on CI 
+        \begin{itemize}
+          \item After controlling for midterm and lab 5 scores
+          \item 7\% higher on ARTIST scale
+        \end{itemize}
+      \item No significant difference in HT scores
+    \end{itemize} \pause
+
+Discussion Issues:
+    \begin{itemize}
+      \item Criticisms of ARTIST sets
+      \item Representation 
+      \item Causality
+      \item Treatment Complexity
+    \end{itemize} 
+
+\end{frame}
+
+
+% %-------------------------------------------------
+% 
+% \begin{frame}
+%     \frametitle{Discussion and Conclusions}
+% Criticisms of ARTIST sets
+%     \begin{itemize}
+%         \item Increasingly outdated
+%         \item Lack of nationally normed reliability study
+%     \end{itemize} 
+% 
+% \vspace{.1in}
+% 
+% Representation
+%     \begin{itemize}
+%         \item Ag/Bio students at large public Midwestern university
+%         \item Results apply as far as students are representative
+%     \end{itemize} 
+% 
+% \end{frame}
+% 
+% %-------------------------------------------------
+% 
+% \begin{frame}
+%     \frametitle{Discussion and Conclusions}
+% Causality requires assumptions
+%     \begin{itemize}
+%         \item Randomization eliminated effect of extraneous variables
+%         \item Alternation eliminated instructor effect
+%     \end{itemize} 
+% 
+% \vspace{.1in}
+% 
+% Treatment Complexity
+%     \begin{itemize}
+%         \item 8 week curricula (lecture, notes, lab, homework)
+%         \item Cannot dissect to identify which parts led to improvement
+%     \end{itemize} 
+% 
+% \end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Acknowledgements}
+
+Co-investigator: Dennis Lock \\
+
+\vspace{.2in}
+
+Study Advisors: Dr. Heike Hofmann and Dr. Bob Stephenson \\
+
+\end{frame}
+
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Thanks!}
+
+\center Thank you for attending! \\
+
+\center Any questions?
+
+\end{frame}
+
+
+
+
+
+
+\end{document}
