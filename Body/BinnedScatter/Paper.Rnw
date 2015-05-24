@@ -808,7 +808,7 @@ grid.arrange(p1,p2,p3, nrow=1)
 
 The binning origin can also influence the spatial loss in the binned scatterplot.  For data with fine resolution compared to the bin dimensions, the origin is only largely consequential for distributions with high density in outermost bins.  Figure~\ref{fig:ExponentialOriginPlots} displays the binned scatterplots of ten-by-ten unit bins for the fine exponential data with two different origin choices: (0,0) and (-9,-9). The binning beginning at the (-9,-9) origin suffers visually from the illusion that the density drops off near the lower bounds due to the fact that these lowest bins in each dimension are largely empty due to the negative regions. The binning origin at (0,0) is also superior in terms of the net spatial loss, which is about seven percent lower than for the (-9,-9) origin. For data with very fine resolution, it is a good idea to set the origin at the minimum value for each dimension. 
 
-<<ExponentialOriginPlots, echo=F,include=T,eval=T,fig.width=8, fig.height=3, out.width='.9\\linewidth', fig.pos='H',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Binned scatterplots for the fine exponential data using standard binning with 10 by 10 unit bins with origins at (0,0) and (-9,-9). The binning origin at (0,0) leads to 9\\% less net spatial loss than (-9,-9); with losses of 391,067 units and 420,458 units, respectively.">>= 
+<<ExponentialOriginPlots, echo=F,include=T,eval=T,fig.width=8, fig.height=3, out.width='.9\\linewidth', fig.pos='H',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Binned scatterplots for the fine exponential data using standard binning with 10X10 square bins with origins at (0,0) and (-9,-9). The bold lines at x=0 and y=0 denote the lower bounds of the data.">>= 
 
 #create binned data for fine exponential with 10X10 bins at good and bad origin
 binoutExp5 <- RectBin2d(datlist[[3]]$x,datlist[[3]]$y,0,0,10,10,type="standard")
@@ -819,13 +819,14 @@ p1 <- qplot(binxs, binys, geom="tile", fill=log(binfreq), data=binoutExp5[[1]]) 
   scale_fill_gradient(low="#56B1F7", high="#132B43") + 
   theme_bw() + theme(legend.position="none",
                      aspect.ratio=1, panel.grid= element_blank()) +
-  xlab("") + ylab("")
+  xlab("") + ylab("")+ geom_hline(yintercept=0) + geom_vline(xintercept=0)
+
 p2 <- qplot(binxs, binys, geom="tile", fill=log(binfreq), data=binoutExp5offset[[1]]) +  
   ggtitle("Origin at (-9,-9)") + 
   scale_fill_gradient(low="#56B1F7", high="#132B43") + 
   theme_bw() + theme(legend.position="none",
                      aspect.ratio=1, panel.grid= element_blank()) +
-  xlab("") + ylab("")
+  xlab("") + ylab("") + geom_hline(yintercept=0) + geom_vline(xintercept=0)
 
 grid.arrange(p1,p2,nrow=1)
  
@@ -848,7 +849,7 @@ It can be shown analytically that an origin offset of ($\alpha_x/2$,$\alpha_y/2$
 
 Figure~\ref{fig:OriginOffsetSimulations} shows how the net spatial loss changes as the origin offset is shifted while using standard rectangular binning for the coarse simulated data sets. Note that for simplicity, changes to the origin offset are made equally in each dimension, thus shifting the origin at a 45 degree angle. Since the coarse data has a 2X2 unit resolution, we pay special attention to an origin offset of (1,1) in order to assess how well the theoretically optimal origin offset at ($\alpha_x/2$,$\alpha_y/2$) works for data that violate the theoretical assumptions to differing degrees. The round glyphs indicate the origin offset where the net loss reaches an absolute minimum in the simulation. For the two symmetrically distributed data sets, normal and uniform, the origin offset of (1,1) was found to either minimize the net spatial loss or achieve a local minimum very near to the overall minimum (within a 0.2\% increase from the minimum spatial loss) for each considered bin size. For the bivariately skewed exponential data, the origin offset of (1,1) minimized net loss for the smaller intervals but was not optimal for the largest intervals; 2.5\% and 7\% above the minimum spatial losses for the 8X8 and 10X10 unit bins, respectively.
 
-<<OriginOffsetSimulations, echo=F,include=T,eval=T,fig.width=8, fig.height=4, out.width='.9\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Net spatial loss for coarse simulated data at a 2X2 unit resolution using various sized (2,4,6,8,10) square bins over the range of possible origin offsets. The vertical gray line in each facet indicates the origin offset of (1,1).">>= 
+<<OriginOffsetSimulations, echo=F,include=T,eval=T,fig.width=8, fig.height=4, out.width='.9\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Net spatial loss for coarse simulated data at a 2X2 unit resolution using various sized square bins over the range of possible origin offsets. The vertical gray line in each facet indicates the origin offset of (1,1).">>= 
 ##  Check out the spatial loss for the data that is recorded to resolution = alpha at various origin offsets
 # standard and random binning with bin sizes that are scalar multiples of the data resolution
 # save spatial loss information
@@ -880,6 +881,9 @@ lossOrigin <- read.csv("LossesByOriginBinwidth.csv",header=TRUE)
 mins <- ddply(lossOrigin, .(widthx, bintype, distrib), summarise,
               minx = max(originx[which(totalSpatialLoss == min(totalSpatialLoss))]),
               minloss = min(totalSpatialLoss))
+lossOrigin$binsize <- factor(paste(lossOrigin$widthx,"X",lossOrigin$widthx,sep=""),
+                             levels=c("2X2","4X4","6X6","8X8","10X10"))
+mins$binsize <- paste(mins$widthx,"X",mins$widthx,sep="")
 
 # #Code to show percent of minimum loss at offset -1
 # spatlossatorigin1 <- data.frame(NULL)
@@ -905,7 +909,7 @@ mins <- ddply(lossOrigin, .(widthx, bintype, distrib), summarise,
 
 qplot(originx,totalSpatialLoss/1000,geom="path",group=distrib, colour=distrib,
       data=subset(lossOrigin,bintype=="standard"), size=I(1))+ 
-  facet_grid(distrib~widthx, scales="free_x", space="free_x") + theme_bw() + 
+  facet_grid(distrib~binsize, scales="free_x", space="free_x") + theme_bw() + 
   theme(panel.grid= element_blank(), legend.position="none")+
   geom_vline(xintercept = -1, colour=I("darkgray")) +
   geom_point(aes(x=minx, y=minloss/1000), data=subset(mins, bintype=="standard"), size=3.5) +
