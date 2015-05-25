@@ -1454,7 +1454,7 @@ grid.arrange(p2,p3, nrow=1)
 %--------------------------------------------------------------
 
 \begin{frame}
-    \frametitle{Software Development}    
+    \frametitle{Shiny Database Sampler}    
   Goals
     \begin{itemize}
       \item Connect intro students with big data
