@@ -843,8 +843,8 @@ qplot(x,y,geom="point",data=subset(alldat, record=="Coarse"),facets=.~type, size
     \frametitle{Selecting Bin Width}
   
 <<Stripes, echo=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
-setwd("C:\\Users\\Karsten\\Documents\\GitHub\\dbaccess")
-allbindat <- read.csv("StripeBinData.csv",header=TRUE)
+# setwd("C:\\Users\\Karsten\\Documents\\GitHub\\dbaccess")
+allbindat <- read.csv("Data/StripeBinData.csv",header=TRUE)
 allbindat$BinningType <- factor(allbindat$BinningType, levels=c("Standard","Random"))
 
 p1 <- qplot(binxs, binys, geom="tile", fill=binfreq, data=subset(allbindat,BinSize=="1 X 1 Unit")) +
@@ -939,8 +939,8 @@ Net spatial loss for binning origin at (0,0) is 7\% lower than (-9,-9).
   
 <<OriginShiftCoarse, echo=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
 library(plyr)
-setwd("C:\\Users\\Karsten\\Documents\\GitHub\\dbaccess")
-lossOrigin <- read.csv("LossesByOriginBinwidth.csv",header=TRUE)
+# setwd("C:\\Users\\Karsten\\Documents\\GitHub\\dbaccess")
+lossOrigin <- read.csv("Data/LossesByOriginBinwidth.csv",header=TRUE)
 lossOrigin$binsize <- factor(paste(lossOrigin$widthx,"X",lossOrigin$widthx,sep=""),
                              levels=c("2X2","4X4","6X6","8X8","10X10"))
 
