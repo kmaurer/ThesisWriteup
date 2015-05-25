@@ -176,15 +176,15 @@ cor(cdat[,1],cdat[,4])
 
 \begin{frame}
     \frametitle{Presentation Outline}  
-  Quantifying Loss in Binned Scatterplots
+Chapter 4: Binning Strategies and Related Loss for Binned Scatterplots
     \begin{itemize}
       \item Scatterplot Adaptations
-      \item Binning
-      \item Loss Functions
+      \item Binning and Loss Functions
       \item Impact of Binning Specification on Loss
       \item Results and Recommendations
-    \end{itemize}    
-  Shiny Database Sampler
+    \end{itemize}   
+\vspace{.2in}    
+Chapter 3: A \texttt{shiny} New Opportunity for Interaction with Big Data in Undergraduate Education
     \begin{itemize}
       \item Development
       \item Applications
@@ -201,7 +201,7 @@ cor(cdat[,1],cdat[,4])
     \frametitle{}  
 
 \begin{center}
-\large Loss and Binned Scatterplots\\
+\large Binning Strategies and Related Loss for Binned Scatterplots\\
 \normalsize Chapter 4
 \end{center}
 
@@ -260,7 +260,7 @@ Goal: Visualize relationship between games played and strike outs
 qplot(data=d1, x=G, y=SO, geom="point", main="Games and Strike Outs in ML Baseball", size=I(2)) + theme_bw() + xlab("Games (Count)")+ ylab("Strike Outs (Count)")
 @
 
-\center Heavy Over-plotting
+\center Heavy over-plotting
 
 \end{frame}
 
@@ -1098,7 +1098,7 @@ L^{\log F} = \sum_{\ell \in \mathscr{L}^\ast} (\log(c_\ell) - b_c(\log(c_\ell)))
   
 3 Main Choices
   \begin{itemize}
-    \item Number of frequency groups (k)
+    \item Number of frequency bins (k)
     \item Transform counts (yes/no)
     \item Binning algorithm (standard/quantile)
   \end{itemize}  
@@ -1108,7 +1108,7 @@ L^{\log F} = \sum_{\ell \in \mathscr{L}^\ast} (\log(c_\ell) - b_c(\log(c_\ell)))
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Number of Frequency Groups}
+    \frametitle{Number of Frequency Bins}
   
 <<Freq4710NoBins, echo=FALSE, warning=FALSE, fig.width=10, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
 binout1 <- RectBin2d(datlist[[2]]$x,datlist[[2]]$y,0,0,5,5,type="standard")
@@ -1162,7 +1162,7 @@ Research suggests 7 is max for the typical person $\Rightarrow$ use k $\le 7$
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Frequency Loss Simulation}
+    \frametitle{Frequency Loss}
   
 <<FreqLossLineplot, echo=FALSE, warning=FALSE, fig.width=11, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
 freqLossSimDat <- NULL
@@ -1217,7 +1217,7 @@ grid.arrange(p1,p2,p3, nrow=1)
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Log Frequency Loss Simulation}
+    \frametitle{Log Frequency Loss}
   
 <<LogFreqLossLineplot, echo=FALSE, warning=FALSE, fig.width=11, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
 plotdat <- freqLossSimDat[((freqLossSimDat$FreqBinType=="Standard Log" |freqLossSimDat$FreqBinType=="Quantile Log")  & freqLossSimDat$DistType=="Exponential"),]
@@ -1269,12 +1269,12 @@ p1 <- qplot(binxs, binys, geom="tile", fill=binfreq, data=binout1[[1]],
   theme_bw() + theme(legend.position="bottom",aspect.ratio=1,
                      panel.grid= element_blank(),
                      plot.margin = unit(c(.1,.1,.1,.1),"cm") )
-p2 <- qplot(binfreq, geom="histogram", data=binout1[[1]], main="Histogram of Raw Bin Counts")+
-  theme_bw() + xlab("Bin Frequency") + ylab("Number of Bins")
+p2 <- qplot(binfreq, geom="histogram", data=binout1[[1]], main="Histogram of Raw Bin Counts", binwidth=250)+
+  theme_bw() + xlab("Bin Frequency") + ylab("Number of Spatial Bins")
 grid.arrange(p1,p2, nrow=1)
 @  
 
-\center Removes ability to see differences in low density bins
+\center Unable to see differences in low frequency bins
 
 \end{frame}
 
@@ -1283,7 +1283,7 @@ grid.arrange(p1,p2, nrow=1)
 \begin{frame}
     \frametitle{Dealing With Skewed Bin Counts}
 
-Transforming bin counts is one way to reduce visual impact of high density bins
+\center Transforming bin counts can reduce skew in bin densities
 
 <<SkewCountFreqBinning, echo=FALSE, warning=FALSE, fig.width=11, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
 binout1 <- RectBin2d(datlist[[2]]$x,datlist[[2]]$y,0,0,5,5,type="standard")
@@ -1445,7 +1445,7 @@ grid.arrange(p2,p3, nrow=1)
     \frametitle{}  
 
 \begin{center}
-\large Shiny Database Sampler \\
+\large A \texttt{shiny} New Opportunity for Interaction with Big Data in Undergraduate Education \\
 \normalsize Chapter 3
 \end{center}
 
@@ -1563,7 +1563,7 @@ Engagement &  \it I did not enjoy working with the Census data & $-$  \\
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Survey}
+    \frametitle{Survey Internal Consistency}
 <<fluctuationDiagrams,echo=F, message=FALSE, include=T,eval=T,fig.width=12, fig.height=6, out.width='.98\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold'>>=
 #ease of use
 e12 <- ggfluctuation(table(cdat$q1,cdat$q4)) +
@@ -1621,7 +1621,7 @@ grid.arrange(e12,e13,e14,e23,e24,e34,
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Survey}
+    \frametitle{Internal Consistency}
 
 \begin{table}[hbtp]
 \centering
