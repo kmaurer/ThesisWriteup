@@ -577,7 +577,7 @@ Also record Pillai's $\lambda^{\hspace{.1cm}(m)}$ testing for overall curriculum
 \end{enumerate}
 
 <<results, echo=FALSE, include=FALSE>>=
-load("C:\\Users\\Karsten\\Dropbox\\Dissertation\\CurriculumStudy\\SimulationStudy\\SimulationResults.RData")
+load("SimulationResults.RData")
 library(plyr)
 eta <- (0:5)/10
 results <- ldply(1:6, function(x) data.frame(eta=eta[x], resultlist[[x]]))
