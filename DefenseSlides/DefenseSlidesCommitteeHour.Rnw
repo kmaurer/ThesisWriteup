@@ -208,6 +208,24 @@ Chapter 3: A \texttt{shiny} New Opportunity for Interaction with Big Data in Und
 
 \end{frame}
 
+%------------------------------------------------
+\begin{frame}
+    \frametitle{Motivation}
+
+Why use binned scatterplots?
+  \begin{itemize}
+    \item Cannot effectively display large data with the traditional scatterplot
+    \item Make information 'lost in translation' from visually rendering and reading the bivariate relationship explicit
+  \end{itemize} 
+
+Primary goals:
+  \begin{itemize}
+    \item Introduce spatial and frequency loss
+    \item Investigate binning properties
+  \end{itemize}  
+
+\end{frame}
+
 % 
 % %-------------------------------------------------
 % 
@@ -282,9 +300,9 @@ Change Point Rendering
   
 Plotting Binned Aggregations
   \begin{itemize}
-    \item Sunflower Plots
-    \item Bubble Plots
-    \item Binned Scatterplots
+    \item Sunflower Plots (Cleveland and McGill, 1984)
+    \item Bubble Plots (Playfair, 1786)
+    \item Binned Scatterplots (Unwin, Theus \& Hofmann, 2006)
   \end{itemize}
 
 \end{frame}
@@ -375,18 +393,22 @@ qplot(binxs, binys, geom="tile", fill=log(binfreq), data=binout1[[1]],
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Binning Functions}
+    \frametitle{Constructing Binned Scatterplots}
 
-Goal for Binned Scatterplot:
+Reduce binned data triples:
   \begin{itemize}
-    \item Reduced Binned Data Triples $(x^\ast, y^\ast, c)$
-    \item $(x^\ast,y^\ast)$ = bin center
-    \item $c$ = bin frequency count
+    \item $(x^\ast_\ell, y^\ast_\ell, c_\ell)$ for all bins $\ell \in \{1, \dots, \mathscr{L} \}$
+    \item $(x^\ast_\ell,y^\ast_\ell)$ = center of bin $\ell$
+    \item $c_\ell$ = frequency count for bin $\ell$
+    \item Triples are \textit{sufficient} for creating binned scatterplot
   \end{itemize}
 
-Need binning function to uniquely map points to bins
+\vspace{.1in}
+
+Binning functions uniquely map data pairs to bin centers
   \begin{itemize}
-    \item $b(.) : (x,y) \rightarrow (x^\ast,y^\ast)$
+    \item $b(.) : (x_i,y_i) \rightarrow (x^\ast_\ell,y^\ast_\ell)$ 
+    \item Where $(x_i,y_i)$ are data pairs for observations $i \in \{1,\dots,n\}$
   \end{itemize}
 
 \end{frame}
@@ -396,16 +418,23 @@ Need binning function to uniquely map points to bins
 \begin{frame}
     \frametitle{Rectangular Binning Functions}
 
-Rectangular binning bins each dimension univariately
+Rectangular binning functions bin each dimension univariately
   \begin{itemize}
     \item $b(x_i,y_i) = (b_X(x_i),b_Y(y_i))$
     \item Forms rectangular binned grid
+    \item Computationally efficient (Wickham, 2013)
+    \item Can generalize to higher dimension easily
   \end{itemize}
-\pause
 
-\vspace{.25cm}
+
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Rectangular Binning Functions}
   
-Generally $b_X(.) : x_i \rightarrow x^\ast_j$ is defined as 
+Generally, $b_X(.) : x_i \rightarrow x^\ast_j$ is defined as 
 %
 \begin{eqnarray}\label{rectbin}
 b_X(x_i) = \left\{\begin{array}{ll} 
@@ -415,9 +444,19 @@ b_X(x_i) = \left\{\begin{array}{ll}
 \end{eqnarray}  
 
 where $(\beta_{j-1},\beta_{j}]$ for $j \in \{1,\dots,J\}$ are sequence of 
-$J$ adjacent intervals spanning range of X data.
+$J$ adjacent intervals coverting range of the data. (Scott, 1979)
+
+\vspace{.1in}
+
+Parameters must be specified such that: $\beta_0 \le x_{(0)} \le x_{(n)} \le \beta_J$
+where $x_{(1)}$ and $x_{(n)}$ are the minimum and maximum data values
+
+\vspace{.1in}
+
+
 
 \end{frame}
+
 
 %-------------------------------------------------
 
