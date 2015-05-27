@@ -4,13 +4,14 @@
 \usepackage[T1]{fontenc}
 \usepackage{url}
 \usepackage{bbm}
-
 \usepackage{amsmath,amsthm,amssymb}
 \usepackage{graphicx,float,wrapfig,subfig,tabularx,ulem}
 \usepackage{color}
 \usepackage{natbib}
 \usepackage{hyperref}
 \usepackage{mathrsfs}
+
+\bibliographystyle{asa}
 
 \addtobeamertemplate{navigation symbols}{}{%
     \usebeamerfont{footline}%
@@ -274,8 +275,8 @@ Lots of Recommendations for Dealing with Scatterplot Over-plotting
 
 Change Point Rendering
   \begin{itemize}
-    \item Open Points
-    \item Alpha-Blending
+    \item Open Points \citep{tukey}
+    \item Alpha-Blending \citep{gold}
     \item Generalized Scatterplots
   \end{itemize} \pause
   
@@ -1030,7 +1031,7 @@ grid.arrange(p0,p4,nrow=1)
 How do we discretize the frequency shading?
   \begin{itemize}
     \item Add second stage of binning
-    \item Use one dimensional binning algorithms on bin counts, $c_\ell$
+    \item Use one dimensional binning algorithms on bin counts
     \item Shade ordinally based on binned frequency groups
     \item May transform counts before frequency binning \\ (i.e. log counts)
   \end{itemize}  
@@ -1086,7 +1087,7 @@ Log Frequency Loss
   \end{itemize} 
   %
 \begin{eqnarray}\label{logfrequency}
-L^{\log F} = \sum_{\ell \in \mathscr{L}^\ast} (\log(c_\ell) - b_c(\log(c_\ell)))^2
+L^{\log F} = \sum_{\ell=1}^{\mathscr{L}} (\log(c_\ell) - b_c(\log(c_\ell)))^2
 \end{eqnarray}
 
 \end{frame}
@@ -1802,8 +1803,6 @@ ggplot() +
 \end{frame}
 
 
-
-
-
+\bibliography{references}
 
 \end{document}
