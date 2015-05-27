@@ -275,9 +275,9 @@ Lots of Recommendations for Dealing with Scatterplot Over-plotting
 
 Change Point Rendering
   \begin{itemize}
-    \item Open Points \citep{tukey}
-    \item Alpha-Blending \citep{gold}
-    \item Generalized Scatterplots
+    \item Open Points (Tukey, 1977)
+    \item Alpha-Blending (Unwin, Theus \& Hofmann, 2006)
+    \item Generalized Scatterplots (Keim, Hao, Dayal, Janetzko \& Bak, 2010)
   \end{itemize} \pause
   
 Plotting Binned Aggregations
@@ -1803,6 +1803,6 @@ ggplot() +
 \end{frame}
 
 
-\bibliography{references}
+% \bibliography{references}
 
 \end{document}
