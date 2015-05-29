@@ -393,7 +393,7 @@ qplot(binxs, binys, geom="tile", fill=log(binfreq), data=binout1[[1]],
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Constructing Binned Scatterplots}
+    \frametitle{Construction of Binned Scatterplots}
 
 Reduce binned data triples:
   \begin{itemize}
@@ -416,7 +416,7 @@ Binning functions uniquely map data pairs to bin centers
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Rectangular Binning Functions}
+    \frametitle{Rectangular Binning}
 
 Rectangular binning functions bin each dimension univariately
   \begin{itemize}
@@ -432,7 +432,7 @@ Rectangular binning functions bin each dimension univariately
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Rectangular Binning Functions}
+    \frametitle{Rectangular Binning}
   
 Generally, $b_X(.) : x_i \rightarrow x^\ast_j$ is defined as 
 %
@@ -444,7 +444,7 @@ b_X(x_i) = \left\{\begin{array}{ll}
 \end{eqnarray}  
 
 where $(\beta_{j-1},\beta_{j}]$ for $j \in \{1,\dots,J\}$ are sequence of 
-$J$ adjacent intervals coverting range of the data. (Scott, 1979)
+$J$ adjacent intervals covering range of the data. (Scott, 1979)
 
 \vspace{.1in}
 
@@ -461,13 +461,14 @@ where $x_{(1)}$ and $x_{(n)}$ are the minimum and maximum data values
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Rectangular Binning Functions}
+    \frametitle{Standard Rectangular Binning}
 
 Standard Rectangular Binning
   \begin{itemize}
     \item Use equally spaced intervals
     \item Bin width $= \omega_X$
-    \item $ \{\beta_j \text{ }|\text{ } \beta_j = \beta_{j-1} + \omega_X \}$
+    \item Bin origin $= \beta_0 \le x_{(1)}$
+    \item $ \{\beta_j \text{ }|\text{ } \beta_j = \beta_{j-1} + \omega_X\}$ where $j \in \{1,\dots,J\}$
     \item $x_j^\ast = (\beta_{j-1} + \beta_j) /2$
   \end{itemize}
 
@@ -476,13 +477,14 @@ Standard Rectangular Binning
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Reduced Binned Data}
+    \frametitle{Binned Data}
 
 \tiny
 \begin{table}[H]
 \begin{minipage}[t]{.33\textwidth}\centering\subfloat[Original Data, 12 rows]{
-\begin{tabular}{rr}\hline
-       $x$ &  $y$  \\ \hline
+\begin{tabular}{rr}
+       $x$ &  $y$  \\
+       \hline
 -7.7325 & -9.6340 \\ 
   -8.1176 & -1.4529 \\ 
   -5.8996 & -3.2033 \\ 
@@ -494,12 +496,13 @@ Standard Rectangular Binning
   5.4477 & -8.4555 \\ 
   4.6849 & -5.6620 \\ 
   9.4785 & 1.1133 \\ 
-  1.7579 & 5.3759 \\  \hline
+  1.7579 & 5.3759 \\ 
 \end{tabular}}
 \end{minipage}\hfil
 \begin{minipage}[t]{.33\textwidth}\centering\subfloat[Binned Data Centers, 12 rows]{
-\begin{tabularx}{.7\textwidth}{rr} \hline
-  $b_X(x)$ & \hspace{.4cm} $b_Y(y)$  \\ \hline
+\begin{tabularx}{.7\textwidth}{rr} 
+  $b_X(x)$ & \hspace{.4cm} $b_Y(y)$  \\
+  \hline
   -5 & -5 \\ 
   -5 & -5 \\ 
   -5 & -5 \\ 
@@ -511,20 +514,22 @@ Standard Rectangular Binning
   5 & -5 \\ 
   5 & -5 \\ 
   5 & 5 \\ 
-  5 & 5 \\  \hline
+  5 & 5 \\  
 \end{tabularx}}
 \end{minipage}\hfil
 \begin{minipage}[t]{.33\textwidth}\centering\subfloat[Reduced Binned Data, 4 rows]{
-\begin{tabularx}{.7\textwidth}{rrr}\hline
- \hspace{.2cm} $x^\ast$   &   \hspace{.2cm} $y^\ast$ & \hspace{.4cm}c \\ \hline
+\begin{tabularx}{.9\textwidth}{rrr}
+
+ \hspace{.2cm} $x^\ast$   &   \hspace{.2cm} $y^\ast$ & \hspace{.4cm}c \\ 
+ \hline
 -5 & -5 & 5 \\ 
   -5 & 5 & 2 \\ 
   5 & -5 & 3 \\ 
-  5 & 5 & 2 \\  \hline
+  5 & 5 & 2 \\ 
 \end{tabularx}}
 \vfil
 \end{minipage}
-\caption{\label{DataReductionExample}Original, Binned and Reduced Binned Data Tables, with data storage sizes.  Binned using standard rectangular approach with origin $(\beta_{0,x},\beta_{0,y})$ = (-10,-10) and bin widths $\omega_x = \omega_y = 10$. }
+\caption{\label{DataReductionExample}Original, Binned and Reduced Binned Data Tables, with data storage sizes.  Binned using standard rectangular approach with binning origin at (-10,-10) and bin widths $\omega_x = \omega_y = 10$. }
 \end{table}
 \normalsize
 \end{frame}
@@ -532,15 +537,19 @@ Standard Rectangular Binning
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Rectangular Binning Functions}
+    \frametitle{Random Rectangular Binning}
 
 Random Rectangular Binning
   \begin{itemize}
-    \item Define set of bin centers: $\{x_j^\ast \text{ }|\text{ } x_j^\ast > x_{j-1}^\ast \}$
+    \item Define set of bin centers: $\{x_j^\ast \text{ }|\text{ } x_j^\ast > x_{j-1}^\ast \}$ for $j \in \{1,\dots,J\}$
+    \item $x_1^\ast \le x_{(1)} \le x_{(n)} \le x_J^\ast$
     \item Assign points at random to surrounding bin centers
     \item Probabilities inversely proportional do distance from bin centers
   \end{itemize}
   
+\vspace{.25in}
+  
+For $x_i$ such that $x^\ast_{j} \le x_i \le x^\ast_{j+1}$,
 \begin{eqnarray}\label{randbin1}
 b^r_X(x_i) = \left\{\begin{array}{ll} 
   x^\ast_j & \text{ with probability } (x^\ast_{j+1} - x_i)/(x^\ast_{j+1} -x^\ast_{j}) \\
@@ -1662,6 +1671,13 @@ grid.arrange(e12,e13,e14,e23,e24,e34,
 
 \begin{frame}
     \frametitle{Internal Consistency}
+
+
+Cronbach's $\alpha$ measures internal consistency within an item set
+%
+\begin{equation} \label{eq:alpha}
+\alpha = K/(K-1) \cdot \left(1 - \left . \sum_{i=1}^K \V{Y_i} \right /  \V{\sum_{j=1}^K Y_j}\right),
+\end{equation}
 
 \begin{table}[hbtp]
 \centering
