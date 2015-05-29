@@ -132,22 +132,28 @@ The research proposal approved by the Institutional Review Board specified that 
 The ARTIST and applied inference question scores from the final exam are the response variables on which we wish to compare the groups of students from the two inference curricula. Figure~\ref{fig:ScoreHistsByGroup} displays the histogram, mean and standard deviation for each response variable, separated by curricula.  Midterm exam scores as also included in order to provide a comparison of the curricula groups using a pre-treatment measurement. 
 
 <<ScoreHistsByGroup, echo=FALSE , warning=FALSE, fig.width=15, fig.height=8, out.width='1\\linewidth', fig.pos='h',fig.align='center',fig.cap="Histograms and summary statistics of scores separated by curricula group.">>=
+
 dat$treatment <- "Simulation-Based"
 dat$treatment[which(dat$room=="sweeney")] <- "Traditional"
+library(plyr)
 
 smalldat <- dat[,c("treatment","midterm","ConfMC","HypMC","AppliedCI","AppliedHT")]
 meltsmall <- melt(smalldat, id=c("treatment"))
-trtsumstats <- ddply(dat, .(treatment), summarize,
-                   avgmidterm = round(mean(midterm),1 ), 
-                   sdmidterm = round(sd(midterm), 2 ), 
-                   avgConfMC = round(mean(ConfMC),1 ), 
-                   sdConfMC = round(sd(ConfMC), 2 ), 
-                   avgHypMC = sprintf("%.1f",round(mean(HypMC),1 )), 
-                   sdHypMC = round(sd(HypMC), 2 ), 
-                   avgAppliedCI = round(mean(AppliedCI),1 ), 
-                   sdAppliedCI = round(sd(AppliedCI), 2 ), 
-                   avgAppliedHT = round(mean(AppliedHT), 1 ), 
-                   sdAppliedHT = round(sd(AppliedHT), 2 )  ) 
+# Wont ply properly in knit, write then read to work around... dumb
+# trtsumstats <- ddply(dat, .(treatment), summarize,
+#                    avgmidterm = round(mean(midterm),1 ), 
+#                    sdmidterm = round(sd(midterm), 2 ), 
+#                    avgConfMC = round(mean(ConfMC),1 ), 
+#                    sdConfMC = round(sd(ConfMC), 2 ), 
+#                    avgHypMC = sprintf("%.1f",round(mean(HypMC),1 )), 
+#                    sdHypMC = round(sd(HypMC), 2 ), 
+#                    avgAppliedCI = round(mean(AppliedCI),1 ), 
+#                    sdAppliedCI = round(sd(AppliedCI), 2 ), 
+#                    avgAppliedHT = round(mean(AppliedHT), 1 ), 
+#                    sdAppliedHT = round(sd(AppliedHT), 2 )  ) 
+
+# write.csv(trtsumstats, "trtsumstats.csv", row.names=FALSE)
+trtsumstats <- read.csv("trtsumstats.csv", header=T)
 
 titlesize =1.5
 xaxissize =1.3

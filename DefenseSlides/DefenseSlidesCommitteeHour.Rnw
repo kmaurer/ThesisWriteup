@@ -1846,6 +1846,34 @@ ggplot() +
         \end{itemize}
 \end{frame}
 
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Future Work for Thesis Components} 
+Literature Review
+  \begin{itemize}
+    \item Section 2 to be submitted to JSE as review of technology in statistics education
+  \end{itemize}
+  
+Statistical Inference Curriculum Comparison Study
+  \begin{itemize}
+    \item Accepted pending revision by TISE
+    \item Awaiting results in second round of reviews
+  \end{itemize}
+    
+Shiny Database Sampler
+  \begin{itemize}
+    \item Move application to more reliable R Server
+    \item Manuscript to be submitted to TISE or SERJ
+  \end{itemize}
+
+Loss in Binned Scatterplots
+  \begin{itemize}
+    \item Manuscript to be submitted to JCGS
+  \end{itemize}
+
+\end{frame}
+
 %--------------------------------------------------------
 
 \begin{frame}
