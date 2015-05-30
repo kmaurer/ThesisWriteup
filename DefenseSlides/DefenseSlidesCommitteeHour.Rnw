@@ -22,7 +22,7 @@
 
 \setbeamercovered{transparent}
 \renewcommand{\ni}{\noindent}
-
+\newcommand{\V}[1]{\text{Var}\left(#1\right)}
 \newcommand{\distas}[1]{\mathbin{\overset{#1}{\sim}}}%
 \newcommand{\Cov}{\text{Cov}}%
 
@@ -217,12 +217,16 @@ Why use binned scatterplots?
     \item Cannot effectively display large data with the traditional scatterplot
     \item Make information 'lost in translation' from visually rendering and reading the bivariate relationship explicit
   \end{itemize} 
-
-Primary goals:
+  
+Example Data from Baseball   
   \begin{itemize}
-    \item Introduce spatial and frequency loss
-    \item Investigate binning properties
-  \end{itemize}  
+    \item Sean Lahman's Baseball database (\url{http://www.seanlahman.com/baseball-archive/})
+    \item Variables are Games Played and Strike Outs
+    \item Observations: 42583 MLB pitcher seasons
+    \item Data from 1871-2009
+    \item Goal: Visualize relationship between games played and strike outs
+  \end{itemize}
+
 
 \end{frame}
 
@@ -258,18 +262,18 @@ Primary goals:
 
 %-------------------------------------------------
 
-\begin{frame}
-    \frametitle{Bivariate Data Visualization }
-Example Data from Baseball   
-  \begin{itemize}
-    \item Sean Lahman's Baseball database (\url{http://www.seanlahman.com/baseball-archive/})
-    \item Variables are Games Played and Strike Outs
-    \item Observations: 42583 MLB pitcher seasons
-    \item Data from 1871-2009
-  \end{itemize}
-Goal: Visualize relationship between games played and strike outs
-
-\end{frame}
+% \begin{frame}
+%     \frametitle{Bivariate Data Visualization }
+% Example Data from Baseball   
+%   \begin{itemize}
+%     \item Sean Lahman's Baseball database (\url{http://www.seanlahman.com/baseball-archive/})
+%     \item Variables are Games Played and Strike Outs
+%     \item Observations: 42583 MLB pitcher seasons
+%     \item Data from 1871-2009
+%   \end{itemize}
+% Goal: Visualize relationship between games played and strike outs
+% 
+% \end{frame}
 
 %--------------------------------------------------------------
 
@@ -542,7 +546,6 @@ Standard Rectangular Binning
 Random Rectangular Binning
   \begin{itemize}
     \item Define set of bin centers: $\{x_j^\ast \text{ }|\text{ } x_j^\ast > x_{j-1}^\ast \}$ for $j \in \{1,\dots,J\}$
-    \item $x_1^\ast \le x_{(1)} \le x_{(n)} \le x_J^\ast$
     \item Assign points at random to surrounding bin centers
     \item Probabilities inversely proportional do distance from bin centers
   \end{itemize}
@@ -775,7 +778,7 @@ Small versus Large Bins
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Simulation Study}
+    \frametitle{Simulated Data}
     
 Explore Properties with Three Simulated Data Sets
 
@@ -789,7 +792,7 @@ Explore Properties with Three Simulated Data Sets
 \item Set III: $x_i$ and $y_i \sim \text{iid Uniform}(a=0,b=100)$
 \end{itemize}
 
-Data then rounded to nearest even integer to induce a \textit{data resolution} of 2 units
+Data pairs then rounded to nearest even integer to induce a 2X2 unit \textit{data resolution}
 
 \end{frame}
 
@@ -831,12 +834,12 @@ smallround$record <- "Coarse"
 alldat <- rbind(dat,smallround)
 alldat$type <- factor(alldat$type, levels=c("Exponential","Normal","Uniform"))
 
-qplot(x,y,geom="point",data=subset(alldat, record=="Fine"),facets=.~type, size=I(1)) + 
-  theme_bw() + theme(aspect.ratio=1) +
-  #ggtitle("Scatterplots of Simulated Data") +
-  xlab("X") + ylab("Y") + 
-  scale_x_continuous(breaks=c(0,25,50,75,100)) + 
-  scale_y_continuous(breaks=c(0,25,50,75,100))
+# qplot(x,y,geom="point",data=subset(alldat, record=="Fine"),facets=.~type, size=I(1)) + 
+#   theme_bw() + theme(aspect.ratio=1) +
+#   #ggtitle("Scatterplots of Simulated Data") +
+#   xlab("X") + ylab("Y") + 
+#   scale_x_continuous(breaks=c(0,25,50,75,100)) + 
+#   scale_y_continuous(breaks=c(0,25,50,75,100))
 @ 
 
 % \end{frame}
@@ -933,27 +936,7 @@ grid.arrange(p1,p2,p3, nrow=1)
 
 \begin{frame}
     \frametitle{Selecting a Binning Origin}
-
-Specifying a binning origin to lower spatial loss
-  \begin{itemize}
-    \item Avoid heavy overhangs outside data boundaries
-    \item Try to align bin centers with possible data values 
-  \end{itemize}
-
-A reliable default based on the data resolution
-  \begin{itemize}
-    \item Recorded to nearest $\alpha_x$ units in the X dimension 
-    \item Recorded to nearest $\alpha_y$ units in the Y dimension
-    \item $x_{(1)}$ and $y_{(1)}$ are the minimum data values in each dimension
-    \item Set binning origin at $(x_{(1)}, y_{(1)}) - (\alpha_x/2,\alpha_y/2) $
-  \end{itemize}  
-
-\end{frame}
-
-%-------------------------------------------------
-
-\begin{frame}
-    \frametitle{Selecting a Binning Origin}
+  \center Avoid binning origins with large overhangs outside data boundaries
   
 <<ExponentialOriginShift, echo=FALSE, warning=FALSE, fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',fig.show='hold'>>=
 #create binned data for fine exponential with 10X10 bins at good and bad origin
@@ -979,6 +962,26 @@ grid.arrange(p1,p2,nrow=1)
 \center Exponential data binned with 10X10 square bins.\\
 Net spatial loss for binning origin at (0,0) is 7\% lower than (-9,-9).
 
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Selecting a Binning Origin}
+
+A natural binning origin is ($x_{(1)}$, $y_{(1)}$)
+  \begin{itemize}
+    \item where $x_{(1)}$ and $y_{(1)}$ are the minimum data values in each dimension
+    \item If data resolution is coarse, points not well centered within bins
+  \end{itemize} 
+  
+A better default based on the data resolution
+  \begin{itemize}
+    \item Recorded to nearest $\alpha_x$ units in the X dimension 
+    \item Recorded to nearest $\alpha_y$ units in the Y dimension
+    \item Set binning origin at $(x_{(1)}, y_{(1)}) - (\alpha_x/2,\alpha_y/2) $
+  \end{itemize} 
+ 
 \end{frame}
 
 %-------------------------------------------------
@@ -1078,9 +1081,9 @@ grid.arrange(p0,p4,nrow=1)
   
 How do we discretize the frequency shading?
   \begin{itemize}
-    \item Add second stage of binning
-    \item Use one dimensional binning algorithms on bin counts
-    \item Shade ordinally based on binned frequency groups
+    \item Create data triples $(x^\ast_\ell, y^\ast_\ell, c_\ell)$ for bins $\ell \in \{1, \dots, \mathscr{L} \}$
+    \item Apply a univariate binning function to raw frequencies, $c_\ell$
+    \item Shade ordinally based on binned frequencies, $b_C(c_\ell)$
     \item May transform counts before frequency binning \\ (i.e. log counts)
   \end{itemize}  
 
@@ -1093,7 +1096,7 @@ How do we discretize the frequency shading?
   
 Standard Frequency Binning
   \begin{itemize}
-    \item Create k frequency groups using equal bin width
+    \item Create k frequency groups using equal frequency bin widths
   \end{itemize}  
 \pause
 
@@ -1101,7 +1104,7 @@ Standard Frequency Binning
 
 Quantile Frequency Binning
   \begin{itemize}
-    \item Create k frequency groups based on empirical quantiles of raw bin counts
+    \item Create k frequency groups with empirical quantiles of raw frequencies
     \item Roughly equal number of tiles in each shade
   \end{itemize}  
 \pause
@@ -1119,8 +1122,8 @@ Shade interpretability analogous to: "Histogram vs Boxplot"
 
 Frequency Loss
   \begin{itemize}
-    \item bin frequencies, $c_\ell$, for spatial bins $\ell \in \{1, \dots, \mathscr{L} \}$\\
-    \item binned frequencies, $b_C(c_\ell)$
+    \item Raw frequencies, $c_\ell$, for spatial bins $\ell \in \{1, \dots, \mathscr{L} \}$\\
+    \item Binned frequencies, $b_C(c_\ell)$
   \end{itemize}  
 %
 \begin{eqnarray}\label{totfreqloss}
@@ -1131,7 +1134,7 @@ L^F = \sum_{\ell=1}^{\mathscr{L}} (c_\ell-b_c(c_\ell))^2
 Log Frequency Loss
   \begin{itemize}
     \item If bin frequencies, $c_\ell$, are log transformed 
-    \item binned log frequencies, $b_C(\log(c_\ell))$
+    \item Binned log frequencies, $b_C(\log(c_\ell))$
   \end{itemize} 
   %
 \begin{eqnarray}\label{logfrequency}
@@ -1203,7 +1206,7 @@ grid.arrange(p4,p7,p10,p0,nrow=1)
 @  
 
 \center How many different shades can we distinguish simultaneously? \\ 
-Research suggests 7 is max for the typical person $\Rightarrow$ use k $\le 7$
+Typical human perception $\Rightarrow$ k $\le 7$ (Healy and Enns, 1999)
 
 
 \end{frame}
@@ -1396,8 +1399,9 @@ Spatial Binning
 
 Frequency Binning
   \begin{itemize}
+    \item May be used to make frequency loss explicit
     \item Use 4 to 7 frequency bins
-    \item Use standard log freq or quantile freq binning for desired interpretation
+    \item Quantile frequency binning provides alternative display for skewed counts
   \end{itemize}  
 
 \end{frame}
@@ -1672,12 +1676,15 @@ grid.arrange(e12,e13,e14,e23,e24,e34,
 \begin{frame}
     \frametitle{Internal Consistency}
 
-
 Cronbach's $\alpha$ measures internal consistency within an item set
 %
 \begin{equation} \label{eq:alpha}
-\alpha = K/(K-1) \cdot \left(1 - \left . \sum_{i=1}^K \V{Y_i} \right /  \V{\sum_{j=1}^K Y_j}\right),
+\alpha = K/(K-1) \cdot \left(1 - \sum_{i=1}^K \V{Y_i}  /  \V{\sum_{j=1}^K Y_j}\right)
 \end{equation}
+\begin{itemize}
+  \item $Y_j$ denote the items $j \in \{1,\dots,K\}$ in the set
+  \item Note: K=4 for sets in this survey
+\end{itemize}
 
 \begin{table}[hbtp]
 \centering
