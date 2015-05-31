@@ -452,7 +452,7 @@ $J$ adjacent intervals covering range of the data. (Scott, 1979)
 
 \vspace{.1in}
 
-Parameters must be specified such that: $\beta_0 \le x_{(0)} \le x_{(n)} \le \beta_J$
+Parameters must be specified such that: $\beta_0 \le x_{(1)} \le x_{(n)} \le \beta_J$
 where $x_{(1)}$ and $x_{(n)}$ are the minimum and maximum data values
 
 \vspace{.1in}
@@ -547,7 +547,7 @@ Random Rectangular Binning
   \begin{itemize}
     \item Define set of bin centers: $\{x_j^\ast \text{ }|\text{ } x_j^\ast > x_{j-1}^\ast \}$ for $j \in \{1,\dots,J\}$
     \item Assign points at random to surrounding bin centers
-    \item Probabilities inversely proportional do distance from bin centers
+    \item Probabilities inversely proportional to distance from bin centers
   \end{itemize}
   
 \vspace{.25in}
@@ -631,7 +631,7 @@ Create loss function for spatial information
 Slight issue with spatial loss for random binning
     \begin{itemize}
         \item Many possible random assignments result in same reduced binned data
-        \item Find assignment with minimum total spatial loss
+        \item Find equivalent assignment with minimum total spatial loss
         \item Call this \textit{net} spatial loss
     \end{itemize}
 
@@ -1016,6 +1016,23 @@ Binning origin at (-1,-1) is good default option for all bin sizes
 
 \end{frame}
 
+
+%-------------------------------------------------
+
+\begin{frame}
+    \frametitle{Practical Takeaways for Spatial Binning}
+  
+% Spatial Binning
+  \begin{itemize}
+      \item Standard binning algorithm superior to random binning in spatial loss and computation speed
+      \item Smaller bins superior for precisely displaying spatial information     
+      \item Make bin dimensions integer multiples of data resolution
+      \item Quality default for origin offset based on data resolution
+  \end{itemize}  
+
+\end{frame}
+
+
 %-------------------------------------------------
 
 \begin{frame}
@@ -1097,6 +1114,7 @@ How do we discretize the frequency shading?
 Standard Frequency Binning
   \begin{itemize}
     \item Create k frequency groups using equal frequency bin widths
+    \item Same uncertainty for each shade
   \end{itemize}  
 \pause
 
@@ -1143,19 +1161,19 @@ L^{\log F} = \sum_{\ell=1}^{\mathscr{L}} (\log(c_\ell) - b_c(\log(c_\ell)))^2
 
 \end{frame}
 
-%-------------------------------------------------
-
-\begin{frame}
-    \frametitle{Frequency Binning Specification}
-  
-3 Main Choices
-  \begin{itemize}
-    \item Number of frequency bins (k)
-    \item Transform counts (yes/no)
-    \item Binning algorithm (standard/quantile)
-  \end{itemize}  
-
-\end{frame}
+% %-------------------------------------------------
+% 
+% \begin{frame}
+%     \frametitle{Frequency Binning Specification}
+%   
+% 3 Main Choices
+%   \begin{itemize}
+%     \item Number of frequency bins (k)
+%     \item Transform counts (yes/no)
+%     \item Binning algorithm (standard/quantile)
+%   \end{itemize}  
+% 
+% \end{frame}
 
 %-------------------------------------------------
 
@@ -1346,7 +1364,8 @@ binoutLogFreqGroups <- freqBin(binout1, binType="standard", ncolor=freqgrps, log
 binoutQuantLogFreqGroups <- freqBin(binout1, binType="quantile", ncolor=freqgrps, logCount=TRUE)
 cols <- seq_gradient_pal(low="#56B1F7", high="#132B43", space="Lab")((0:freqgrps)/freqgrps)
 # Plot with Quantile Binned Frequencies
-labels = paste(unique(binoutQuantFreqGroups[[1]]$freqlabel), "\n", c("1st Pentile","2nd Pentile","3rd Pentile","4th Pentile","5th Pentile"), sep="")
+#labels = paste(unique(binoutQuantFreqGroups[[1]]$freqlabel), "\n", c("1st Pentile","2nd Pentile","3rd Pentile","4th Pentile","5th Pentile"), sep="")
+labels = paste(c("[1,3]","(3,17]","(17,107]","(107,510]","(510,3150]"), "\n", c("1st Pentile","2nd Pentile","3rd Pentile","4th Pentile","5th Pentile"), sep="")
 p3 <- qplot(binxs, binys, geom="tile", fill=factor(freqgroup), data=binoutQuantFreqGroups[[1]],
             main="Quantile Freq Binning") +
     xlab("") + ylab("")+
@@ -1381,30 +1400,19 @@ grid.arrange(p4,p3, nrow=1)
 
 \end{frame}
 
-%-------------------------------------------------
-
-\begin{frame}
-    \frametitle{Practical Takeaways for Binned Scatterplots}
-  
-Spatial Binning
-  \begin{itemize}
-      \item Standard binning algorithm superior to random binning in spatial loss and computation speed
-      \item Smaller bins superior for precisely displaying spatial information     
-      \item Make bin dimensions integer multiples of data resolution
-      \item Quality default for origin offset based on data resolution
-  \end{itemize}  
-\pause
-
-\vspace{.25cm}
-
-Frequency Binning
-  \begin{itemize}
-    \item May be used to make frequency loss explicit
-    \item Use 4 to 7 frequency bins
-    \item Quantile frequency binning provides alternative display for skewed counts
-  \end{itemize}  
-
-\end{frame}
+% %-------------------------------------------------
+% 
+% \begin{frame}
+%     \frametitle{Practical Takeaways for Binned Scatterplots}
+%   
+% Frequency Binning
+%   \begin{itemize}
+%     \item May be used to make frequency loss explicit
+%     \item Use 4 to 7 frequency bins
+%     \item Quantile frequency binning provides alternative display for skewed counts
+%   \end{itemize}  
+% 
+% \end{frame}
 
 
 %-------------------------------------------------
@@ -1515,9 +1523,9 @@ grid.arrange(p2,p3, nrow=1)
     \end{itemize} \pause
   Technical Components
     \begin{itemize}
-      \item \textit{Data storage}: MySQL
-      \item \textit{Computation}: \texttt{R}, \texttt{shiny}, \texttt{RMySQL}
+      \item \textit{Data storage}: SQL
       \item \textit{User interface}: accessed through web browser
+      \item \textit{Computation}: \texttt{R}, \texttt{shiny}, \texttt{RMySQL}
     \end{itemize} \pause
   Interface Design
     \begin{itemize}
@@ -1544,7 +1552,12 @@ grid.arrange(p2,p3, nrow=1)
 %-------------------------------------------------
 
 \begin{frame}
-    \frametitle{Applications}    
+    \frametitle{Applications}   
+  
+  Used within course activities for \textit{Stat 104: Intro to Statistics}
+  
+  \vspace{.25in}
+  
   Lab Assignment
     \begin{itemize}
       \item Groups assignment
