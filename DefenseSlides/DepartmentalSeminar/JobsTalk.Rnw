@@ -214,7 +214,7 @@ errorsummary$eta <- eta
 \begin{frame}
     \frametitle{Curriculum Study Introduction}  
     
-Study Goal: Compare student learning outcomes for under two introductory curricula for statistical inference in a designed educational experiment\\
+Study Goal: Compare student learning outcomes under two introductory curricula for statistical inference in a designed educational experiment\\
 
 \vspace{.1in}
    
@@ -608,7 +608,7 @@ Selected Parameters for ARTIST Model
  & Pillai's $\Lambda$ & Approx. F & Pr($>$$|$F$|$)\\ 
  \hline  
 Midterm & \Sexpr{sprintf("%.4f",round(summarytab[1,2],4))} & \Sexpr{sprintf("%.4f",round(summarytab[1,3],4))} &
-\Sexpr{sprintf("%.4f",round(summarytab[1,6],6))}\\ 
+0.0001\\ 
 Lab 5 & \Sexpr{sprintf("%.4f",round(summarytab[2,2],4))} & \Sexpr{sprintf("%.4f",round(summarytab[2,3],4))} &
 \Sexpr{sprintf("%.4f",round(summarytab[2,6],6))}\\ 
 Treatment & \Sexpr{sprintf("%.4f",round(summarytab[3,2],4))} & \Sexpr{sprintf("%.4f",round(summarytab[3,3],4))} &
@@ -1006,28 +1006,6 @@ qplot(value, geom="histogram", data=meltplotbetadata,fill=I("gray42")) +
 
 \end{frame}
 
-%-------------------------------------------------
-
-\begin{frame}
-    \frametitle{Simulation Study: Stage 1 Results}
-\begin{table}[hbtp]
-\centering
-\begin{tabular}{ccccc} \hline
-$\eta$ & $s_{\tau_1}$ & $\hat{\text{SE}}\left[\tau_1\right]$ & $s_{\tau_2}$ & $\hat{\text{SE}}\left[\tau_2\right]$\\ 
- \hline  
-\Sexpr{sprintf("%.1f",round(simresults[1,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[1,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[1,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[1,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[1,17],4))} \\
-\Sexpr{sprintf("%.1f",round(simresults[2,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[2,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[2,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[2,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[2,17],4))} \\
-\Sexpr{sprintf("%.1f",round(simresults[3,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[3,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[3,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[3,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[3,17],4))} \\
-\Sexpr{sprintf("%.1f",round(simresults[4,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[4,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[4,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[4,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[4,17],4))} \\
-\Sexpr{sprintf("%.1f",round(simresults[5,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[5,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[5,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[5,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[5,17],4))} \\
-\Sexpr{sprintf("%.1f",round(simresults[6,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[6,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[6,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[6,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[6,17],4))} \\
-\hline
-\end{tabular}
-\end{table}
-
-\center Standard deviation for simulated treatment effect estimates, $s_{\tau_k}$, and average standard errors for treatment effects, $\hat{\text{SE}}\left[\tau_k\right]$
-
-\end{frame}
 
 %-------------------------------------------------
 
@@ -1058,7 +1036,7 @@ Scaling Parameter (c)') + geom_hline(yintercept=0.05, linetype=2)+
 \begin{frame}
     \frametitle{Simulation Study: Stage 2 Results}
     
-Type I error rates increase as $c$ increases
+Type I error rates increase as $c$ decreases
 
 \vspace{.1in}
 
@@ -1077,8 +1055,8 @@ Cannot estimate $c$ due to classroom confounding with treatment
 Steps taken to minimize non-treatment differences in classroom
     \begin{itemize}
         \item Alternation of instruction
-        \item Identical curricula weeks 1 to 8
-        \item Physical classrooms similar
+        \item Identical curricula / shared class weeks 1 to 8
+        \item Physical classrooms similar weeks 9 to 16
     \end{itemize}
   
 
@@ -1175,7 +1153,52 @@ Study Advisors: Dr. Heike Hofmann and Dr. Bob Stephenson \\
 \end{frame}
 
 
+%-------------------------------------------------
 
+\begin{frame}
+    \frametitle{Simulation Study: Additional Stage 1 Results}
+    
+\begin{table}[hbtp]
+\centering
+\begin{tabular}{ccccc} \hline
+$\eta$ & $s_{\tau_1}$ & $\hat{\text{SE}}\left[\tau_1\right]$ & $s_{\tau_2}$ & $\hat{\text{SE}}\left[\tau_2\right]$\\ 
+ \hline  
+\Sexpr{sprintf("%.1f",round(simresults[1,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[1,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[1,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[1,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[1,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[2,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[2,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[2,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[2,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[2,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[3,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[3,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[3,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[3,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[3,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[4,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[4,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[4,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[4,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[4,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[5,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[5,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[5,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[5,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[5,17],4))} \\
+\Sexpr{sprintf("%.1f",round(simresults[6,1],1))} & \Sexpr{sprintf("%.4f",round(simresults[6,14],4))} & \Sexpr{sprintf("%.4f",round(simresults[6,16],4))} &\Sexpr{sprintf("%.4f",round(simresults[6,15],4))}  &\Sexpr{sprintf("%.4f",round(simresults[6,17],4))} \\
+\hline
+\end{tabular}
+\end{table}
+
+\center Standard deviation for simulated treatment effect estimates, $s_{\tau_k}$, and average standard errors for treatment effects, $\hat{\text{SE}}\left[\tau_k\right]$
+
+\end{frame}
+
+%---------------------------------------------------
+
+\begin{frame}
+    \frametitle{Simulation Study: Additional Stage 1 Results}
+
+<<visual2, echo=FALSE , message=FALSE, warning=FALSE, fig.width=11, fig.height=3, out.width='.9\\linewidth', fig.pos='h',fig.align='center'>>=
+srm <- melt(simresults, id.var="eta", measure.var=c("betamidterm1s", "betamidterm2s"))
+levels(srm$variable) <- c("ConfMC","HypMC")
+
+srm <- melt(errorsummary, id.var="eta", measure.var=c("T2ErrorRateBetaMidterm1", "T2ErrorRateBetaMidterm2"))
+levels(srm$variable) <- c("ConfMC","HypMC")
+ggplot(aes(x=eta, y=value, group=variable), data=srm) + 
+  theme_bw() + 
+  geom_point(size=4, aes(shape=variable)) + geom_line(aes(ltype=variable)) +
+  ylab("Type II Error Rate") + xlab(expression(eta)) +
+  scale_shape_discrete(name="Midterm Coefficients", labels=c(expression(paste("  ",beta[11])),expression(beta[12]))) +
+  theme(legend.text = element_text(size = 12))
+@
+
+\center Type II error rates for midterm effect from 25,000 simulations at each $\eta$
+
+\end{frame}
 
 
 
