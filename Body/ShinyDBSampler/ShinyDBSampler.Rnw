@@ -1,4 +1,4 @@
-\chapter{A \texttt{shiny} New Opportunity for Interaction with Big Data in Undergraduate Education}\label{ShinyDBSampler}
+\chapter{A SHINY NEW OPPORTUNITY FOR INTERACTION WITH BIG DATA IN UNDERGRADUATE EDUCATION}\label{ShinyDBSampler}
 
 <<config, echo=FALSE, eval=TRUE, cache=TRUE, include=FALSE>>=
 # Preliminaries
@@ -108,14 +108,16 @@ cor(cdat[,1],cdat[,4])
 \end{center} 
 
 \begin{center}
-\textbf{Author}\\
-Karsten Maurer, Iowa State University\\
+\textbf{Authors}\\
+Karsten Maurer, Iowa State University, Primary Author\\
+Heike Hofmann, Iowa State University\\
 \end{center}
 
 
 \begin{center}
 \textbf{Abstract}\\
 \end{center}
+
 As the availability of truly massive data proliferates, it is enticing to incorporate these data sets into the curriculum of an undergraduate statistics course.  Major barriers exist for interacting with big data due to the computationally intense nature of working with large databases.  Difficulties include gaining access to databases, interacting with database management software, and obtaining summary statistics or manageable subsamples from the database for student use.  This paper describes a web-based software application, the \textit{Shiny Database Sampler}, which allows instructors and students to bypass these barriers using a simple point-and-click interface constructed through \texttt{R} and the \texttt{R} packages \texttt{shiny} and \texttt{RMySQL}. The Shiny Database Sampler allows instructors and students to obtain subsamples from databases, using a variety of random sampling schemes. Application and evaluation of the software indicate that students find the interface easy to use, well connected to course concepts, and engaging through access to real data.
 
 %-----------------------------------------------------------

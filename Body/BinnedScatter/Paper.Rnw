@@ -1,4 +1,4 @@
-\chapter{Binning Strategies and Related Loss for Binned Scatterplots}
+\chapter{BINNING STRATEGIES AND RELATED LOSS FOR BINNED SCATTERPLOTS}
 \label{BinnedScatter}
 
 
@@ -20,6 +20,7 @@ Susan Vanderplas, Iowa State University\\
 \begin{center}
 \textbf{Abstract}\\
 \end{center}
+
 Dealing with the data deluge of the Big Data Age is both exciting and challenging. The demands of large data require us to re-think strategies of visualizing data. Plots employing binning methods have been suggested in the past as viable alternative to standard plots based on raw data, as the resulting area plots tend to be less affected by increases in data. This comes with the price of the loss of information inherent to any binning scheme. In this paper we discuss binning algorithms used in the construction of binned scatterplots. We define functions to quantify the loss of spatial and frequency information and discuss the effects of binning specification on loss in the framework of simulation and case studies. From this we provide several practical suggestions for binning strategies that lead to binned scatterplots with desirable visual properties. 
 
 \section{Introduction}
