@@ -22,7 +22,6 @@
 \usepackage{amsmath}
 %\usepackage{caption}
 %\usepackage{subcaption}
-\usepackage{fullpage}
 \usepackage{graphicx,float,wrapfig,subfig,tabularx,ulem}
 \graphicspath{{Figure/}}
 %\usepackage{csquotes}
@@ -35,6 +34,8 @@
 \usepackage[titletoc]{appendix}
 \usepackage{mathrsfs}
 
+% \usepackage{geometry}
+% \geometry{left=1.25in, top=1.55in, right=1.02in, bottom=1in} 
 
 \newcommand{\distas}[1]{\mathbin{\overset{#1}{\sim}}}%
 \newcommand{\Cov}{\text{Cov}}%

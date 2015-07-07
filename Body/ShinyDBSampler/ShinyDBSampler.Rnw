@@ -156,7 +156,7 @@ A screenshot of the interface for the \textit{Sample and Summarize} tab is shown
 \begin{figure}[hbtp]
 \centering
 \includegraphics[keepaspectratio=TRUE,width=.95\textwidth]{ShinyDBSampler/SampleAndSummarizeWithPanelLabels.png}
-\caption{Shiny Database Sampler Layout for \textit{Sample and Summarize} Tab} 
+\caption[\textit{Sample and Summarize} tab screenshot.]{Shiny Database Sampler layout for \textit{Sample and Summarize} tab.} 
 \label{fig:samplesummarizetab}
 \end{figure}
 
@@ -176,19 +176,13 @@ The \textit{Visualize} tab of the interface is designed to construct basic plots
 
 The variable types must be manually specified as numerical or categorical. Variable types are not automatically specified for variables in the database for the deliberate purpose of forcing student users to consider appropriate ways to display the data. Table~\ref{tab:defaultplottypes} shows the possible plot types that can be created based on the options selected.
 
-Once the plotting options are selected in the sidebar panel, the user may click the \textit{Make my Plot!} button to generate and display the plot in the main panel. Since the visualizations are intended only for preliminary exploration, the plots have a default construction and labeling that are not able to be customized. 
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[keepaspectratio=TRUE,width=.99\textwidth]{ShinyDBSampler/Visualize.png}
-\end{center}
-\caption{Shiny Database Sampler Layout for \textit{Visualize} Tab} 
-\label{fig:visualizetab}
-\end{figure}
+Once the plotting options are selected in the sidebar panel, the user may click the \textit{Make my Plot!} button to generate and display the plot in the main panel. Since the visualizations are intended only for preliminary exploration, the plots have a default construction and labeling that are not able to be customized. \\
 
 \begin{table}[hbtp]
 \centering
+\caption{Plot types supported in \textit{Visualize} tab.} 
 \begin{tabular}{lll}
+\hline
 Response Variable & Explanatory Variable & Default Plot \\
 \hline
 Numerical & None & Histogram \\
@@ -196,10 +190,20 @@ Categorical & None & Barchart \\
 Numerical & Numerical & Scatterplot \\
 Categorical & Categorical & Stacked Barchart \\
 Numerical & Categorical & Side-by-side Boxplots \\
+\hline
 \end{tabular}
-\caption{Plot types supported in \textit{Visualize} tab.} 
 \label{tab:defaultplottypes}
 \end{table}
+
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[keepaspectratio=TRUE,width=.99\textwidth]{ShinyDBSampler/Visualize.png}
+\end{center}
+\caption[\textit{Visualize} tab screenshot.]{Shiny Database Sampler layout for \textit{Visualize} tab.} 
+\label{fig:visualizetab}
+\end{figure}
+
 
 %%%-----------------------------------------------------------------------------------
 \subsection{Applications}
@@ -248,13 +252,15 @@ Student responses were collected in an anonymous survey following the group lab 
  \subsubsection{Survey Description} 
 
 After completing the lab assignment, students were asked to respond to a survey consisting of twelve statements (referred to as \textit{items} in the following, see Table~\ref{tab:surveyquestions} for an overview). For each statement, students were asked for feedback on their level of agreement on a Likert scale from strongly disagree to strongly agree. 
-The twelve items were designed to assess student opinion within three topics of four items each: ease of use, connection to sampling concepts, and engagement with the census data.  We will refer to these as the \textit{Ease}, \textit{Concept} and \textit{Engagement} item sets.  For each group of four items, two were worded positively and two were worded negatively. Introducing negation with half of the items was done to reduce the response bias associated with \textit{acquiescence} -- the tendency to respond positively irrespective of the item content due \citep{Furnham1986}. Responses were scored as -2 (strongly disagree), -1 (disagree), 0 (neutral), 1 (agree), 2 (strongly agree).  Responses for negatively worded items were reverse-scored for the purposes of analysis.
+The twelve items were designed to assess student opinion within three topics of four items each: ease of use, connection to sampling concepts, and engagement with the census data.  We will refer to these as the \textit{Ease}, \textit{Concept} and \textit{Engagement} item sets.  For each group of four items, two were worded positively and two were worded negatively. Introducing negation with half of the items was done to reduce the response bias associated with \textit{acquiescence} -- the tendency to respond positively irrespective of the item content due \citep{Furnham1986}. Responses were scored as -2 (strongly disagree), -1 (disagree), 0 (neutral), 1 (agree), 2 (strongly agree).  Responses for negatively worded items were reverse-scored for the purposes of analysis.\\
 
 \begin{table}[hbtp]
 \centering
+\caption[Survey items and response summaries.]{Survey items and response summaries \textit{after} reverse-scoring (RS).}
 \small
 % \scalebox{0.9}{
 \begin{tabular}{ccp{3.4in}crr}
+  \hline
 Topic Set & ID & Item & Polarity & Mean & SD\\[3pt]
   \hline
 Ease & 1 & \it I found the web tool easy to use & $+$ & \Sexpr{sprintf("%.2f", sumstats[1,2])} & \Sexpr{sprintf("%.2f", sumstats[1,3])}\\  
@@ -271,9 +277,9 @@ Engagement & 1 & \it I did not enjoy working with the Census data & $-$  & \Sexp
 & 2 & \it I thought the Census data was boring & $-$   & \Sexpr{sprintf("%.2f", sumstats[6,2])}& \Sexpr{sprintf("%.2f", sumstats[6,3])}\\  
 & 3 & \it Knowing that the Census data was from real people made it more interesting & $+$  & \Sexpr{sprintf("%.2f", sumstats[9,2])}& \Sexpr{sprintf("%.2f", sumstats[9,3])}\\   
 & 4 & \it I liked analyzing the Census data & $+$  & \Sexpr{sprintf("%.2f", sumstats[12,2])} & \Sexpr{sprintf("%.2f", sumstats[12,3])}\\   
+  \hline
 \end{tabular}
 % }
-\caption{Survey questions and response summaries for all items \textit{after} Reverse-Scoring (RS)}
 \label{tab:surveyquestions}
 \end{table}
 
@@ -290,7 +296,7 @@ A fluctuation diagram is the visual analog of the contingency table, displaying 
 We notice that most pairs of responses fall heavily along the diagonal and are primarily in the upper right of each diagram. This indicates that most items within sets have strong agreement and that the response values are generally neutral to positive for all items (after reverse-scoring the negative statements).
 For the item pairs in the Concept topic set we see that fluctuation diagrams have slightly larger off-diagonal trends than items within the other two sets, which indicates a lower level of internal consistency for Concept items than in the other two topic sets. 
 
-<<fluctuationDiagrams,echo=F, message=FALSE, include=T,eval=T,fig.width=12, fig.height=6, out.width='.98\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', fig.cap='Fluctuation Diagrams of All Item Pairs within Topic Sets'>>=
+<<fluctuationDiagrams,echo=F, message=FALSE, include=T,eval=T,fig.width=12, fig.height=6, out.width='.98\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', fig.cap='Fluctuation diagrams of all item pairs within topic sets.', fig.scap='Fluctuation diagrams of item pairs within topic sets.'>>=
  
 #ease of use
 e12 <- ggfluctuation(table(cdat$q1,cdat$q4)) +
@@ -355,6 +361,7 @@ Cronbach's $\alpha$ reaches a maximal value of 1, if there is perfect agreement 
 
 \begin{table}[hbtp]
 \centering
+\caption{Extended scale for Cronbach's $\alpha$  (George and Mallery, 2003).} 
 \begin{tabular}{ll}
 \hline 
 Internal Consistency & Range \\
@@ -367,14 +374,13 @@ Poor & $[ 0.5 , 0.6 )$ \\
 Unacceptable & $( -\infty, 0.5 )$ \\
 \hline
 \end{tabular}
-\caption{Extended Scale for Cronbach's $\alpha$  (George and Mallery, 2003).} 
 \label{GMAlphaScale}
 \end{table}
 
 Since Cronbach's $\alpha$ is a sample estimate for the internal consistency of an item set, it experiences sampling variability. Under the assumption of normally distributed responses, Cronbach's $\alpha$ follows approximately an $F_{\nu_1,\nu_2}$, where $\nu_1 = n-1$ and $\nu_2$ is based on a function of the eigenvalues from the quadratic linear combination of the roots of the variance matrix \citep{KistnerMuller2004}. Assuming normality to construct confidence intervals for the true internal consistency of item sets would be questionable for the responses in this survey, so we have elected to bootstrap the intervals instead.
 
 Table~\ref{cronbachstuff} displays the point estimates and 95\% central bootstrap intervals for Cronbach's $\alpha$ for each item set from the student survey.  The intervals were created using quantiles of the Cronbach's $\alpha$ values from 10,000 bootstrap resamples. 
- The results indicate modest levels of internal consistency for Ease and Engagement item sets, and a lower level for the Concept item set. This is in agreement with the findings based on the fluctuation diagrams in Figure~\ref{fig:fluctuationDiagrams}. 
+ The results indicate modest levels of internal consistency for Ease and Engagement item sets, and a lower level for the Concept item set. This is in agreement with the findings based on the fluctuation diagrams in Figure~\ref{fig:fluctuationDiagrams}. \\
 
 <<cronbach,,echo=F, message=FALSE, include=F,eval=F,fig.width=7.5, fig.height=5, out.width='.49\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', results='asis'>>=
 # coefficientalpha package uses "robust alpha" but does not tell where the estimate comes from
@@ -412,6 +418,7 @@ print(xtable(CronbachResults,caption = 'Cronbach\'s alpha for each item set with
 % Tue Nov 04 15:05:46 2014
 \begin{table}[hbtp]
 \centering
+\caption[Cronbach's $\alpha$ estimates for item sets.]{Cronbach's $\alpha$ estimates for each item set with 95\% central bootstrap confidence interval based on 10,000 bootstrap samples.} 
 \begin{tabular}{lrc}
   \hline
 Set & Estimate & 95\% Confidence Interval \\ 
@@ -421,7 +428,6 @@ Ease & 0.70 & (0.613 , 0.759)\\
   Engagement & 0.72 & (0.643 , 0.776) \\ 
    \hline
 \end{tabular}
-\caption{Cronbach's $\alpha$ Estimates for each item set with 95\% central bootstrap confidence interval based on 10,000 bootstrap samples} 
 \label{cronbachstuff}
 \end{table}
 
@@ -429,7 +435,7 @@ Ease & 0.70 & (0.613 , 0.759)\\
 
 We next turn our attention to the polarity of the survey items; specifically we consider that positive and reverse-scored negative items may elicit a different responses. The survey contained six unique item pairs based on topic and polarity combinations. Figure~\ref{fig:OverallSetBars} compares the distribution of responses from positive and negative item pairs within topics.  We see strong similarity between positive and reverse-scored negative items in response distributions for the Ease and Engagement item sets. The Concept item set however displays a noticeable difference in response distributions from each polarity.  In particular, we see that students are more neutral toward the positively worded questions. This polarity difference in student responses explains the lower internal consistency measured by Cronbach's $\alpha$, and may be partly due to the problem that the negation of positive constructs can be linguistically counter-intuitive \citep{Friborg2006}. For instance, students may interpret the statement ``It is not less clear'' differently than the statement ``It is more clear''.
 
-<<OverallSetBars,echo=F, message=FALSE, include=T ,eval=T,fig.width=9, fig.height=2.5, out.width='.99\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap= 'Item set response distributions'>>=
+<<OverallSetBars,echo=F, message=FALSE, include=T ,eval=T,fig.width=9, fig.height=2.5, out.width='.99\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap= 'Item set response distributions by polarity.'>>=
 # meltdatNoNA$value <- as.numeric(as.character(meltdatNoNA$value))
 # qu.summary <- ddply(meltdatNoNA, .(set, question.in.set, value), summarize,
 # n=length(value) )
@@ -479,6 +485,7 @@ colnames(pc6vars) <- c("PC" , "Prop. of Var", "Cumulative Prop. of Var")
 
 \begin{table}[hbtp]
 \centering
+\caption[Principal component analysis on topic/polarity item pairs.]{Summary statistics from principal component analysis with six topic/polarity item pairs.} 
 \begin{tabular}{lrrrrrrr}
 \hline 
 & Principal Component & 1 & 2 & 3 & 4 & 5 & 6 \\ 
@@ -494,11 +501,10 @@ Loadings & Pos. Ease & \Sexpr{sprintf("%.3f", pc6loadings[1,1])} & \Sexpr{sprint
 & Neg. Engaged &  \Sexpr{sprintf("%.3f", pc6loadings[6,1])} & \Sexpr{sprintf("%.3f", pc6loadings[6,2])} & \Sexpr{sprintf("%.3f", pc6loadings[6,3])} & \Sexpr{sprintf("%.3f", pc6loadings[6,4])} & \Sexpr{sprintf("%.3f", pc6loadings[6,5])} & \Sexpr{sprintf("%.3f", pc6loadings[6,6])}\\
 \hline
 \end{tabular}
-\caption{Summary Statistics from Principal Component Analysis with Six Topic/Polarity Item Pairs} 
 \label{pc6table}
 \end{table}
 
-<<PCA6plot,echo=F, message=FALSE, include=T,eval=T,fig.width=5, fig.height=5, out.width='.5\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', fig.cap='Item Pair Loadings on Components 2 and 3 from the Principal Component Analysis with Six Topic/Polarity Item Pairs'>>=
+<<PCA6plot,echo=F, message=FALSE, include=T,eval=T,fig.width=5, fig.height=5, out.width='.5\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', fig.cap='Item pair loadings on Components 2 and 3 from the principal component analysis on six topic/polarity item pairs.', fig.scap='Principal component analysis loadings on topic/polarity item pairs.'>>=
 load23dat <- data.frame(pc6loadings[,2:3], compname = row.names(pc6loadings))
 require(grid)
 ggplot(data=load23dat)+ 
@@ -514,7 +520,7 @@ This principal component analysis, with all topic and polarity combinations, sug
 
 \subsubsection{Assessment of Orthogonality} 
 
-The next major consideration is whether the item sets are truly measuring different latent topics, and therefore can be view as non-redundant. The ability of the survey to separately measure the topics of Ease, Concepts and Engagement can be assessed through the orthogonality of the responses from different item sets. To check the orthogonality of the sets we conduct another principal component analysis; this time on the average responses for each student from the four item sets -- Ease, Positive Concept, Negative Concept and Engagement.  Items sets will be considered highly orthogonal if the principle component analysis cannot reduce the dimensionality from the four sets. 
+The next major consideration is whether the item sets are truly measuring different latent topics, and therefore can be view as non-redundant. The ability of the survey to separately measure the topics of Ease, Concepts and Engagement can be assessed through the orthogonality of the responses from different item sets. To check the orthogonality of the sets we conduct another principal component analysis; this time on the average responses for each student from the four item sets -- Ease, Positive Concept, Negative Concept and Engagement.  Items sets will be considered highly orthogonal if the principle component analysis cannot reduce the dimensionality from the four sets. \\
 
 <<PCA4,echo=F, message=FALSE, include=F,eval=T,fig.width=7.5, fig.height=5, out.width='.49\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold'>>=
 #average score per student per set
@@ -541,6 +547,7 @@ colnames(pc4vars) <- c("PC" , "Prop. of Var", "Cumulative Prop. of Var")
 
 \begin{table}[hbtp]
 \centering
+\caption[Principal component analysis with final four item sets.]{Principal component analysis with final four item sets.} 
 \begin{tabular}{lrrrrr}
 \hline 
 & Principal Component & 1 & 2 & 3 & 4 \\ 
@@ -554,7 +561,6 @@ Loadings & Ease & \Sexpr{sprintf("%.3f", pc4loadings[1,1])} & \Sexpr{sprintf("%.
 & Engagement &  \Sexpr{sprintf("%.3f", pc4loadings[4,1])} & \Sexpr{sprintf("%.3f", pc4loadings[4,2])} & \Sexpr{sprintf("%.3f", pc4loadings[4,3])} & \Sexpr{sprintf("%.3f", pc4loadings[4,4])}\\
 \hline
 \end{tabular}
-\caption{Principal Component Analysis with Final Four Item Sets} 
 \label{pctable}
 \end{table}
 

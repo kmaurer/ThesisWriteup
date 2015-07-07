@@ -87,7 +87,7 @@ Starting at week 9 the curricula diverge into their respective approaches to inf
 \begin{figure}[hbtp]
 \centering
 \includegraphics[keepaspectratio=true, width=1\textwidth]{CurriculumStudy/CurriculaPaths2.pdf}
-\caption{\label{fig:CurricSched} Curricula Schedules}
+\caption{\label{fig:CurricSched} Curricula schedules.}
 \end{figure}
 
 Cohorts C and D progressed through the traditional approach by first learning the normal distribution and use of the normal tables. They were then introduced to applications of the normal approximation within inference.  The traditional curriculum utilized simulation to display concepts, but only to the extent of demonstrating that sampling distributions can be approximated by normal distributions under certain conditions.  
@@ -109,7 +109,7 @@ Students were exposed to identical lecture and lab instruction for the first hal
 \includegraphics[keepaspectratio=true, width=1\textwidth]{CurriculumStudy/LectureInstructionWithRooms.pdf}\\
 \vspace{.5cm}
 \includegraphics[keepaspectratio=true, width=1\textwidth]{CurriculumStudy/LabInstructionWithRooms.pdf}
-\caption{\label{fig:InstSched} Instructor and Room Schedule}
+\caption{\label{fig:InstSched} Instructor and room schedules.}
 \end{figure}
 
 
@@ -134,7 +134,7 @@ The research proposal approved by the Institutional Review Board specified that 
 
 The ARTIST and applied inference question scores from the final exam are the response variables on which we wish to compare the groups of students from the two inference curricula. Figure~\ref{fig:ScoreHistsByGroup} displays the histogram, mean and standard deviation for each response variable, separated by curricula.  Midterm exam scores as also included in order to provide a comparison of the curricula groups using a pre-treatment measurement. 
 
-<<ScoreHistsByGroup, echo=FALSE , warning=FALSE, fig.width=15, fig.height=8, out.width='1\\linewidth', fig.pos='H',fig.align='center',fig.cap="Histograms and summary statistics of scores separated by curricula group.">>=
+<<ScoreHistsByGroup, echo=FALSE , warning=FALSE, fig.width=15, fig.height=8, out.width='1\\linewidth', fig.pos='H',fig.align='center',fig.cap="Histograms and summary statistics of scores by curricula group.">>=
 
 dat$treatment <- "Simulation-Based"
 dat$treatment[which(dat$room=="sweeney")] <- "Traditional"
@@ -474,10 +474,11 @@ ScheffeInts
 ### SCHEFFE'S DOESN'T WORK IN MANCOVA SETTING
 @
 
-To test for overall covariate effects on the multivariate responses we use Pillai's $\Lambda$. Table~\ref{tab:overallmod} shows a weak overall effect of the curriculum treatment on the paired ARTIST scaled topic scores.  This prompts us to investigate the treatment effect on the ARTIST scaled topic scores for confidence intervals and hypothesis tests separately, to see if the weak overall effect is driven by a significant effect on one of the two scores.
+To test for overall covariate effects on the multivariate responses we use Pillai's $\Lambda$. Table~\ref{tab:overallmod} shows a weak overall effect of the curriculum treatment on the paired ARTIST scaled topic scores.  This prompts us to investigate the treatment effect on the ARTIST scaled topic scores for confidence intervals and hypothesis tests separately, to see if the weak overall effect is driven by a significant effect on one of the two scores.\\
 
 \begin{table}[hbtp]
 \centering
+\caption[Pillai's tests for bivariate effects in ARTIST model.]{Tests for bivariate effects on ARTIST question scores using Pillai's $\Lambda$.}
 \begin{tabular}{lrrr} \hline
  & Pillai's $\Lambda$ & Approx. F & Pr($>$$|$F$|$)\\ 
  \hline  
@@ -489,17 +490,16 @@ Treatment & \Sexpr{sprintf("%.4f",round(summarytab[3,2],4))} & \Sexpr{sprintf("%
 \Sexpr{sprintf("%.4f",round(summarytab[3,6],6))}\\ 
 \hline
 \end{tabular}
-\caption{Tests for overall covariate effects on ARTIST question scores using Pillai's $\Lambda$.}
 \label{tab:overallmod}
 \end{table}
-
+%
 To investigate the effect of the curriculum treatment on each ARTIST scaled topic score, we analyze the two underlying linear models that comprise the overall MANCOVA model. Table~\ref{tab:cimod} displays the coefficients of the linear model fit to the ARTIST scaled score for confidence interval learning outcomes along with covariate ranges to provide context to coefficient magnitudes. It should be noted that although the midterm and lab scores were recorded discretely, they were treated as continuous covariates when fitting the model. We find that midterm, lab 5 and the curriculum treatment effect are significant. Specifically, the simulation-based inference group scored significantly higher by 0.7149 out of a possible 10 points, a 7.146\% improvement in confidence interval learning outcomes on the ARTIST scale while controlling for midterm and lab 5 scores.\\
-
 
 % latex table generated in R 3.0.2 by xtable 1.7-3 package
 % Tue Jul 29 15:46:21 2014
 \begin{table}[hbtp]
 \centering
+\caption[ARTIST model coefficients for confidence interval topic scores.]{Coefficients for model fit to ARTIST score for confidence interval topic.}
 \begin{tabular}{rccc}
   \hline
  & Covariate Values & Estimate & 95\% Confidence Interval \\ 
@@ -510,16 +510,16 @@ Intercept & 1 & \Sexpr{sprintf("%.4f",round(CIcis[1,3],6))} & \Sexpr{paste("(",s
   Treatment &  \{0,1\} & \Sexpr{sprintf("%.4f",round(CIcis[4,3],6))} & \Sexpr{paste("( ",sprintf("%.4f",round(CIcis[4,1],6)),",", sprintf("%.4f",round(CIcis[4,2],6)),")",sep=" ")} \\ 
    \hline
 \end{tabular}
-\caption{Coefficients for model fit to ARTIST score for confidence interval topic.}
 \label{tab:cimod}
 \end{table}
-
+%
 Table~\ref{tab:htmod} displays the coefficients of the linear model fit to the ARTIST scaled score for hypothesis test learning outcomes.  We find that only the midterm score is significant for predicting learning outcomes for hypothesis testing. There was no significant curriculum treatment effect. \\
 
 % latex table generated in R 3.0.2 by xtable 1.7-3 package
 % Tue Jul 29 15:41:44 2014
 \begin{table}[hbtp]
 \centering
+\caption[ARTIST model coefficients for hypothesis test topic scores.]{Coefficients for model fit to ARTIST score for hypothesis test topic.}
 \begin{tabular}{rccc}
   \hline
  & Covariate Values & Estimate & 95\% Confidence Interval \\ 
@@ -530,7 +530,6 @@ Intercept & 1 & \Sexpr{sprintf("%.4f",round(HTcis[1,3],6))} & \Sexpr{paste("(",s
   Treatment &  \{0,1\} & \Sexpr{sprintf("%.4f",round(HTcis[4,3],6))} & \Sexpr{paste("( ",sprintf("%.4f",round(HTcis[4,1],6)),",", sprintf("%.4f",round(HTcis[4,2],6)),")",sep=" ")} \\ 
    \hline
 \end{tabular}
-\caption{Coefficients for model fit to ARTIST score for hypothesis test topic.}
 \label{tab:htmod}
 \end{table}
 
@@ -548,7 +547,7 @@ A final consideration in the comparison of learning outcomes using the ARTIST mo
 
 As with the MANCOVA model for ARTIST scaled question scores, we consider all pre-treatment measurements in a new model for the two applied theory-based inference question scores.  Backward stepwise selection was used to obtain a reduced MANCOVA model in a model selection process identical to that described in Subsection~\ref{ArtistModel}. We will refer to the selected model here as the ``Applied Model''.  Residual plots and other model diagnostics for the Applied Model may be found in Appendix~\ref{appAppliedModDiag}.
 
-Table~\ref{tab:overallmod1} shows -- based the Pillai's $\Lambda$ -- that there was no overall effect of curriculum treatment on the scores for the pair of applied inference problems. This is of particular interest because students receiving the simulation-based curriculum had three weeks less of coursework involving the use of normal distributions and normal tables. This implies that despite the increased complexity of the simulation-based material and the shortened exposure to theory-based inference concepts, there was no significant detriment to students' performance in conducting inference using theory-based methods. It should be noted that the applied questions from the final exam were written by the authors and have not been assessed as reliable metrics for learning outcomes. Thus, the results are reported as supplementary to the discussion on learning outcomes measured by the ARTIST scaled topics.
+Table~\ref{tab:overallmod1} shows -- based the Pillai's $\Lambda$ -- that there was no overall effect of curriculum treatment on the scores for the pair of applied inference problems. This is of particular interest because students receiving the simulation-based curriculum had three weeks less of coursework involving the use of normal distributions and normal tables. This implies that despite the increased complexity of the simulation-based material and the shortened exposure to theory-based inference concepts, there was no significant detriment to students' performance in conducting inference using theory-based methods. It should be noted that the applied questions from the final exam were written by the authors and have not been assessed as reliable metrics for learning outcomes. Thus, the results are reported as supplementary to the discussion on learning outcomes measured by the ARTIST scaled topics. \\
 
 <<AppliedModSelectDiag,echo=F,include=F,eval=T>>=
 ### Build MANCOVA model for Applied scores for CI and HT
@@ -603,6 +602,7 @@ qplot(mod1small$fitted.values[,2] ,mod1small$residuals[,2]) +
 
 \begin{table}[hbtp]
 \centering
+\caption[Pillai's tests for bivariate effects in Applied model.]{Tests for bivariate effects on Applied question scores using Pillai's $\Lambda$.}
 \begin{tabular}{lrrr} \hline
  & Pillai's $\Lambda$ & Approx. F & Pr($>$$|$F$|$)\\ 
  \hline  
@@ -616,7 +616,6 @@ Treatment & \Sexpr{sprintf("%.4f",round(summarytab1[3,2],4))} & \Sexpr{sprintf("
 %\Sexpr{round(summarytab1[4,6],6)}\\ 
 \hline
 \end{tabular}
-\caption{Tests for overall covariate effects on Applied question scores using Pillai's $\Lambda$.}
 \label{tab:overallmod1}
 
 \end{table}
@@ -723,7 +722,7 @@ $y_{ijk\ell}^{\hspace{.1cm}(m)} = \beta_{0k} + x_{ijk1}\beta_{k1} + x_{ijk2}\bet
 
 \km{To establish points of reference for interpreting Figure~\ref{fig:simerrorratesdg} we examine the error rates under a few specific parameter settings. When the between labmate covariance is 4\% higher than for non-labmates (i.e. $d$=0.04 and $g$=0) the Type 1 error rates for individual t-tests are above 0.15 and the Pillai's test is above 0.20; over three and four times the nominal rate, respectively. Worse, when the between classmate covariance in 4\% higher than for non-classmates (i.e. $d$=0 and $g$=0.04) the Type 1 error rates for individual t-tests are above 0.25 and the Pillai's test is above 0.35; over five and seven times the nominal rate, respectively. This error rate inflation occurs because the random effects based on lecture and lab sections are being misinterpreted in the ARTIST model as fixed effects of curriculum due to the assumption of independence between students; a misinterpretation made worse in the case of lecture section due to the complete confounding with curriculum.}
 
-<<simerrorratesdg, echo=FALSE , message=FALSE, warning=FALSE, fig.width=10, fig.height=4, out.width='1\\linewidth', fig.pos='h',fig.align='center',fig.cap="Type 1 error rates from 20,000 simulations under each combination of $d$ and $g$ for individual t-tests and Pillai's overall test for curriculum effects on the ARTIST response scores. The horizontal black line indicates the nominal Type 1 error rate of $\\alpha$ = 0.05.", cache=TRUE>>=
+<<simerrorratesdg, echo=FALSE , message=FALSE, warning=FALSE, fig.width=10, fig.height=4, out.width='1\\linewidth', fig.pos='h',fig.align='center',fig.cap="Type 1 error rates from 20,000 simulations under each combination of $d$ and $g$ for individual t-tests and Pillai's overall test for curriculum effects on the ARTIST response scores. The horizontal black line indicates the nominal Type 1 error rate of $\\alpha$ = 0.05.",fig.scap="Type 1 error rates from simulations of independence violation.", cache=TRUE>>=
 # errorsummary2 found in setup script
 alpha <- 0.05
 ### Type 1 error plots:
