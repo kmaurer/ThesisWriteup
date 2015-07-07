@@ -17,22 +17,23 @@
 \usepackage{footnote} % table footnotes
 \usepackage{multicol}
 \usepackage[usenames,dvipsnames]{xcolor}
-\usepackage[utf8]{inputenc}
+%\usepackage[utf8]{inputenc}
+%\usepackage[utf8]{luainputenc}
 \usepackage{amsmath}
-\usepackage{caption}
-\usepackage{subcaption}
+%\usepackage{caption}
+%\usepackage{subcaption}
 \usepackage{fullpage}
 \usepackage{graphicx,float,wrapfig,subfig,tabularx,ulem}
 \graphicspath{{Figure/}}
 %\usepackage{csquotes}
 \usepackage{color}
 \usepackage{natbib}
-\usepackage{hyperref}
+%\usepackage{hyperref}
 \usepackage{lipsum}
 \usepackage{url}
 \usepackage{bbm}
 \usepackage[titletoc]{appendix}
-
+\usepackage{mathrsfs}
 
 
 \newcommand{\distas}[1]{\mathbin{\overset{#1}{\sim}}}%
@@ -134,6 +135,11 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
 @
 \chaptocbreak
 
+
+\include{Reference/bibtex}
+\bibliography{Reference/references}
+\addcontentsline{toc}{chapter}{BIBLIOGRAPHY}
+
 \appendixtitle
 \begin{appendices}
 \appendix
@@ -145,7 +151,6 @@ opts_chunk$set(fig.path='Figure', cache.path='cache/', fig.align='center', fig.w
 %\include{Appendix/Appendix1} 
 % \include{Appendix/appendix2}
 %-------------------------------------------------------------------------------
-\include{Reference/bibtex}
-\bibliography{Reference/references}
+
 %\include{Reference/biblio} % Not used... stick with bibtex
 \end{document}

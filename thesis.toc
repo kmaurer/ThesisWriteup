@@ -1,5 +1,94 @@
 \def \@chapapp {}
-\contentsline {chapter}{LIST OF TABLES}{2}{section*.2}
-\contentsline {chapter}{LIST OF FIGURES}{3}{section*.4}
+\contentsline {chapter}{LIST OF TABLES}{vi}{section*.2}
+\contentsline {chapter}{LIST OF FIGURES}{vii}{section*.4}
 \def \@chapapp {CHAPTER\ }
-\contentsline {section}{\numberline {0.1}Introduction}{1}{section.8}
+\def \@chapapp {}
+\contentsline {chapter}{ACKNOWLEDGEMENTS}{xi}{section*.8}
+\def \@chapapp {CHAPTER\ }
+\contentsline {chapter}{\numberline {1.}LITERATURE REVIEW}{1}{chapter.9}
+\contentsline {section}{\numberline {1.1}Introduction}{1}{section.10}
+\contentsline {section}{\numberline {1.2}Technology in Statistics Education}{2}{section.11}
+\contentsline {subsection}{\numberline {1.2.1}Role of Technology in the Statistics Education Reform Movement}{2}{subsection.12}
+\contentsline {subsection}{\numberline {1.2.2}Statistics Education Technologies}{4}{subsection.19}
+\contentsline {subsubsection}{\numberline {1.2.2.1}Data Technologies}{4}{subsubsection.20}
+\contentsline {subsubsection}{\numberline {1.2.2.2}Educational Software}{6}{subsubsection.21}
+\contentsline {subsubsection}{\numberline {1.2.2.3}Statistical and Mathematical Software Extensions}{8}{subsubsection.22}
+\contentsline {subsubsection}{\numberline {1.2.2.4}Hardware}{9}{subsubsection.23}
+\contentsline {subsection}{\numberline {1.2.3}Educational Technologies in Similar STEM Disciplines}{9}{subsection.24}
+\contentsline {subsubsection}{\numberline {1.2.3.1}Educational Technologies in Mathematics}{10}{subsubsection.25}
+\contentsline {subsubsection}{\numberline {1.2.3.2}Educational Technologies in Physics}{11}{subsubsection.26}
+\contentsline {section}{\numberline {1.3}Comparison of Statistical Inference Curricula}{12}{section.27}
+\contentsline {subsection}{\numberline {1.3.1}Simulation-Based Inference}{12}{subsection.28}
+\contentsline {subsection}{\numberline {1.3.2}Experiments in Statistics Education}{14}{subsection.29}
+\contentsline {subsection}{\numberline {1.3.3}Assessments for Statistical Inference Learning Outcomes}{16}{subsection.30}
+\contentsline {section}{\numberline {1.4}Development of the Shiny Database Sampler}{16}{section.31}
+\contentsline {section}{\numberline {1.5}Loss in Binned Scatterplots}{19}{section.32}
+\contentsline {section}{\numberline {1.6}Literature Themes}{22}{section.33}
+\needspace {4\baselineskip }
+\contentsline {chapter}{\numberline {2.}COMPARISON OF LEARNING OUTCOMES FOR SIMULATION-BASED AND TRADITIONAL INFERENCE CURRICULA IN A DESIGNED EDUCATIONAL EXPERIMENT}{23}{chapter.34}
+\contentsline {section}{\numberline {2.1}Introduction}{23}{section.35}
+\contentsline {section}{\numberline {2.2}Literature Review}{24}{section.36}
+\contentsline {section}{\numberline {2.3}Methodology}{27}{section.37}
+\contentsline {subsection}{\numberline {2.3.1}Curricula Structures}{27}{subsection.38}
+\contentsline {subsection}{\numberline {2.3.2}Experimental Design}{29}{subsection.40}
+\contentsline {subsection}{\numberline {2.3.3}Data Collection}{30}{subsection.42}
+\contentsline {subsection}{\numberline {2.3.4}Data Summary}{33}{subsection.43}
+\contentsline {section}{\numberline {2.4}Analysis}{34}{section.45}
+\contentsline {subsection}{\numberline {2.4.1}Modeling ARTIST Outcomes}{35}{subsection.47}
+\contentsline {subsection}{\numberline {2.4.2}Modeling Applied Theory-Based Inference Scores}{37}{subsection.51}
+\contentsline {subsection}{\numberline {2.4.3}Model Assessment}{38}{subsection.53}
+\contentsline {section}{\numberline {2.5}Discussion and Conclusions}{42}{section.61}
+\needspace {4\baselineskip }
+\contentsline {chapter}{\numberline {3.}A SHINY NEW OPPORTUNITY FOR INTERACTION WITH BIG DATA IN UNDERGRADUATE EDUCATION}{46}{chapter.62}
+\contentsline {section}{\numberline {3.1}Introduction}{46}{section.63}
+\contentsline {section}{\numberline {3.2}Shiny Database Sampler}{48}{section.64}
+\contentsline {subsection}{\numberline {3.2.1}Layout and Design}{48}{subsection.65}
+\contentsline {subsubsection}{\numberline {3.2.1.1}The \textit {Sample and Summarize} tab}{49}{subsubsection.66}
+\contentsline {subsubsection}{\numberline {3.2.1.2}The \textit {Visualize} tab}{51}{subsubsection.68}
+\contentsline {subsection}{\numberline {3.2.2}Applications}{53}{subsection.71}
+\contentsline {subsubsection}{\numberline {3.2.2.1}Lab Application Overview}{53}{subsubsection.72}
+\contentsline {subsubsection}{\numberline {3.2.2.2}Capstone Project Application Overview}{54}{subsubsection.75}
+\contentsline {subsection}{\numberline {3.2.3}User Survey for Software Evaluation}{55}{subsection.76}
+\contentsline {subsubsection}{\numberline {3.2.3.1}Survey Description}{56}{subsubsection.77}
+\contentsline {subsubsection}{\numberline {3.2.3.2}Assessment of Internal Consistency for Item Topic Sets}{57}{subsubsection.79}
+\contentsline {subsubsection}{\numberline {3.2.3.3}Assessment of Polarity Issues}{60}{subsubsection.84}
+\contentsline {subsubsection}{\numberline {3.2.3.4}Assessment of Orthogonality}{62}{subsubsection.88}
+\contentsline {subsubsection}{\numberline {3.2.3.5}Survey Assessment Results}{63}{subsubsection.90}
+\contentsline {section}{\numberline {3.3}Conclusions and Future Work}{64}{section.91}
+\needspace {4\baselineskip }
+\contentsline {chapter}{\numberline {4.}BINNING STRATEGIES AND RELATED LOSS FOR BINNED SCATTERPLOTS}{65}{chapter.92}
+\contentsline {section}{\numberline {4.1}Introduction}{65}{section.93}
+\contentsline {section}{\numberline {4.2}Scatterplots for Large Data Sets}{66}{section.94}
+\contentsline {section}{\numberline {4.3}Binning Algorithms}{71}{section.101}
+\contentsline {subsection}{\numberline {4.3.1}Extension to Two Dimensional Binning}{73}{subsection.105}
+\contentsline {subsection}{\numberline {4.3.2}Binned Data Reduction}{74}{subsection.108}
+\contentsline {section}{\numberline {4.4}Loss due to Binning}{75}{section.113}
+\contentsline {subsection}{\numberline {4.4.1}Spatial Loss}{78}{subsection.115}
+\contentsline {subsection}{\numberline {4.4.2}Frequency Loss}{80}{subsection.118}
+\contentsline {section}{\numberline {4.5}Exploring Properties of Loss}{82}{section.123}
+\contentsline {subsection}{\numberline {4.5.1}Rectangular Binning Specifications and Spatial Loss}{83}{subsection.125}
+\contentsline {subsection}{\numberline {4.5.2}Frequency Binning Specifications and Frequency Loss}{90}{subsection.131}
+\contentsline {section}{\numberline {4.6}Discussion and Examples}{93}{section.135}
+\contentsline {subsection}{\numberline {4.6.1}Binning Loss in Baseball Data: Strikeout and Game Counts}{94}{subsection.136}
+\contentsline {subsection}{\numberline {4.6.2}Big Data: Airline Departure Times}{95}{subsection.138}
+\contentsline {section}{\numberline {4.7}Conclusions and Future Work}{98}{section.143}
+\needspace {4\baselineskip }
+\contentsline {chapter}{\numberline {5.}CONCLUSIONS}{100}{chapter.144}
+\needspace {4\baselineskip }
+\contentsline {chapter}{BIBLIOGRAPHY}{115}{chapter*.145}
+\def \@chapapp {APPENDIX\ }
+\contentsline {chapter}{APPENDIX\ \numberline {A.} }{116}{appendix.146}
+\contentsline {section}{\numberline {A.1}Appendix: Final Exam Used in Curricula Study}{116}{section.147}
+\contentsline {subsection}{\numberline {A.1.1}ARTIST Scaled Multiple Choice Question Set for Confidence Intervals}{116}{subsection.148}
+\contentsline {subsection}{\numberline {A.1.2}ARTIST Scaled Multiple Choice Question Set for Hypothesis Testing}{119}{subsection.149}
+\contentsline {subsection}{\numberline {A.1.3}Applied Theory-Based Confidence Interval Question}{123}{subsection.150}
+\contentsline {subsection}{\numberline {A.1.4}Applied Theory-Based Hypothesis Testing Question}{123}{subsection.154}
+\contentsline {section}{\numberline {A.2}Appendix: Midterm Exam Used in Curricula Study}{124}{section.160}
+\contentsline {section}{\numberline {A.3}Appendix: MANCOVA Model Diagnostics}{133}{section.166}
+\contentsline {subsection}{\numberline {A.3.1}ARTIST Model Diagnostics}{133}{subsection.167}
+\contentsline {subsection}{\numberline {A.3.2}Applied Model Diagnostics}{134}{subsection.170}
+\contentsline {chapter}{APPENDIX\ \numberline {B.} }{137}{appendix.173}
+\contentsline {section}{\numberline {B.1}Appendix: Lab Assignment Using Shiny Database Sampler}{137}{section.174}
+\contentsline {section}{\numberline {B.2}Appendix: Cronbach's $\alpha $ Properties}{140}{section.175}
+\contentsline {chapter}{APPENDIX\ \numberline {C.} }{141}{appendix.176}
+\contentsline {section}{\numberline {C.1}Appendix: Optimal Offset for Symmetric Data Recorded to Resolution $\alpha _x$}{141}{section.177}

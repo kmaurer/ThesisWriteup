@@ -56,7 +56,7 @@ Conducting inference is a cornerstone upon which the practice of statistics is b
 The focus of the following study is to make a formal comparison of learning outcomes under the traditional and simulation-based inference curricula.  The learning outcomes for concepts surrounding inference with confidence intervals and hypothesis testing are of primary interest.  A randomized experiment was conducted to administer the two curricula to students in an introductory statistics course. The experimental design allows for causal inference to be drawn about the effect of curriculum type on the learning outcomes. The results indicate that significant improvement in learning outcomes for confidence interval related topics are achieved using the simulation-based teaching methods.
 %---------------------------------------------------------------------------
 \section{Literature Review}
-\label{litreview}
+\label{litreviewCurricula}
 
 With the goal to make proper comparison of traditional versus simulation-based curricula for introductory statistical courses, we must first view where each approach stands within the constant evolution of statistics education. Using the term ``traditional'' to describe the current standard for introductory statistics course curriculum is relative to only the last two decades. Moore chronicled the reform movement of statistic education of the 1980's and 1990's as a period of drastic change in the introductory statistics classroom.  The curriculum expanded greatly from a course dominated by theory-based inference methodology to the inclusion of the topics of data exploration, data production, model diagnostics and simulation.  The content change indicated a shifting emphasis toward conceptual understanding and applied statistics.  Moore also stated, ``(w)hat is striking about the current reform movement is not only its momentum but the fact that it centers on pedagogy as much as content'' \citep{Moore1997}. The pedagogical push toward active learning was combined with content change and the increasing use of technology to form what may be referred to now as the traditional introductory statistics curriculum. 
 
@@ -355,7 +355,7 @@ $\mathbbm{1}_{\{i \in T\}}$ & is an indicator function, that is one, if student 
 $\beta_{\ell 0}$ & is the common intercept for response $\ell$, and \\
 $\beta_{\ell p}$, & $1 \le p \le P$ are the model coefficients of the $P$ covariates. \\
 $x_{ip}$ & is the $p^{th}$ pre-treatment covariate score of student $i$, and\\
-$\epsilon}_{i\ell}$ & is the error for the $\ell ^{th}$ response from the $i^{th}$ student. 
+$\epsilon_{i\ell}$ & is the error for the $\ell ^{th}$ response from the $i^{th}$ student. 
 \end{tabular}
 
 We assume that error pairs are independent and identically distributed:

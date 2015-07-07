@@ -921,31 +921,29 @@ For this activity you will be using a tool called the Shiny Database Sampler to 
   
 We are going to explore how these random sampling plans relate to the goals of a sample survey. The tool will allow you to define either a simple random sampling plan or a stratified random sampling plan. In the following two scenarios we will explore the advantages and disadvantages of these two sampling plans. Access the tool at \url{http://shiny.stat.iastate.edu/karstenm/ShinyDatabaseSampler}. 
 
-\underline{Scenario 1:} Suppose that our goal is to estimate the mean age of all US residents. Similar to polling organizations we have a budget that allows us to survey around 1000 people. To collect our sample we decide to take a simple random sample of 1040 US residents. \\
+\underline{Scenario 1:} Suppose that our goal is to estimate the mean age of all US residents. Similar to polling organizations we have a budget that allows us to survey around 1000 people. To collect our sample we decide to take a simple random sample of 1040 US residents.
 
-\begin{enumerate}[(a)]
-\item Is this study and example of an experiment or an observational study?  Explain your answer.
-\item	Your colleague Bob claims that we are wasting our budget to get only 1040 people using random sampling. He says that we could get 20000 responses to the survey if we invested that money into a mailing campaign in Minneapolis. Explain why the random selection is important.
-\item	Another colleague, Jill, asks why we do not stratify by state when we take the sample so that we get 20 people from each of the 50 states along with Puerto Rico and the District of Columbia. Explain why this idea would not create a representative sample to pursue our goal.
-\end{enumerate}
+\textbf{(a)} Is this study and example of an experiment or an observational study?  Explain your answer.
 
-Now that we have decided on our sampling plan, let's go collect our data.  The Shiny Database Sampler needs to be told 4 pieces of information in order to collect census records the way you want. (1) Choose the database called ``Census'', (2) select the ``simple random sample'' option, (3) enter a random seed, any number between 1 and 10000, you can do this by rolling a 10-sided die 4 times and (4) lastly tell it that we want ``1040'' random draws. Once you have drawn your samples the page will display basic summary statistics for the variables in the census.\\
+\textbf{(b)}	Your colleague Bob claims that we are wasting our budget to get only 1040 people using random sampling. He says that we could get 20000 responses to the survey if we invested that money into a mailing campaign in Minneapolis. Explain why the random selection is important.
 
-\begin{enumerate}[(a)]
-\setcounter{enumi}{3}
-\item Report the 5-number summary and sample mean age.
-\item	Use the 5-number summary to construct a box plot of age.
-\item	Go to the ``Visualize'' tab.  Choose age as your Response Variable to Plot.  What type of variable is this?  By clicking on Make My Plot? a histogram of the sample of ages will be displayed.  Describe the shape of the data distribution of age.
-\item	Is the relationship between the sample mean and sample median consistent with your description of shape?  Explain briefly.
-\item	If our goal was to not only estimate the mean age of all the U.S. residents but also come up with estimates of the median age of all residents in each of the 50 states, plus the District of Columbia and Puerto Rico what is a drawback of using the simple random sample of 1040?  Hint: Set the Data Table to display 100 records per page and go to the page that has ``states'' 10 and 11 (Delaware and the District of Columbia).
-\end{enumerate}
+\textbf{(c)}	Another colleague, Jill, asks why we do not stratify by state when we take the sample so that we get 20 people from each of the 50 states along with Puerto Rico and the District of Columbia. Explain why this idea would not create a representative sample to pursue our goal.\\
+
+Now that we have decided on our sampling plan, let's go collect our data.  The Shiny Database Sampler needs to be told 4 pieces of information in order to collect census records the way you want. (1) Choose the database called ``Census'', (2) select the ``simple random sample'' option, (3) enter a random seed, any number between 1 and 10000, you can do this by rolling a 10-sided die 4 times and (4) lastly tell it that we want ``1040'' random draws. Once you have drawn your samples the page will display basic summary statistics for the variables in the census.
+
+\textbf{(d)} Report the 5-number summary and sample mean age.
+
+\textbf{(e)} Use the 5-number summary to construct a box plot of age.
+
+\textbf{(f)} Go to the ``Visualize'' tab.  Choose age as your Response Variable to Plot.  What type of variable is this?  By clicking on Make My Plot? a histogram of the sample of ages will be displayed.  Describe the shape of the data distribution of age.
+
+\textbf{(g)} Is the relationship between the sample mean and sample median consistent with your description of shape?  Explain briefly.
+
+\textbf{(h)} If our goal was to not only estimate the mean age of all the U.S. residents but also come up with estimates of the median age of all residents in each of the 50 states, plus the District of Columbia and Puerto Rico what is a drawback of using the simple random sample of 1040?  Hint: Set the Data Table to display 100 records per page and go to the page that has ``states'' 10 and 11 (Delaware and the District of Columbia). \\
 
 \underline{Scenario 2:} Suppose now that our goal has changed.  Now we wish to investigate the association between age and state of residency. We want to compare the median ages for different states. We still have a budget that allows us to survey around 1040 people. To collect our sample we decide to take a stratified random sample of 20 residents from each state in the United States plus the District of Columbia and Puerto Rico. 
 
-\begin{enumerate}[(a)]
-\setcounter{enumi}{8}
-\item  Explain in general why collecting a stratified random sample is a better plan than a simple random sample for answering this question.  
-\end{enumerate}
+\textbf{(i)} Explain in general why collecting a stratified random sample is a better plan than a simple random sample for answering this question.  \\
 
 Now that we have decided on our new sampling plan, let's go collect our data.  The Shiny Database Sampler will need to be told 5 pieces of information in order to collect census records the way you want this time. (1) Choose the database called ``Census'', (2) select the ``stratified random sample'' option, (3) enter a random seed, any number between 1 and 10000, you can do this by rolling a 10-sided die 4 times, (4) select ``state'' as strata variable and (5) lastly tell it that we want ``20'' random draws from each state, plus the District of Columbia and Puerto Rico.  
 
@@ -953,14 +951,13 @@ It will take a minute or two to collect these data. It is sifting through millio
 
 You will notice that the summaries are all broken down by state, but the states are not given names, they are given a code number.  This is done on the census to save computer storage space (saving a ``19'' is much smaller than ``Iowa'').  A list of all the state codes is available at \url{https://www.census.gov/geo/reference/ansi\_statetables.html} (Click on FIPS Codes for the States and the District of Columbia).
 
-\begin{enumerate}[(a)]
-\setcounter{enumi}{9}
-\item Report the mean and 5-number summary for the age of the sample from the state of Iowa (\texttt{state = 19}).
-\item	Report the mean and 5-number summary for the age of the sample from the state of Alaska (\texttt{state = 2}).
-\item	Compare the distribution of ages in Alaska and Iowa using the values from parts j and k.
-\item	Making comparisons as we have done above would become tedious if we wanted to compare ages between all pairs of states in the country.  What would be a good way to visually display this information so aid in making these comparisons? Explain your answer.
-\end{enumerate}
+\textbf{(j)} Report the mean and 5-number summary for the age of the sample from the state of Iowa (\texttt{state = 19}).
 
+\textbf{(k)} Report the mean and 5-number summary for the age of the sample from the state of Alaska (\texttt{state = 2}).
+
+\textbf{(l)} Compare the distribution of ages in Alaska and Iowa using the values from parts j and k.
+
+\textbf{(m)} Making comparisons as we have done above would become tedious if we wanted to compare ages between all pairs of states in the country.  What would be a good way to visually display this information so aid in making these comparisons? Explain your answer.
 
 % %------------------------------------------------------------------
 % \section{Appendix: Technical Implementation of Shiny Application}
@@ -974,7 +971,7 @@ You will notice that the summaries are all broken down by state, but the states 
 % \label{appendDB}
 % 
 % \textbf{To be detailed when databases updated and origins better known.}
-
+\newpage
 %------------------------------------------------------------------
 \section{Appendix: Cronbach's $\alpha$ Properties}
 \label{appendCronbach}
