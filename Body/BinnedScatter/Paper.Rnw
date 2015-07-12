@@ -115,7 +115,7 @@ Figure~\ref{fig:scatter-alpha}(a) shows a traditional scatterplot with each obse
   \subfloat[Hexagonal binned scatterplot]{\includegraphics[keepaspectratio=TRUE,width=.48\textwidth]{./Body/BinnedScatter/figure/HexBinning.pdf}}
   \subfloat[Hexagonal binned bubble plot]{\includegraphics[keepaspectratio=TRUE,width=.48\textwidth]{./Body/BinnedScatter/figure/BinScatter.pdf}} 
 
-	\caption{\label{fig:scatter-alpha} Scatterplots of Games versus Strikeouts in Major League Baseball, using different strategies of dealing with the issue of over-plotting:  (a) uses standard, opaque, filled circles, (b)  uses Tukey's recommended open circles, and (c) uses filled circles with alpha blending ($\alpha$=0.05). Plots (d) and (e) show hexagonal binning strategies with frequency mapped to color and area respectively}
+	\caption[Traditional and adapted scatterplots for games vs. strikeouts data.]{\label{fig:scatter-alpha} Scatterplots of games versus strikeouts in major league baseball, using different strategies of dealing with the issue of over-plotting:  (a) uses standard, opaque, filled circles, (b)  uses Tukey's recommended open circles, and (c) uses filled circles with alpha blending ($\alpha$=0.05). Plots (d) and (e) show hexagonal binning strategies with frequency mapped to color and area respectively.}
 \end{figure}
 
 All of these methods fall short in the example.
@@ -225,7 +225,7 @@ where $b^r_X(x_i)$ and $b^r_Y(y_i)$ are univariate random binning algorithms for
 
 \subsection{Binned Data Reduction}
 
-The second stage of binning requires a frequency breakdown of the number of observations associated with each bin center, forming reduced data triples, $(x^\ast, y^\ast, c)$, where $c$ is the number of all observations assigned to bin center $(x^\ast,y^\ast)$. Table~\ref{DataReductionExample} makes use of a small set of simulated data to show the progression from the original data (a), to the binned data (b), to the reduced binned data (c). The reduced binned data is sufficient for constructing the binned scatterplot. In cases of large data, binning greatly reduces the storage size for the information and the computation time needed to construct a binned scatterplot.\\
+The second stage of binning requires a frequency breakdown of the number of observations associated with each bin center, forming reduced data triples, $(x^\ast, y^\ast, c)$, where $c$ is the number of all observations assigned to bin center $(x^\ast,y^\ast)$. Table~\ref{DataReductionExample} makes use of a small set of simulated data to show the progression from the original data (a), to the binned data (b), to the reduced binned data (c). The reduced binned data is sufficient for constructing the binned scatterplot. In cases of large data, binning greatly reduces the storage size for the information and the computation time needed to construct a binned scatterplot.
 
 <<DataReduction,echo=FALSE,eval=FALSE,results='asis'>>=
 n=12
@@ -250,10 +250,10 @@ print(xtable(d[3:4], digits=c(0, 0, 0), caption=paste('Binned Data\\newline', nr
 print(xtable(dbin, digits=c(0, 0, 0, 0), caption=paste('Binned Data\\newline', nrow(dbin), 'rows'), align=c('X','X','X','c')), include.rownames=FALSE, table.placement="hbtp", floating=FALSE, tabular.environment="tabularx", width='.7\\textwidth')
 
 @
-
+%
 \begin{table}[hbtp]
 \centering
-\caption{\label{DataReductionExample}Original, Binned and Reduced Binned Data Tables, with data storage sizes.  Binned using standard rectangular approach with origin $(\beta_{0,x},\beta_{0,y})$ = (-10,-10) and binwidths $\omega_x = \omega_y = 10$. }
+\caption[Original, binned and reduced binned data table example.]{\label{DataReductionExample}Original, binned and reduced binned data tables, with data storage sizes. Binned using standard rectangular approach with origin $(\beta_{0,x},\beta_{0,y})$ = (-10,-10) and binwidths $\omega_x = \omega_y = 10$. }
 \begin{minipage}[t]{.33\textwidth}\centering\subfloat[Original Data, 12 rows]{
 \begin{tabular}{rr}\hline
        $x$ &  $y$  \\ \hline
@@ -298,7 +298,7 @@ print(xtable(dbin, digits=c(0, 0, 0, 0), caption=paste('Binned Data\\newline', n
 \end{tabularx}}
 \end{minipage}
 \end{table}
-
+%
 Note that numerical attributes other than frequency of the binned data may also be recorded during binning, however only frequency is required to construct a binned scatterplot. Data reduction comes at the expense of spatial information of any of the individual points. After aggregation the original spatial locations cannot be recovered. The loss of information incurred from binning will be explored in following sections. 
 
 %--------------------------------------------------------------
@@ -395,7 +395,7 @@ qplot(x,y, asp=1, geom="blank") +
 @
 \end{minipage}
 \end{minipage}
-\caption{\label{binning}Series of scatterplots showing the original data (scatterplot, left), and versions of the binned data for different bin widths. The visual loss from binning at 0.1 is minimal, while a bin width of 1 gives a rough approximation.}
+\caption[Series of binned scatterplots of decreasing bin dimensions.]{\label{binning}Series of scatterplots showing the original data (scatterplot, left), and versions of the binned data for different bin widths. The visual loss from binning at 0.1 is minimal, while a bin width of 1 gives a rough approximation.}
 \end{figure}
 
 In Figure~\ref{binning} the minimally binned scatterplot, with bin width equal to 0.1, is visually very similar to the traditional scatterplot; but importantly the binned scatterplot contains information about overlapping points. The second and third binned scatterplots, with bin width equal to 0.25 and 0.50 respectively, show higher-level summaries of the data but which may also provide more visually accessible information about the shape of the two-dimensional density distribution between $x$ and $y$. The fourth binned scatterplot, with bin width equal to 1.0, provides only a rough bivariate density display due to over-smoothing from the large bins. 
@@ -546,7 +546,6 @@ It is important to note that there is no spatial loss for the traditional scatte
 Bin counts can be displayed using a continuous shading scale in HSV color space \citep{colorperception} and thus we can theoretically map frequency to shade perfectly. While the tiles of the binned scatterplot would be \textit{rendered} precisely, the ability of a human with average vision to extract that information by visually mapping the tile shade to a frequency scale in the plot legend is largely imprecise. Color perception of shade is extremely context sensitive allowing an inaccurate mapping of tile shade to the corresponding shade in the plot legend.
 It is therefore not realistic, to expect readers to be able to decode frequency from a continuous shade scheme, even though theoretically we can perceive shades continuously (see e.g.\ the discussion in \url{http://hypertextbook.com/facts/2006/JenniferLeong.shtml}). Figure~\ref{fig:context} shows an example of the context sensitivity of colors. Even though there is a lot of spread between the colors in this example, most onlookers have trouble answering the question about the relative relationship of the shading of the darkest/lightest points in each cloud of points.
 
-
 \begin{figure}[hbtp]
 \centering
 <<context, echo=F, fig.width=6, fig.height=4.5, out.width='.5\\textwidth'>>=
@@ -562,14 +561,14 @@ qplot(x, y, colour=Shade, size=I(5),shape=Shape) + theme_bw() +
   theme(aspect.ratio=1, axis.ticks=element_blank(), axis.text=element_blank()) +
   scale_colour_gradient(limits=c(0,1), breaks=c(0,.5,1))
 @
-\caption{\label{fig:context}Assess the colors in this scatterplot. Are the triangles in the lighter cloud of points as dark as the triangles in the darker cloud of points? The answer is that all the triangles have the exact same shade!}
+\caption[Demonstration of the contextual sensitivity of shade perception.]{\label{fig:context}Assess the colors in this scatterplot. Are the triangles in the lighter cloud of points as dark as the triangles in the darker cloud of points? The answer is that all the triangles have the exact same shade!}
 \end{figure}
 
  Whenever the shading scheme for rendering the counts in each bin is discretized there is a loss of frequency information. We can model this as a second stage of binning; wherein the bin counts, $c_\ell$, for bins $\ell \in \{1, \dots, \mathscr{L} \}$ are placed into frequency bins using any of the previously discussed univariate binning algorithms in Section~\ref{GenBinning}.  Figure~\ref{fig:FreqLossDemo} provides a visual example of a discrete color palette resulting from frequency binning.  
  
 Research suggests that even under optimal conditions, we can effectively compare only about seven color hues simultaneously, and that we are even more limited in terms of distinguishing shade \citep{colorperception}. This provides a physical upper limit on the amount of frequency variation we can perceive through color. As a result, a frequency binning which produces seven of fewer frequency categories is preferable.
 
-<<FreqLossDemo,echo=F,include=T,eval=T,fig.width=6, fig.height=3, out.width='.8\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Continuous and discrete color scales for counts in the range 0 to 1000. Frequency binning done using  standard rectangular binning with origin $\\beta_0 = 0$ and binwidth $\\omega_c = 200$. ">>= 
+<<FreqLossDemo,echo=F,include=T,eval=T,fig.width=6, fig.height=3, out.width='.8\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap="Continuous and discrete color scales for counts in the range 0 to 1000. Frequency binning done using  standard rectangular binning with origin $\\beta_0 = 0$ and binwidth $\\omega_c = 200$.", fig.scap="Continuous and discrete color scales for counts.">>= 
 #J= 1
 J2 = 200
 bound = 1000
@@ -978,7 +977,7 @@ The loss of frequency information in frequency binning is dependent on the selec
 
 Due to the difference in scales between counts and log counts, the frequency loss and log frequency loss can not be directly compared. The bottom row of Figure~\ref{fig:FreqLossCompare} displays the log frequency loss from using standard and quantile algorithms for binning the \textit{log} counts for bins from the same sets of simulated data. Log frequency binning behaved very similarly to standard frequency binning, where log frequency loss decreased as the number of frequency bins increased. The same advice to use between four and seven frequency bins also holds for shading a binned scatterplot based on log counts. 
 
-<<FreqLossCompare,echo=F,include=T,eval=T,fig.width=12, fig.height=7, out.width='.99\\linewidth', fig.pos='H',fig.align='center',tidy=F, cache=TRUE, warning=F, fig.show='hold',fig.cap="Lineplots for total frequency loss (top row) and total log frequency loss (bottom row) from standard and quantile binning of bin counts and log bin counts, respectively, using reduced binned data from each bivariate distribution. ">>= 
+<<FreqLossCompare,echo=F,include=T,eval=T,fig.width=12, fig.height=7, out.width='.99\\linewidth', fig.pos='H',fig.align='center',tidy=F, cache=TRUE, warning=F, fig.show='hold',fig.cap="Lineplots for total frequency loss (top row) and total log frequency loss (bottom row) from standard and quantile binning of bin counts and log bin counts, respectively, using reduced binned data from each bivariate distribution. ",fig.scap="Lineplots for total frequency losses from standard and quantile binning for simulated bivariate data. ">>= 
 ### Loop over ncolors 1 to 10 and also over data distribution
 # find freq loss from standard, quantile, logCount
 freqLossSimDat <- NULL
@@ -1130,7 +1129,7 @@ p4 <- qplot(binxs, binys, geom="tile", fill=factor(freqgroup), data=binoutLogFre
  
 grid.arrange(p3,p4, nrow=1)
 @
-\caption{\label{freqbinning}Simulated bivariate normal data spatially binned using standard algorithm with 5X5 unit bins and origin at (0,0). Binned scatterplots with five frequency bins from quantile frequency binning (left) and standard log frequency binning (right). }
+\caption[Frequency binned scatterplots for simulated bivarate normal data. ]{\label{freqbinning}Simulated bivariate normal data spatially binned using standard algorithm with 5X5 unit bins and origin at (0,0). Binned scatterplots with five frequency bins from quantile frequency binning (left) and standard log frequency binning (right). }
 \end{figure}
 
 %-----------------------------------------------------------------------------
@@ -1171,7 +1170,7 @@ We now revisit the baseball data used earlier and construct binned scatterplots 
 The leftmost plot in Figure~\ref{fig:BaseballBinnedScatters2X10} displays the binned scatterplot with a continuous shading of raw bin frequencies. The most striking feature in the frequency distribution is the dark spot in the bottom right of the plot representing a large number of pitchers that played very few games and had very few strikeouts. It is nearly impossible to distinguish the density structure across the remaining bins, representing better pitchers who played many games and earned many strikeouts. 
 In this case there are two frequency binning options that we can employ to deal with this skewness of the distribution of bin counts. Quantile frequency binning using four shade groups (center plot of Figure~\ref{fig:BaseballBinnedScatters2X10}) allows us to visualizes the quartiles of the bin densities. Alternatively, standard log frequency binning using four shade groups (rightmost plot of Figure~\ref{fig:BaseballBinnedScatters2X10}) uses the log transformation to diminish the visual impact of high density bins. Each frequency binning approach adds a layer of complexity to interpreting the shade, however they both effectively emphasize the forked ridges in the density structure. 
 
-<<BaseballBinnedScatters2X10,echo=F,include=T,eval=T,fig.width=12, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, warning=F, fig.show='hold',fig.cap="Binned Scatterplots for Games vs Strikeouts">>=  
+<<BaseballBinnedScatters2X10,echo=F,include=T,eval=T,fig.width=12, fig.height=4, out.width='.99\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, warning=F, fig.show='hold',fig.cap="Binned scatterplots for games versus strikeouts.">>=  
  # raw frequencies plot
 p1 <- qplot(binxs, binys, geom="tile", fill=binfreq, data=binout1[[1]],
       main="Standard Freq Binning") +
@@ -1254,7 +1253,7 @@ Figure~\ref{airline-scatter} shows two plots of the relationship between schedul
 %   Swap Back at later date (shrinks size of pdf to managable)
 %\subfloat[Million-point sample of Airline Data. \ktm{This plot is not compiling and needs to be reconstructed (my apologies)}]{\includegraphics[width=.44\linewidth, keepaspectratio=TRUE]{images/RplotFiller.pdf}}\hfil
 \subfloat[Minimal binning of Airline Data]{\includegraphics[width=.56\linewidth, keepaspectratio=TRUE]{BinnedScatter/AirlineStdBinning1min.pdf}}
-\caption{\label{airline-scatter}Scheduled and actual departure times of  flights across the United States in 2011. The plot on the left is based on a sample of the data, the plot on the right shows all flights. The large scale distributional patterns are visible in both plots, but the plot on the left misses some of the finer level details in scheduling that is visible in the plot on the right.}
+\caption[Alpha-blended and minimally binned scatterplots for scheduled and actual departure times of airline flights.]{\label{airline-scatter}Scheduled and actual departure times of  flights across the United States in 2011. The plot on the left is based on a sample of the data, the plot on the right shows all flights. The large scale distributional patterns are visible in both plots, but the plot on the left misses some of the finer level details in scheduling that is visible in the plot on the right.}
 \end{figure}
 
 Both plots show the same large scale distributional patterns: scheduled and actual arrival times are highly correlated, recognizable from the conglomeration of points along the identity line. Scheduled departure times past 6:00 am in the morning are much more common than earlier flights. It is much more likely for a  flight to be delayed than to leave early, leading to the wash-out effect above the line, that is getting thinner with increasing delays. The range of delays on usual days starts at about one hour at 6:00 am and increases during the day to about a two hour delay. The small number of flights before 6:00 am are also visible in both plots. The triangle of observations on the bottom right in both plots is nothing but an artifact of the data collection consisting of flights that are scheduled before midnight, but are delayed to departures past midnight. The cloud of outliers halfway between the two main structures is potentially interesting, since no immediate explanation comes to mind, and would be worthy of a follow-up investigation.
@@ -1264,7 +1263,7 @@ What is not apparent in the alpha-blended scatterplot, is some fine-level struct
 \begin{figure}[hbtp]\centering
 \includegraphics[width=.49\linewidth,keepaspectratio=true]{BinnedScatter/AirlineStdBinning5mins.pdf}
 \includegraphics[width=.49\linewidth,keepaspectratio=true]{BinnedScatter/AirlineStdBinning15mins.pdf}
-\caption{5-minute bins produce a higher-level summary of the data than shown in Figure~\ref{airline-scatter}b. 15-minute bins produce an even more coarse summary of the data.}\label{airline5mins-binning}
+\caption[Binned scatterplots for scheduled and actual departure times of airline flights using 5X5 and 15X15 minute bins.]{5-minute bins produce a higher-level summary of the data than shown in Figure~\ref{airline-scatter}b. 15-minute bins produce an even more coarse summary of the data.}\label{airline5mins-binning}
 \end{figure}
 
 Figure~\ref{airline5mins-binning} displays the binned scatterplots for the flight departure data with larger bins. Binning data by five-minute intervals produces a more high-level summary of the relationship between actual and scheduled departure time, though it necessarily obscures some of the finer details. In addition, binning data by five minute intervals reduces the size of the data set to a much more manageable 19,787 reduced binned data triples, which can be easily manipulated on probably any modern computer. Binning by 15-minute intervals reduces the data set to a nearly-trivial 3,575 reduced binned data triples, but the graphical summary becomes granular and less appealing at that resolution.

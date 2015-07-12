@@ -102,8 +102,6 @@ The logistics of administering a course with two distinct curricula and four coh
 
 Students were randomly assigned to cohorts during the first week of the course.  Of the 101 students who completed the course and consented to the release of their data there were 50 students in the traditional treatment group and 51 students in the simulation-based treatment group. It is also worthwhile to note that of the 4 students to drop the course, all did so prior to week 9; thus, we can safely assume that the inference curriculum treatment did not play a role in the drop. All students who began the inference curricula completed the course.
 
-Students were exposed to identical lecture and lab instruction for the first half of the semester and then diverge into two separate lecture and lab settings for the second half of the semester. This was done to make the experience as similar as possible such that both treatment groups would have the same exposure to terminology and ideas leading up to the inference topics. We could not reassign students to lecture and lab times different than the times for which they enrolled, which meant the logistics of the design required preemptive room scheduling and course time scheduling preparations.  By working with the department chair and course coordinator before students enrolled into sections, we were able to schedule two sections of the course to have identical lecture times but separate lab times. Special room scheduling was required because all students needed to attend the same lecture and lab rooms for the first half of the semester then split into separate lecture and lab rooms after the midterm.  This room and course time scheduling allowed for students to be divided into cohorts and attend the lecture or lab specific to their curriculum.  The lecture and lab room schedules for each cohort are displayed in Figure~\ref{fig:InstSched}.
-
 \begin{figure}[hbtp]
 \centering
 \includegraphics[keepaspectratio=true, width=1\textwidth]{CurriculumStudy/LectureInstructionWithRooms.pdf}\\
@@ -112,6 +110,7 @@ Students were exposed to identical lecture and lab instruction for the first hal
 \caption{\label{fig:InstSched} Instructor and room schedules.}
 \end{figure}
 
+Students were exposed to identical lecture and lab instruction for the first half of the semester and then diverge into two separate lecture and lab settings for the second half of the semester. This was done to make the experience as similar as possible such that both treatment groups would have the same exposure to terminology and ideas leading up to the inference topics. We could not reassign students to lecture and lab times different than the times for which they enrolled, which meant the logistics of the design required preemptive room scheduling and course time scheduling preparations.  By working with the department chair and course coordinator before students enrolled into sections, we were able to schedule two sections of the course to have identical lecture times but separate lab times. Special room scheduling was required because all students needed to attend the same lecture and lab rooms for the first half of the semester then split into separate lecture and lab rooms after the midterm.  This room and course time scheduling allowed for students to be divided into cohorts and attend the lecture or lab specific to their curriculum.  The lecture and lab room schedules for each cohort are displayed in Figure~\ref{fig:InstSched}.
 
 Assigning one instructor to each curriculum would confound the instructor effect and the curriculum effect.  To avoid confounding, each treatment group would need to receive instruction from both instructors.  An alternating weekly schedule was decided upon to spread out the instructor effects over both curricula. A coin was flipped to decide how to match the instructor to the curriculum when the alternation was initialized. The lecture and lab instruction schedules for each cohort can also be found below in Figure~\ref{fig:InstSched}. Note that each figure has student cohort and times fixed across all weeks, reflecting the unchanged time structure that each student enrolled into. The instructors and room locations are what changed throughout the course. 
 
@@ -339,10 +338,8 @@ roomdat <- ddply(dat, .(room), summarize,
 
 The primary goal of the analysis is to investigate if there is a curricula effect on inference concept learning outcomes.  Our data includes ARTIST scaled topic scores for confidence intervals and hypothesis tests which we use as the responses for the comparison of curricula. A model based approach is used to assess curricula effect while controlling for pre-treatment differences between students. With the two dimensional response and an assortment of covariates we employ a multivariate analysis of covariance (MANCOVA) model.   
 
-Both curricula groups were required to learn how to conduct normal-based inference. This leads to another question of interest. Does the added simulation-based material turn out to be detrimental to student's ability to use distributional theory-based methods to conduct inference?  Two applied problems were included on the final exam that required students to use theory-based methods and formulas to conduct inference. These applied questions were used as the responses in a separate MANCOVA model to check for a curriculum effect. 
-
-The bivariate MANCOVA models used for these two analyses are parameterized as 
-
+Both curricula groups were required to learn how to conduct normal-based inference. This leads to another question of interest. Does the added simulation-based material turn out to be detrimental to student's ability to use distributional theory-based methods to conduct inference?  Two applied problems were included on the final exam that required students to use theory-based methods and formulas to conduct inference. These applied questions were used as the responses in a separate MANCOVA model to check for a curriculum effect. The bivariate MANCOVA models used for these two analyses are parameterized as 
+%
 \begin{eqnarray}\label{eq:mancova}
 y_{i\ell} = \tau_{\ell} \mathbbm{1}_{\{i \in T\}} + \beta_{\ell 0} + \sum_{p=1}^{P}x_{ip}\beta_{\ell p} + \epsilon_{i\ell},
 \end{eqnarray}
@@ -351,14 +348,15 @@ where
 \begin{tabular}{lp{5in}}
 $y_{i\ell}$ &  is the $\ell^{th}$ response ($\ell \in \left\{1,2\right\}$) from  student $i$, $ 1 \le i \le n$,\\
 $\tau_{\ell}$ & is the treatment effect of the simulation-based curriculum on response $\ell$, and \\
-$\mathbbm{1}_{\{i \in T\}}$ & is an indicator function, that is one, if student $i$ is in the treatment group, and zero otherwise.\\
+$\mathbbm{1}_{\{i \in T\}}$ & is the indicator function for student $i$ in the treatment group.\\
 $\beta_{\ell 0}$ & is the common intercept for response $\ell$, and \\
 $\beta_{\ell p}$, & $1 \le p \le P$ are the model coefficients of the $P$ covariates. \\
 $x_{ip}$ & is the $p^{th}$ pre-treatment covariate score of student $i$, and\\
 $\epsilon_{i\ell}$ & is the error for the $\ell ^{th}$ response from the $i^{th}$ student. 
-\end{tabular}
+\end{tabular}\\
 
 We assume that error pairs are independent and identically distributed:
+
 \[
 \vec{\epsilon}_{i} = 
 \begin{bmatrix}

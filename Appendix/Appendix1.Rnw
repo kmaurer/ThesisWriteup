@@ -793,7 +793,7 @@ HTcis <- data.frame(confint(mod2smallHT,level=.95))
 HTcis$ests <- mod2smallHT$coeff
 @
 
-<<ARTISTModDiag, echo=FALSE , warning=FALSE, fig.width=5, fig.height=5, out.width='.49\\linewidth', fig.pos='h',fig.align='center',fig.cap="Normal quantile plots (left) and bivariate scatterplot (right) for residuals of each response from ARTIST Model.",fig.show='hold'>>=
+<<ARTISTModDiag, echo=FALSE , warning=FALSE, fig.width=5, fig.height=5, out.width='.49\\linewidth', fig.pos='h',fig.align='center',fig.cap="Normal quantile plots (left) and bivariate scatterplot (right) for residuals of each response from ARTIST Model.",fig.scap="Normal quantile plots and bivariate scatterplot for residuals of each response from ARTIST Model.",fig.show='hold'>>=
 #--------------------------------------------------
 ### Check Conditions for MANCOVA linear model fit
 ## check response correlations to avoid colinearity in multivariate model
@@ -871,7 +871,7 @@ A correlation of $\Sexpr{round(with(dat, cor(AppliedCI,AppliedHT)),3)}$ between 
 
 The Loess smoothers do not significantly departing from a the horizontal lines at zero for the residual plots in Figure~\ref{fig:residuals2} and thus no departures from the assumption of linearity.  The residuals do however show signs of changing variance over the range of the fitted values. This appears to be driven by the upper bound on student scores for each question.
 
-<<AppliedModDiag, echo=FALSE , warning=FALSE, fig.width=5, fig.height=5, out.width='.49\\linewidth', fig.pos='h',fig.align='center',fig.cap="Normal quantile plots (left) and bivariate scatterplot (right) for residuals of each response from Applied Model.",fig.show='hold'>>=
+<<AppliedModDiag, echo=FALSE , warning=FALSE, fig.width=5, fig.height=5, out.width='.49\\linewidth', fig.pos='h',fig.align='center',fig.cap="Normal quantile plots (left) and bivariate scatterplot (right) for residuals of each response from Applied Model.",fig.scap="Normal quantile plots and bivariate scatterplot for residuals of each response from Applied Model.",fig.show='hold'>>=
 #--------------------------------------------------
 ### Check Conditions for MANCOVA linear model fit
 ## check response correlations to avoid colinearity in multivariate model

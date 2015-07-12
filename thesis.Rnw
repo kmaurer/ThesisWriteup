@@ -41,8 +41,8 @@
 \newcommand{\Cov}{\text{Cov}}%
 
 \newcommand{\hh}[1]{{\color{ForestGreen} #1}}
-\newcommand{\km}[1]{{\color{red} #1}}
-\newcommand{\ktm}[1]{{\color{red} #1}}
+\newcommand{\km}[1]{{\color{black} #1}}
+\newcommand{\ktm}[1]{{\color{black} #1}}
 \newcommand{\V}[1]{\text{Var}\left(#1\right)}
 
 %---------------------------------------------------

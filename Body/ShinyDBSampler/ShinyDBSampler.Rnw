@@ -153,14 +153,14 @@ The graphical user interface contains two tabs, each broken into two panels. The
 
 A screenshot of the interface for the \textit{Sample and Summarize} tab is shown in Figure~\ref{fig:samplesummarizetab} below. A sidebar panel which contains all the sampling options and controls, and a main panel which contains the data table and brief summary of the sampled data set.
 
+The sidebar panel contains several fields and buttons for selecting and executing a sampling plan.  At the top of the sidebar is a drop-down menu to select the database table from which the user may take a random subsample.  The current version of the tool allows users to access the 2001-2009 Fatality Analysis Recording System accident data from the National Highway Traffic Safety Administration (\url{www.nhtsa.gov/FARS}) and the Public Use Micro Sample data from the 2000 United States Census (\url{www.census.gov/}).
+
 \begin{figure}[hbtp]
 \centering
 \includegraphics[keepaspectratio=TRUE,width=.95\textwidth]{ShinyDBSampler/SampleAndSummarizeWithPanelLabels.png}
 \caption[\textit{Sample and Summarize} tab screenshot.]{Shiny Database Sampler layout for \textit{Sample and Summarize} tab.} 
 \label{fig:samplesummarizetab}
 \end{figure}
-
-The sidebar panel contains several fields and buttons for selecting and executing a sampling plan.  At the top of the sidebar is a drop-down menu to select the database table from which the user may take a random subsample.  The current version of the tool allows users to access the 2001-2009 Fatality Analysis Recording System accident data from the National Highway Traffic Safety Administration (\url{www.nhtsa.gov/FARS}) and the Public Use Micro Sample data from the 2000 United States Census (\url{www.census.gov/}).
 
 After selecting the database, the user can choose between taking a simple or stratified random subsample of data from the database. If the user chooses simple random sampling, then they must specify a sample size; whereas if the user chooses stratified random sampling the strata variable and number of observations per stratum need to be specified. Lastly the user sets the seed for the selection algorithm. Setting the seed may seem to contradict the intention to draw random subsets, however it was included after careful consideration. For classroom settings, it is often desirable for students to work with identical data sets for consistency of class discussion and grading. This can be accomplished by setting the same seed and the same sampling specifications. Obtaining a random sample from the databases is still possible with the additional -- but fairly trivial -- step of first randomly generating a starting seed. 
 
