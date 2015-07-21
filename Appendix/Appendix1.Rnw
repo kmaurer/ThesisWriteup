@@ -99,7 +99,9 @@ d. It is impossible to obtain the same margin of error with the two different co
 
 2.   Answer the following general multiple choice questions regarding hypothesis testing.  There is only one correct answer for each (circle the best option).  As a helpful note the term ``statistically significant'' means that you reject the null hypothesis.
 
-i. The makers of Mini-Oats cereal have an automated packaging machine that is set to fill boxes with 24 ounces of cereal. At various times in the packaging process, a random sample of 100 boxes is taken to see if the machine is filling the boxes with an average of 24 ounces of cereal. Which of the following is a statement of the null hypothesis being tested?\\
+i. The makers of Mini-Oats cereal have an automated packaging machine that is set to fill boxes with 24 ounces of cereal. At various times in the packaging process, a random sample of\\
+
+\noindent 100 boxes is taken to see if the machine is filling the boxes with an average of 24 ounces of cereal. Which of the following is a statement of the null hypothesis being tested?\\
 a. The machine is filling the boxes with the proper amount of cereal.\\
 b. The machine is not filling the boxes with the proper amount of cereal.\\
 c. The machine is not putting enough cereal in the boxes.\\
@@ -119,7 +121,8 @@ c. p-values are not related to statistical significance\\
 iv. A researcher compares men and women on 100 different variables using a difference in means t-test.  He sets the level of significance at 0.05 and then carries out 100 independent t-tests (one for each variable) on these data.  If, for each test, the null hypothesis is actually true, about how many ``statistically significant'' results will be produced?\\
 a. 0\\
 b. 5\\
-c. 10\\
+
+\noindent c. 10\\
 d. none of the above\\
 
 Problems (v) and (vi) refer to the following situation: Food inspectors inspect samples of food products to see if they are safe. This can be thought of as a hypothesis test where Null: the food is safe, and Alternative: the food is not safe. Identify each of the following statements as a Type I or a Type II error.\\
@@ -150,9 +153,9 @@ d. There is evidence of a small effect on memory by her experimental treatment.\
 
 x. It is reported that scores on a particular test of historical trivia given to high school students are approximately normally distributed with a mean of 85. Mrs. Rose believes that her 5 classes of high school seniors will score significantly better than the national average on this test. At the end of the semester, Mrs. Rose administers the historical trivia test to her students. The students score an average of 89 on this test. After conducting the appropriate statistical test, Mrs. Rose finds that the p-value is .0025. Which of the following is the best interpretation of the p-value?\\
 a. A p-value of .0025 provides strong evidence that Mrs. Rose's class outperformed high school students across the nation.\\
-b. A p-value of .0025 indicates that there is a very small chance that Mrs. Rose's class outperformed high school students across the nation.\\
 \newpage
-\noindent c. A p-value of .0025 provides evidence that Mrs. Rose is an exceptional teacher who was able to prepare her students well for this national test.\\
+\noindent b. A p-value of .0025 indicates that there is a very small chance that Mrs. Rose's class outperformed high school students across the nation.\\
+c. A p-value of .0025 provides evidence that Mrs. Rose is an exceptional teacher who was able to prepare her students well for this national test.\\
 d. None of the above.\\
 
 
@@ -322,7 +325,9 @@ Husband   & Medium  & 20 & 51  & 28  & 99  \\
   \hline
 \end{tabular}
 \end{table}
+
 \noindent\textbf{(a)} [2  points] What is the probability that a randomly selected married couple will have a short \Sexpr{mr1}?\\
+\newpage
 \noindent\textbf{(b)} [2  points] What is the probability that a randomly selected married couple will have a tall \Sexpr{mr2} \textit{and} a short \Sexpr{mr1}?\\
 \noindent\textbf{(c)} [2  points] What is the probability that a randomly selected married couple will have a tall \Sexpr{mr2} \textit{or} a short \Sexpr{mr1}?\\
 \noindent\textbf{(d)} [2  points] What is the probability that a randomly selected married couple will have a short \Sexpr{mr1} \textit{given} that we know the \Sexpr{mr2} is tall?\\
@@ -331,7 +336,7 @@ Husband   & Medium  & 20 & 51  & 28  & 99  \\
 %--------------------------------------------------------------------------
 
 \textbf{4. [8 points]} Suppose that we have a box containing \Sexpr{totmarb} marbles of equal size and shape so that each marble is equally likely to be selected from the box.  There are \Sexpr{colornum[1]} red, \Sexpr{colornum[2]} green, \Sexpr{colornum[3]} yellow marbles and  \Sexpr{colornum[4]} black marbles.  Suppose we assign points to each color marble: \Sexpr{colorpts[1]} points for a red, \Sexpr{colorpts[2]} point for a green, \Sexpr{colorpts[3]} points for a yellow and \Sexpr{colorpts[4]} points for a black. Let X be the discrete random variable that counts the number of points that a randomly selected marble is worth.\\
-\noindent\textbf{(a)} [2 points] Find the probability distribution of X? (fill out table and round all values to 2 decimal places)
+\noindent\textbf{(a)} [2 points] Find the probability distribution of X? (fill out table and round all values to 2 decimal places)\\
 \begin{table}[hbtp]\centering 
 \begin{tabular}{ c|c }
 x & P(x) \\
@@ -341,6 +346,7 @@ x & P(x) \\
    &  \\  
 \end{tabular}
 \end{table}
+
 \noindent\textbf{(b)} [4 points] What 2 properties must be true for the values in the P(x) column of the probability distribution in part 4(a)? Note that X is a discrete random variable.\\
 \noindent\textbf{(c)} [2 points] What is the mean of X? (If you were unable to complete part 4(a), describe how you would find the mean) \\
 
@@ -375,9 +381,9 @@ Gender  & mean & sd & min & Q1 & median & Q3 & max \\
 A student is gathering data on the driving experiences of other college students. One of the variables measured is the type of car the student drives. These data are coded using the following method: 1 = subcompact, 2 = compact, 3 = standard size, 4 = full size, 5 = premium, 6 = mini van, 7 = SUV, and 8 = truck.
 
 \noindent\textbf{(ii)} [2 points] What type of variable is this? \\
-\indent a. categorical \\
-\indent b. quantitative \\
-\indent c. continuous 
+\indent  a. categorical \\
+\indent  b. quantitative \\
+\indent  c. continuous 
 
 \noindent\textbf{(iii)} [2 points] The student plans to see if there is a relationship between the number of speeding tickets a student gets in a year and the type of vehicle he or she drives. Identify the response variable in this study. \\
 \indent a. college students \\
@@ -391,7 +397,10 @@ A student is gathering data on the driving experiences of other college students
 \indent c. Time Series Study \\
 \indent d. Survey 
 
-\noindent\textbf{(v)} [2 points] An instructor is going to model an experiment in his statistics class by comparing the effect of 4 different treatments on student responses. There are 40 students in the class. Which is the best way for the instructor to distribute the students to the 4 treatments for this experiment? \\ 
+\newpage
+
+\noindent\textbf{(v)} [2 points] An instructor is going to model an experiment in his statistics class by comparing the effect of 4 different treatments on student responses. There are 40 students in the class.
+is the best way for the instructor to distribute the students to the 4 treatments for this experiment? \\
 \indent a. Assign the first treatment to the first 10 students on the class list, the second treatment to the next 10 students, and so on. \\
 \indent b. Assign a unique number to each student, then use random numbers to assign 10 students to the first treatment, 10 students to the second treatment, and so on. \\
 \indent c. Assign the treatment as students walk into class, giving the first treatment to the first 10 students and the second treatment to the next 10 student, and so on. \\
@@ -442,7 +451,7 @@ qplot(tip/total_bill, data=tips, binwidth=.04, xlim=c(0,.8)) +
 \noindent\textbf{(b)} [2 points]  What is the best measure of spread to describe the distribution of tipping rates? Explain your answer. (Note: no calculations or estimated values are needed to answer this problem) \\
 
 %-----------------------------------------------------------------------
-
+\newpage
 \textbf{9. [4 points]} Below are histograms for two separate random samples of 30 quiz scores.  Which quiz will have the larger sample standard deviation for quiz scores? \textbf{Explain your choice briefly}. (Note: You do not, and should not, do any calculations to answer this question)
 \begin{figure}[H]
 \begin{center}
